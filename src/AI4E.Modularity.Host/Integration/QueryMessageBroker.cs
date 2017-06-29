@@ -1,0 +1,54 @@
+﻿using System;
+using System.Threading.Tasks;
+using AI4E.Async;
+
+namespace AI4E.Modularity.Integration
+{
+    public sealed class QueryMessageBroker :
+        IMessageHandler<RegisterQueryForwarding>,
+        IMessageHandler<UnregisterQueryForwarding>,
+        IMessageHandler<DispatchQuery, QueryDispatchResult>
+    {
+        private readonly IHostQueryDispatcher _queryDispatcher;
+
+        public QueryMessageBroker(IHostQueryDispatcher queryDispatcher)
+        {
+            if (queryDispatcher == null)
+                throw new ArgumentNullException(nameof(queryDispatcher));
+
+            _queryDispatcher = queryDispatcher;
+        }
+
+        public Task HandleAsync(RegisterQueryForwarding message)
+        {
+            if (message == null)
+                throw new ArgumentNullException(nameof(message));
+
+            Console.WriteLine($"Receiving 'RegisterQueryForwarding' for query type '{message.QueryType.FullName}' and result '{message.ResultType.FullName}'.");
+
+            return _queryDispatcher.RegisterForwardingAsync(message.QueryType, message.ResultType);
+        }
+
+        public Task HandleAsync(UnregisterQueryForwarding message)
+        {
+            if (message == null)
+                throw new ArgumentNullException(nameof(message));
+
+            Console.WriteLine($"Receiving 'UnregisterQueryForwarding' for query type '{message.QueryType.FullName}' and result '{message.ResultType.FullName}'.");
+
+            return _queryDispatcher.UnregisterForwardingAsync(message.QueryType, message.ResultType);
+        }
+
+        public async ICovariantAwaitable<QueryDispatchResult> HandleAsync(DispatchQuery message)
+        {
+            if (message == null)
+                throw new ArgumentNullException(nameof(message));
+
+            Console.WriteLine($"Receiving 'DispatchQuery' for query type '{message.QueryType.FullName}' and result '{message.ResultType.FullName}' with query '{message.Query}'.");
+
+            var answer = new QueryDispatchResult(await _queryDispatcher.DispatchAsync(message.QueryType, message.ResultType, message.Query));
+
+            return answer;
+        }
+    }
+}

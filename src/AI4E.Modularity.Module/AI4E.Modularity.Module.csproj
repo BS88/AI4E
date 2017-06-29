@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <RootNamespace>AI4E.Modularity</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\AI4E.Abstractions\AI4E.Abstractions.csproj" />
+    <ProjectReference Include="..\AI4E.Modularity.Abstractions\AI4E.Modularity.Abstractions.csproj" />
+    <ProjectReference Include="..\AI4E.Modularity.Module.Abstractions\AI4E.Modularity.Module.Abstractions.csproj" />
+    <ProjectReference Include="..\AI4E.Modularity\AI4E.Modularity.csproj" />
+    <ProjectReference Include="..\AI4E\AI4E.csproj" />
+  </ItemGroup>
+
+</Project>
