@@ -27,7 +27,7 @@ namespace AI4E.Modularity.Integration
 
             Console.WriteLine($"Received 'DispatchCommand' for command type '{message.CommandType.FullName}' with command '{message.Command}'.");
 
-            var answer = new CommandDispatchResult(await _remoteCommandDispatcher.RemoteDispatchAsync(message.CommandType, message.Command));
+            var answer = new CommandDispatchResult(await _remoteCommandDispatcher.LocalDispatchAsync(message.CommandType, message.Command));
 
             return answer;
         }

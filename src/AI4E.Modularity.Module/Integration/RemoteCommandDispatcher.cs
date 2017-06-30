@@ -83,15 +83,15 @@ namespace AI4E.Modularity.Integration
             return GetTypedDispatcher(commandType).DispatchAsync(command);
         }
 
-        public Task<ICommandResult> RemoteDispatchAsync<TCommand>(TCommand command)
+        public Task<ICommandResult> LocalDispatchAsync<TCommand>(TCommand command)
         {
             if (command == null)
                 throw new ArgumentNullException(nameof(command));
 
-            return GetTypedDispatcher<TCommand>().RemoteDispatchAsync(command);
+            return GetTypedDispatcher<TCommand>().LocalDispatchAsync(command);
         }
 
-        public Task<ICommandResult> RemoteDispatchAsync(Type commandType, object command)
+        public Task<ICommandResult> LocalDispatchAsync(Type commandType, object command)
         {
             if (commandType == null)
                 throw new ArgumentNullException(nameof(commandType));
@@ -99,7 +99,7 @@ namespace AI4E.Modularity.Integration
             if (command == null)
                 throw new ArgumentNullException(nameof(command));
 
-            return GetTypedDispatcher(commandType).RemoteDispatchAsync(command);
+            return GetTypedDispatcher(commandType).LocalDispatchAsync(command);
         }
 
         public void ActivateForwarding<TCommand>()
@@ -187,7 +187,7 @@ namespace AI4E.Modularity.Integration
             return DispatchAsync(typedCommand);
         }
 
-        public Task<ICommandResult> RemoteDispatchAsync(TCommand command)
+        public Task<ICommandResult> LocalDispatchAsync(TCommand command)
         {
             if (command == null)
                 throw new ArgumentNullException(nameof(command));
@@ -214,7 +214,7 @@ namespace AI4E.Modularity.Integration
             return Task.FromResult<ICommandResult>(CommandResult.DispatchFailure<TCommand>());
         }
 
-        public Task<ICommandResult> RemoteDispatchAsync(object command)
+        public Task<ICommandResult> LocalDispatchAsync(object command)
         {
             if (command == null)
                 throw new ArgumentNullException(nameof(command));
@@ -224,7 +224,7 @@ namespace AI4E.Modularity.Integration
                 throw new ArgumentException("The argument is not of the specified command type or a derived type.", nameof(command));
             }
 
-            return RemoteDispatchAsync(typedCommand);
+            return LocalDispatchAsync(typedCommand);
         }
 
         public void ActivateForwarding()
