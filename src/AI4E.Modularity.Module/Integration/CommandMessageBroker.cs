@@ -39,7 +39,7 @@ namespace AI4E.Modularity.Integration
 
             Console.WriteLine($"Received 'ActivateCommandForwarding' for command type '{message.CommandType.FullName}'.");
 
-            _remoteCommandDispatcher.ActivateForwarding(message.CommandType);
+            _remoteCommandDispatcher.NotifyForwardingActive(message.CommandType);
 
             return Task.CompletedTask;
         }
@@ -51,7 +51,7 @@ namespace AI4E.Modularity.Integration
 
             Console.WriteLine($"Received 'DeactivateCommandForwarding' for command type '{message.CommandType.FullName}'.");
 
-            _remoteCommandDispatcher.DeactiveForwarding(message.CommandType);
+            _remoteCommandDispatcher.NotifyForwardingInactive(message.CommandType);
 
             return Task.CompletedTask;
         }

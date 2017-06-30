@@ -10,24 +10,24 @@ namespace AI4E.Modularity.Integration
 
         Task<ICommandResult> LocalDispatchAsync<TCommand>(TCommand command);
 
-        void ActivateForwarding<TCommand>();
-        void DeactiveForwarding<TCommand>();
+        void NotifyForwardingActive<TCommand>();
+        void NotifyForwardingInactive<TCommand>();
     }
 
     public interface IRemoteCommandDispatcher<TCommand> : ICommandDispatcher<TCommand>
     {
         Task<ICommandResult> LocalDispatchAsync(TCommand command);
 
-        void ActivateForwarding();
-        void DeactiveForwarding();
+        void NotifyForwardingActive();
+        void NotifyForwardingInactive();
     }
 
     public interface INonGenericRemoteCommandDispatcher : INonGenericCommandDispatcher
     {
         Task<ICommandResult> LocalDispatchAsync(Type commandType, object command);
 
-        void ActivateForwarding(Type commandType);
-        void DeactiveForwarding(Type commandType);
+        void NotifyForwardingActive(Type commandType);
+        void NotifyForwardingInactive(Type commandType);
 
         new ITypedNonGenericRemoteCommandDispatcher GetTypedDispatcher(Type commandType);
     }
@@ -36,7 +36,7 @@ namespace AI4E.Modularity.Integration
     {
         Task<ICommandResult> LocalDispatchAsync(object command);
 
-        void ActivateForwarding();
-        void DeactiveForwarding();
+        void NotifyForwardingActive();
+        void NotifyForwardingInactive();
     }
 }

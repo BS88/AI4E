@@ -102,30 +102,30 @@ namespace AI4E.Modularity.Integration
             return GetTypedDispatcher(commandType).LocalDispatchAsync(command);
         }
 
-        public void ActivateForwarding<TCommand>()
+        public void NotifyForwardingActive<TCommand>()
         {
-            GetTypedDispatcher<TCommand>().ActivateForwarding();
+            GetTypedDispatcher<TCommand>().NotifyForwardingActive();
         }
 
-        public void DeactiveForwarding<TCommand>()
+        public void NotifyForwardingInactive<TCommand>()
         {
-            GetTypedDispatcher<TCommand>().DeactiveForwarding();
+            GetTypedDispatcher<TCommand>().NotifyForwardingInactive();
         }
 
-        void INonGenericRemoteCommandDispatcher.ActivateForwarding(Type commandType)
+        void INonGenericRemoteCommandDispatcher.NotifyForwardingActive(Type commandType)
         {
             if (commandType == null)
                 throw new ArgumentNullException(nameof(commandType));
 
-            GetTypedDispatcher(commandType).ActivateForwarding();
+            GetTypedDispatcher(commandType).NotifyForwardingActive();
         }
 
-        void INonGenericRemoteCommandDispatcher.DeactiveForwarding(Type commandType)
+        void INonGenericRemoteCommandDispatcher.NotifyForwardingInactive(Type commandType)
         {
             if (commandType == null)
                 throw new ArgumentNullException(nameof(commandType));
 
-            GetTypedDispatcher(commandType).DeactiveForwarding();
+            GetTypedDispatcher(commandType).NotifyForwardingInactive();
         }
     }
 
@@ -227,12 +227,12 @@ namespace AI4E.Modularity.Integration
             return LocalDispatchAsync(typedCommand);
         }
 
-        public void ActivateForwarding()
+        public void NotifyForwardingActive()
         {
             _isForwardingActive = true;
         }
 
-        public void DeactiveForwarding()
+        public void NotifyForwardingInactive()
         {
             _isForwardingActive = false;
         }
