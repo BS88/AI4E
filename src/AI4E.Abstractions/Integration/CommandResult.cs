@@ -36,165 +36,6 @@ using System.Collections.Immutable;
 
 namespace AI4E.Integration
 {
-    ///// <summary>
-    ///// Represents the result of a command dispatching operation.
-    ///// </summary>
-    //public struct CommandResult : IEquatable<CommandResult>
-    //{
-    //    private CommandResult(CommandState state, string message, ImmutableArray<ValidationResult> validationResults)
-    //    {
-    //        State = state;
-    //        Message = message;
-    //        ValidationResults = validationResults;
-    //    }
-
-    //    /// <summary>
-    //    /// Gets the command state.
-    //    /// </summary>
-    //    public CommandState State { get; }
-
-    //    /// <summary>
-    //    /// Gets a message describing the command result.
-    //    /// </summary>
-    //    public string Message { get; }
-
-    //    /// <summary>
-    //    /// Gets a collection of <see cref="ValidationResult"/>s describing validation failures or 
-    //    /// an empty collection if no validation failures are present.
-    //    /// </summary>
-    //    public ImmutableArray<ValidationResult> ValidationResults { get; }
-
-    //    /// <summary>
-    //    /// Defines a command result that represents success.
-    //    /// </summary>
-    //    public static CommandResult Success { get; }
-    //        = new CommandResult(CommandState.Success, nameof(Success), ImmutableArray<ValidationResult>.Empty);
-
-    //    /// <summary>
-    //    /// Defines a command result that represents a concurrency issue.
-    //    /// </summary>
-    //    public static CommandResult ConcurrencyIssue { get; }
-    //        = new CommandResult(CommandState.ConcurrencyIssue, nameof(ConcurrencyIssue), ImmutableArray<ValidationResult>.Empty);
-
-    //    /// <summary>
-    //    /// Defines an unknown command result.
-    //    /// </summary>
-    //    public static CommandResult Unknown { get; } = new CommandResult();
-
-    //    /// <summary>
-    //    /// Returns a command result that represents a failure with the specified failure message.
-    //    /// </summary>
-    //    /// <param name="message">A string describing the failure.</param>
-    //    /// <returns>A command result that represents the failure.</returns>
-    //    public static CommandResult Failure(string message)
-    //    {
-    //        return new CommandResult(CommandState.Failure, message, ImmutableArray<ValidationResult>.Empty);
-    //    }
-
-    //    /// <summary>
-    //    /// Returns a command result that represents a validation error with the specified validation results.
-    //    /// </summary>
-    //    /// <param name="validationResults">A collection of <see cref="ValidationResult"/> describing validation failures.</param>
-    //    /// <returns>A command result that represents the validation failures. </returns>
-    //    public static CommandResult ValidationError(IEnumerable<ValidationResult> validationResults)
-    //    {
-    //        return new CommandResult(CommandState.ValidationFailure, "Validation failed", ImmutableArray<ValidationResult>.Empty.AddRange(validationResults));
-    //    }
-
-    //    /// <summary>
-    //    /// Returns a boolen value indicating whether the specified object equals the current command result.
-    //    /// </summary>
-    //    /// <param name="obj">The object that shall be compared with the specified command result.</param>
-    //    /// <returns>True if <paramref name="obj"/> is a <see cref="CommandResult"/> and equals the current commmand result, false otherwise.</returns>
-    //    public override bool Equals(object obj)
-    //    {
-    //        return obj is CommandResult commandResult && commandResult.Equals(this);
-    //    }
-
-    //    /// <summary>
-    //    /// Returns a boolean value indicating whether the specified command result equals the current one.
-    //    /// </summary>
-    //    /// <param name="other">A <see cref="CommandResult"/> that shall be compared with the current one.</param>
-    //    /// <returns>True if <paramref name="other"/> equals the current command result, false otherwise.</returns>
-    //    public bool Equals(CommandResult other)
-    //    {
-    //        return State == other.State &&
-    //               Message == other.Message &&
-    //               ValidationResults.Equals(other.ValidationResults);
-    //    }
-
-    //    /// <summary>
-    //    /// Returns a hash code for the current command result.
-    //    /// </summary>
-    //    /// <returns>A hash code for the current command result.</returns>
-    //    public override int GetHashCode()
-    //    {
-    //        return State.GetHashCode() ^ Message.GetHashCode() ^ ValidationResults.GetHashCode();
-    //    }
-
-    //    /// <summary>
-    //    /// Returns a string representing the current command result.
-    //    /// </summary>
-    //    /// <returns>A string representing the current command result.</returns>
-    //    public override string ToString()
-    //    {
-    //        return Message;
-    //    }
-
-    //    /// <summary>
-    //    /// Returns a boolean value indicating whether two <see cref="CommandResult"/>s are equal.
-    //    /// </summary>
-    //    /// <param name="left">The first command result.</param>
-    //    /// <param name="right">The second command result.</param>
-    //    /// <returns>True if <paramref name="left"/> equals <paramref name="right"/>, false otherwise.</returns>
-    //    public static bool operator ==(CommandResult left, CommandResult right)
-    //    {
-    //        return left.Equals(right);
-    //    }
-
-    //    /// <summary>
-    //    /// Returns a boolean value indicating whether two <see cref="CommandResult"/>s are inequal.
-    //    /// </summary>
-    //    /// <param name="left">The first command result.</param>
-    //    /// <param name="right">The second command result.</param>
-    //    /// <returns>True if <paramref name="left"/> does not equal <paramref name="right"/>, false otherwise.</returns>
-    //    public static bool operator !=(CommandResult left, CommandResult right)
-    //    {
-    //        return !left.Equals(right);
-    //    }
-    //}
-
-    ///// <summary>
-    ///// Defines command state values.
-    ///// </summary>
-    //public enum CommandState
-    //{
-    //    /// <summary>
-    //    /// The command state is unknown.
-    //    /// </summary>
-    //    Unknown = 0,
-
-    //    /// <summary>
-    //    /// The command failed.
-    //    /// </summary>
-    //    Failure,
-
-    //    /// <summary>
-    //    /// A validation failure occured when handling the command.
-    //    /// </summary>
-    //    ValidationFailure,
-
-    //    /// <summary>
-    //    /// A concurrency issue occured when handling the command.
-    //    /// </summary>
-    //    ConcurrencyIssue,
-
-    //    /// <summary>
-    //    /// A command was handled successfully.
-    //    /// </summary>
-    //    Success
-    //}
-
     public interface ICommandResult
     {
         bool IsSuccess { get; }
@@ -255,5 +96,30 @@ namespace AI4E.Integration
     public class ConcurrencyIssueCommandResult : FailureCommandResult
     {
         public ConcurrencyIssueCommandResult() : base("A concurrency issue occured.") { }
+    }
+
+    public class EntityNotFoundCommandResult : FailureCommandResult
+    {
+        public EntityNotFoundCommandResult(Type entityType, Guid id) 
+            : base($"The entity '{(entityType ?? throw new ArgumentNullException(nameof(entityType))).FullName}' with the id '{id}' was not found.")
+        {
+            EntityType = entityType;
+            Id = id;
+        }
+
+        public Type EntityType { get; }
+
+        public Guid Id { get; }
+    }
+
+    public class CommandDispatchFailureCommandResult : FailureCommandResult
+    {
+        public CommandDispatchFailureCommandResult(Type commandType)
+            : base($"The command '{(commandType ?? throw new ArgumentNullException(nameof(commandType))).FullName }'cannot be dispatched.")
+        {
+            CommandType = commandType;
+        }
+
+        public Type CommandType { get; }
     }
 }

@@ -84,7 +84,6 @@ namespace AI4E.Integration
         /// The <see cref="IHandlerRegistration"/> cancels the handler registration if completed.
         /// </returns>
         /// <exception cref="ArgumentNullException">Thrown if <paramref name="queryHandlerFactory"/> is null.</exception>
-        /// <exception cref="UnauthorizedAccessException">Thrown if the access is unauthorized.</exception>
         public Task<IHandlerRegistration<IQueryHandler<TQuery, TResult>>> RegisterAsync<TQuery, TResult>(IHandlerFactory<IQueryHandler<TQuery, TResult>> queryHandlerFactory) // TODO: Correct xml-comments
         {
             if (queryHandlerFactory == null)

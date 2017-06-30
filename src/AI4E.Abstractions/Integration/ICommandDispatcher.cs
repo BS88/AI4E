@@ -75,7 +75,6 @@ namespace AI4E.Integration
         /// The <see cref="Task{TResult}.Result"/> contains a <see cref="CommandResult"/> indicating command handling state.
         /// </returns>
         /// <exception cref="ArgumentNullException">Thrown if <paramref name="command"/> is null.</exception>
-        /// <exception cref="CommandDispatchException">Thrown if the command cannot be dispatched.</exception>
         Task<ICommandResult> DispatchAsync<TCommand>(TCommand command);
     }
 
@@ -105,7 +104,6 @@ namespace AI4E.Integration
         /// The <see cref="Task{TResult}.Result"/> contains a <see cref="CommandResult"/> indicating command handling state.
         /// </returns>
         /// <exception cref="ArgumentNullException">Thrown if <paramref name="command"/> is null.</exception>
-        /// <exception cref="CommandDispatchException">Thrown if the command cannot be dispatched.</exception>
         Task<ICommandResult> DispatchAsync(TCommand command);
     }
 
@@ -169,69 +167,69 @@ namespace AI4E.Integration
         Type CommandType { get; }
     }
 
-    /// <summary>
-    /// Represents a type of exception that is thrown when a command cannot be dispatched.
-    /// </summary>
-    [Serializable]
-    public class CommandDispatchException : Exception
-    {
-        /// <summary>
-        /// Creates a new instance of the <see cref="CommandDispatchException"/> type with the specified type of command.
-        /// </summary>
-        /// <param name="commandType">The type of command.</param>
-        /// <exception cref="ArgumentNullException">Thrown if <paramref name="commandType"/> is null.</exception>
-        public CommandDispatchException(Type commandType) : base("The command cannot be dispatched.")
-        {
-            if (commandType == null)
-                throw new ArgumentNullException(nameof(commandType));
+    ///// <summary>
+    ///// Represents a type of exception that is thrown when a command cannot be dispatched.
+    ///// </summary>
+    //[Serializable]
+    //public class CommandDispatchException : Exception
+    //{
+    //    /// <summary>
+    //    /// Creates a new instance of the <see cref="CommandDispatchException"/> type with the specified type of command.
+    //    /// </summary>
+    //    /// <param name="commandType">The type of command.</param>
+    //    /// <exception cref="ArgumentNullException">Thrown if <paramref name="commandType"/> is null.</exception>
+    //    public CommandDispatchException(Type commandType) : base("The command cannot be dispatched.")
+    //    {
+    //        if (commandType == null)
+    //            throw new ArgumentNullException(nameof(commandType));
 
-            CommandType = commandType;
-        }
+    //        CommandType = commandType;
+    //    }
 
-        /// <summary>
-        /// Creates a new instance of the <see cref="CommandDispatchException"/> type with the specified type of command and error message.
-        /// </summary>
-        /// <param name="commandType">The type of command.</param>
-        /// <param name="message">A message describing the exception.</param>
-        /// <exception cref="ArgumentNullException">Thrown if <paramref name="commandType"/> is null.</exception>
-        public CommandDispatchException(Type commandType, string message) : base(message)
-        {
-            if (commandType == null)
-                throw new ArgumentNullException(nameof(commandType));
+    //    /// <summary>
+    //    /// Creates a new instance of the <see cref="CommandDispatchException"/> type with the specified type of command and error message.
+    //    /// </summary>
+    //    /// <param name="commandType">The type of command.</param>
+    //    /// <param name="message">A message describing the exception.</param>
+    //    /// <exception cref="ArgumentNullException">Thrown if <paramref name="commandType"/> is null.</exception>
+    //    public CommandDispatchException(Type commandType, string message) : base(message)
+    //    {
+    //        if (commandType == null)
+    //            throw new ArgumentNullException(nameof(commandType));
 
-            CommandType = commandType;
-        }
+    //        CommandType = commandType;
+    //    }
 
-        /// <summary>
-        /// Creates a new instance of the <see cref="CommandDispatchException"/> type with the specified type of command, error message and inner exception.
-        /// </summary>
-        /// <param name="commandType">The type of command.</param>
-        /// <param name="message">A message describing the exception.</param>
-        /// <param name="innerException">An exception that caused the command dispatch exception.</param>
-        /// <exception cref="ArgumentNullException">Thrown if <paramref name="commandType"/> is null.</exception>
-        public CommandDispatchException(Type commandType, string message, Exception innerException) : base(message, innerException)
-        {
-            if (commandType == null)
-                throw new ArgumentNullException(nameof(commandType));
+    //    /// <summary>
+    //    /// Creates a new instance of the <see cref="CommandDispatchException"/> type with the specified type of command, error message and inner exception.
+    //    /// </summary>
+    //    /// <param name="commandType">The type of command.</param>
+    //    /// <param name="message">A message describing the exception.</param>
+    //    /// <param name="innerException">An exception that caused the command dispatch exception.</param>
+    //    /// <exception cref="ArgumentNullException">Thrown if <paramref name="commandType"/> is null.</exception>
+    //    public CommandDispatchException(Type commandType, string message, Exception innerException) : base(message, innerException)
+    //    {
+    //        if (commandType == null)
+    //            throw new ArgumentNullException(nameof(commandType));
 
-            CommandType = commandType;
-        }
+    //        CommandType = commandType;
+    //    }
 
-        protected CommandDispatchException(SerializationInfo info, StreamingContext context) : base(info, context)
-        {
-            CommandType = (Type)info.GetValue(nameof(CommandType), typeof(Type));
-        }
+    //    protected CommandDispatchException(SerializationInfo info, StreamingContext context) : base(info, context)
+    //    {
+    //        CommandType = (Type)info.GetValue(nameof(CommandType), typeof(Type));
+    //    }
 
-        /// <summary>
-        /// Gets the type of command.
-        /// </summary>
-        public Type CommandType { get; }
+    //    /// <summary>
+    //    /// Gets the type of command.
+    //    /// </summary>
+    //    public Type CommandType { get; }
 
-        public override void GetObjectData(SerializationInfo info, StreamingContext context)
-        {
-            base.GetObjectData(info, context);
+    //    public override void GetObjectData(SerializationInfo info, StreamingContext context)
+    //    {
+    //        base.GetObjectData(info, context);
 
-            info.AddValue(nameof(CommandType), CommandType);
-        }
-    }
+    //        info.AddValue(nameof(CommandType), CommandType);
+    //    }
+    //}
 }

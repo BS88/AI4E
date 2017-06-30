@@ -196,11 +196,22 @@ namespace AI4E.Modularity.Integration
             {
                 using (var scope = _serviceProvider.CreateScope())
                 {
-                    return handler.GetHandler(scope.ServiceProvider).HandleAsync(command);
+                    try
+                    {
+                        return handler.GetHandler(scope.ServiceProvider).HandleAsync(command);
+                    }
+                    catch (ConsistencyException)
+                    {
+                        return Task.FromResult<ICommandResult>(CommandResult.ConcurrencyIssue());
+                    }
+                    catch (Exception exc)
+                    {
+                        return Task.FromResult<ICommandResult>(CommandResult.Failure(exc.ToString()));
+                    }
                 }
             }
 
-            throw new CommandDispatchException(typeof(TCommand));
+            return Task.FromResult<ICommandResult>(CommandResult.DispatchFailure<TCommand>());
         }
 
         public Task<ICommandResult> RemoteDispatchAsync(object command)

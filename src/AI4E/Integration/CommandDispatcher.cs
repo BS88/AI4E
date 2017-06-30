@@ -114,8 +114,6 @@ namespace AI4E.Integration
         /// The <see cref="Task{TResult}.Result"/> contains a <see cref="ICommandResult"/> indicating command handling state.
         /// </returns>
         /// <exception cref="ArgumentNullException">Thrown if <paramref name="command"/> is null.</exception>
-        /// <exception cref="UnauthorizedAccessException">Thrown if the access is unauthorized.</exception>
-        /// <exception cref="CommandDispatchException">Thrown if the command cannot be dispatched.</exception>
         public Task<ICommandResult> DispatchAsync<TCommand>(TCommand command)
         {
             if (command == null)
@@ -234,8 +232,6 @@ namespace AI4E.Integration
         /// The <see cref="Task{TResult}.Result"/> contains a <see cref="CommandResult"/> indicating command handling state.
         /// </returns>
         /// <exception cref="ArgumentNullException">Thrown if <paramref name="command"/> is null.</exception>
-        /// <exception cref="UnauthorizedAccessException">Thrown if the access is unauthorized.</exception>
-        /// <exception cref="CommandDispatchException">Thrown if the command cannot be dispatched.</exception>
         public Task<ICommandResult> DispatchAsync(TCommand command)
         {
             if (command == null)
@@ -248,11 +244,22 @@ namespace AI4E.Integration
             {
                 using (var scope = _serviceProvider.CreateScope())
                 {
-                    return handler.GetHandler(scope.ServiceProvider).HandleAsync(command);
+                    try
+                    {
+                        return handler.GetHandler(scope.ServiceProvider).HandleAsync(command);
+                    }
+                    catch (ConsistencyException)
+                    {
+                        return Task.FromResult<ICommandResult>(CommandResult.ConcurrencyIssue());
+                    }
+                    catch (Exception exc)
+                    {
+                        return Task.FromResult<ICommandResult>(CommandResult.Failure(exc.ToString()));
+                    }
                 }
             }
 
-            throw new CommandDispatchException(typeof(TCommand));
+            return Task.FromResult<ICommandResult>(CommandResult.DispatchFailure<TCommand>());
         }
 
         /// <summary>

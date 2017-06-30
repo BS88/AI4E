@@ -57,9 +57,14 @@ namespace AI4E.Integration
             return _concurrencyIssue;
         }
 
-        public static EntityNotFoundCommandResult EntityNotFound(string entityType, Guid id)
+        public static CommandDispatchFailureCommandResult DispatchFailure(Type commandType)
         {
-            return new EntityNotFoundCommandResult(entityType, id);
+            return new CommandDispatchFailureCommandResult(commandType);
+        }
+
+        public static CommandDispatchFailureCommandResult DispatchFailure<TCommand>()
+        {
+            return new CommandDispatchFailureCommandResult(typeof(TCommand));
         }
 
         public static EntityNotFoundCommandResult EntityNotFound(Type entityType, Guid id)
@@ -71,20 +76,5 @@ namespace AI4E.Integration
         {
             return new EntityNotFoundCommandResult(typeof(TEntity), id);
         }
-    }
-
-    public class EntityNotFoundCommandResult : FailureCommandResult
-    {
-        public EntityNotFoundCommandResult(string entityType, Guid id) : base($"The entity '{entityType}' with the id '{id}' was not found.")
-        {
-            EntityType = entityType;
-            Id = id;
-        }
-
-        public EntityNotFoundCommandResult(Type entityType, Guid id) : this(entityType.FullName, id) { }
-
-        public string EntityType { get; }
-
-        public Guid Id { get; }
     }
 }
