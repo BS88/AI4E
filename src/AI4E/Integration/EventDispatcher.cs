@@ -149,8 +149,14 @@ namespace AI4E.Integration
             if (evt == null)
                 throw new ArgumentNullException(nameof(evt));
 
-            if (!_authorizationVerifyer.AuthorizeEventNotification(evt))
+            if (!_authorizationVerifyer.AuthorizeEventNotification(evt)) // TODO: This is done twice. One time here and in the typed dispatcher.
                 throw new UnauthorizedAccessException();
+
+            // We cannot just call the typed dispatcher for TEvent here, like the other dispatchers do.
+            // The reason is the different semantic. An event can be dispatched to multiple receivers.
+            // A receiver can be registered for an event type that is lower in the inheritence hierarchy than TEvent.
+            // So we have to dispatch the event to all typed dispatchers that are available!! the whole type hierarchy
+            // till we reach System.Object.
 
             return NotifyAsync(typeof(TEvent), evt);
         }
