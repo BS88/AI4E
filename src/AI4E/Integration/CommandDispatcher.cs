@@ -6,7 +6,7 @@
  *                  (3) AI4E.Integration.CommandAuthorizationVerifyer
  * Version:         1.0
  * Author:          Andreas Trütschel
- * Last modified:   01.06.2017 
+ * Last modified:   01.07.2017 
  * Status:          Ready
  * --------------------------------------------------------------------------------------------------------------------
  */
@@ -35,6 +35,7 @@ using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Concurrent;
 using System.Threading.Tasks;
+using System.Diagnostics;
 
 namespace AI4E.Integration
 {
@@ -43,9 +44,12 @@ namespace AI4E.Integration
     /// </summary>
     public sealed class CommandDispatcher : ICommandDispatcher, ISecureCommandDispatcher, INonGenericCommandDispatcher
     {
-        private readonly ConcurrentDictionary<Type, object> _typedDispatcher = new ConcurrentDictionary<Type, object>();
+        private static readonly Type _typedDispatcherType = typeof(CommandDispatcher<>);
+
         private readonly IServiceProvider _serviceProvider;
         private readonly ICommandAuthorizationVerifyer _authorizationVerifyer;
+        private readonly ConcurrentDictionary<Type, ITypedNonGenericCommandDispatcher> _typedDispatchers
+            = new ConcurrentDictionary<Type, ITypedNonGenericCommandDispatcher>();
 
         /// <summary>
         /// Creates a new instance of the <see cref="CommandDispatcher"/> type.
@@ -60,7 +64,7 @@ namespace AI4E.Integration
         /// <param name="serviceProvider">A <see cref="IServiceProvider"/> used to obtain services.</param>
         /// <param name="authorizationVerifyer">An <see cref="ICommandAuthorizationVerifyer"/> that controls authorization or <see cref="CommandAuthorizationVerifyer.Default"/>.</param>
         /// <exception cref="ArgumentNullException">Thrown if either <paramref name="serviceProvider"/> or <paramref name="authorizationVerifyer"/> is null.</exception>
-        public CommandDispatcher(IServiceProvider serviceProvider, ICommandAuthorizationVerifyer authorizationVerifyer)
+        public CommandDispatcher(IServiceProvider serviceProvider, ICommandAuthorizationVerifyer authorizationVerifyer) // TODO: Reorder arguments
         {
             if (serviceProvider == null)
                 throw new ArgumentNullException(nameof(serviceProvider));
@@ -83,7 +87,7 @@ namespace AI4E.Integration
         /// </returns>
         /// <exception cref="ArgumentNullException">Thrown if <paramref name="commandHandlerFactory"/> is null.</exception>
         /// <exception cref="UnauthorizedAccessException">Thrown if the access is unauthorized.</exception>
-        public Task<IHandlerRegistration<ICommandHandler<TCommand>>> RegisterAsync<TCommand>(IHandlerFactory<ICommandHandler<TCommand>> commandHandlerFactory)// TODO: Correct xml-comments
+        public Task<IHandlerRegistration<ICommandHandler<TCommand>>> RegisterAsync<TCommand>(IHandlerFactory<ICommandHandler<TCommand>> commandHandlerFactory) // TODO: Correct xml-comments
         {
             if (commandHandlerFactory == null)
                 throw new ArgumentNullException(nameof(commandHandlerFactory));
@@ -101,7 +105,20 @@ namespace AI4E.Integration
         /// <returns>A typed command dispatcher for command of type <typeparamref name="TCommand"/>.</returns>
         public ICommandDispatcher<TCommand> GetTypedDispatcher<TCommand>()
         {
-            return _typedDispatcher.GetOrAdd(typeof(TCommand), t => new CommandDispatcher<TCommand>(_serviceProvider, _authorizationVerifyer)) as ICommandDispatcher<TCommand>;
+            return _typedDispatchers.GetOrAdd(typeof(TCommand), t => new CommandDispatcher<TCommand>(_serviceProvider, _authorizationVerifyer)) as ICommandDispatcher<TCommand>;
+        }
+
+        public ITypedNonGenericCommandDispatcher GetTypedDispatcher(Type commandType)
+        {
+            if (commandType == null)
+                throw new ArgumentNullException(nameof(commandType));
+
+            return _typedDispatchers.GetOrAdd(commandType, type =>
+            {
+                var result = Activator.CreateInstance(_typedDispatcherType.MakeGenericType(commandType), _serviceProvider, _authorizationVerifyer);
+                Debug.Assert(result != null);
+                return result as ITypedNonGenericCommandDispatcher;
+            });
         }
 
         /// <summary>
@@ -119,10 +136,18 @@ namespace AI4E.Integration
             if (command == null)
                 throw new ArgumentNullException(nameof(command));
 
-            if (!_authorizationVerifyer.AuthorizeCommandDispatch(command))
-                throw new UnauthorizedAccessException();
-
             return GetTypedDispatcher<TCommand>().DispatchAsync(command);
+        }
+
+        public Task<ICommandResult> DispatchAsync(Type commandType, object command)
+        {
+            if (commandType == null)
+                throw new ArgumentNullException(nameof(commandType));
+
+            if (command == null)
+                throw new ArgumentNullException(nameof(command));
+
+            return GetTypedDispatcher(commandType).DispatchAsync(command);
         }
 
         /// <summary>
@@ -154,23 +179,13 @@ namespace AI4E.Integration
 
             return _authorizationVerifyer.AuthorizeCommandDispatch(command);
         }
-
-        ITypedNonGenericCommandDispatcher INonGenericCommandDispatcher.GetTypedDispatcher(Type commandType)
-        {
-            throw new NotImplementedException();
-        }
-
-        Task<ICommandResult> INonGenericCommandDispatcher.DispatchAsync(Type commandType, object command)
-        {
-            throw new NotImplementedException();
-        }
     }
 
     /// <summary>
     /// Represents a typed command dispatcher that dispatches commands to command handlers.
     /// </summary>
     /// <typeparam name="TCommand">The type of command.</typeparam>
-    public sealed class CommandDispatcher<TCommand> : ICommandDispatcher<TCommand>, ISecureCommandDispatcher<TCommand> // TODO: Implement ITypedNonGenericCommandDispatchers
+    public sealed class CommandDispatcher<TCommand> : ICommandDispatcher<TCommand>, ISecureCommandDispatcher<TCommand>, ITypedNonGenericCommandDispatcher
     {
         private readonly AsyncSingleHandlerRegistry<ICommandHandler<TCommand>> _handlerRegistry
             = new AsyncSingleHandlerRegistry<ICommandHandler<TCommand>>();
@@ -190,7 +205,7 @@ namespace AI4E.Integration
         /// <param name="serviceProvider">A <see cref="IServiceProvider"/> used to obtain services.</param>
         /// <param name="authorizationVerifyer">An <see cref="ICommandAuthorizationVerifyer"/> that controls authorization or <see cref="CommandAuthorizationVerifyer.Default"/>.</param>
         /// <exception cref="ArgumentNullException">Thrown if either <paramref name="serviceProvider"/> or <paramref name="authorizationVerifyer"/> is null.</exception>
-        public CommandDispatcher(IServiceProvider serviceProvider, ICommandAuthorizationVerifyer authorizationVerifyer)
+        public CommandDispatcher(IServiceProvider serviceProvider, ICommandAuthorizationVerifyer authorizationVerifyer) // TODO: Reorder arguments
         {
             if (serviceProvider == null)
                 throw new ArgumentNullException(nameof(serviceProvider));
@@ -201,6 +216,8 @@ namespace AI4E.Integration
             _serviceProvider = serviceProvider;
             _authorizationVerifyer = authorizationVerifyer;
         }
+
+        Type ITypedNonGenericCommandDispatcher.CommandType => typeof(TCommand);
 
         /// <summary>
         /// Asynchronously registeres a command handler.
@@ -260,6 +277,19 @@ namespace AI4E.Integration
             }
 
             return Task.FromResult<ICommandResult>(CommandResult.DispatchFailure<TCommand>());
+        }
+
+        public Task<ICommandResult> DispatchAsync(object command)
+        {
+            if (command == null)
+                throw new ArgumentNullException(nameof(command));
+
+            if (!(command is TCommand typedCommand))
+            {
+                throw new ArgumentException("The argument is not of the specified command type or a derived type.", nameof(command));
+            }
+
+            return DispatchAsync(typedCommand);
         }
 
         /// <summary>
