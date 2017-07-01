@@ -35,7 +35,7 @@ namespace AI4E.Modularity.Integration
 
             Console.WriteLine($"Receiving 'ActivateEventForwarding' for event type '{message.EventType.FullName}'.");
 
-            _remoteEventDispatcher.ActivateForwarding(message.EventType);
+            _remoteEventDispatcher.NotifyForwardingActive(message.EventType);
 
             return Task.CompletedTask;
         }
@@ -47,7 +47,7 @@ namespace AI4E.Modularity.Integration
 
             Console.WriteLine($"Receiving 'DeactivateEventForwarding' for event type '{message.EventType.FullName}'.");
 
-            _remoteEventDispatcher.DeactivateForwarding(message.EventType);
+            _remoteEventDispatcher.NotifyForwardingInactive(message.EventType);
 
             return Task.CompletedTask;
         }

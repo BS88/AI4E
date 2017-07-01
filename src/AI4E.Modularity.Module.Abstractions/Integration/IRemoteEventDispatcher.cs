@@ -10,18 +10,16 @@ namespace AI4E.Modularity.Integration
 
         Task RemoteDispatchAsync<TEvent>(TEvent evt);
 
-        void ActivateForwarding<TEvent>();
-
-        void DeactivateForwarding<TEvent>();
+        void NotifyForwardingActive<TEvent>();
+        void NotifyForwardingInactive<TEvent>();
     }
 
     public interface IRemoteEventDispatcher<TEvent> : IEventDispatcher<TEvent>
     {
         Task RemoteDispatchAsync(TEvent evt);
 
-        void ActivateForwarding();
-
-        void DeactivateForwarding();
+        void NotifyForwardingActive();
+        void NotifyForwardingInactive();
 
         bool IsForwardingActive { get; }
     }
@@ -32,18 +30,16 @@ namespace AI4E.Modularity.Integration
 
         Task RemoteDispatchAsync(Type eventType, object evt);
 
-        void ActivateForwarding(Type eventType);
-
-        void DeactivateForwarding(Type eventType);
+        void NotifyForwardingActive(Type eventType);
+        void NotifyForwardingInactive(Type eventType);
     }
 
     public interface ITypedNonGenericRemoteEventDispatcher : ITypedNonGenericEventDispatcher
     {
         Task RemoteDispatchAsync(object evt);
 
-        void ActivateForwarding();
-
-        void DeactivateForwarding();
+        void NotifyForwardingActive();
+        void NotifyForwardingInactive();
 
         bool IsForwardingActive { get; }
     }

@@ -127,30 +127,30 @@ namespace AI4E.Modularity.Integration
             return GetTypedDispatcher(eventType).RemoteDispatchAsync(evt);
         }
 
-        public void ActivateForwarding<TEvent>()
+        public void NotifyForwardingActive<TEvent>()
         {
-            GetTypedDispatcher<TEvent>().ActivateForwarding();
+            GetTypedDispatcher<TEvent>().NotifyForwardingActive();
         }
 
-        public void DeactivateForwarding<TEvent>()
+        public void NotifyForwardingInactive<TEvent>()
         {
-            GetTypedDispatcher<TEvent>().DeactivateForwarding();
+            GetTypedDispatcher<TEvent>().NotifyForwardingInactive();
         }
 
-        void INonGenericRemoteEventDispatcher.ActivateForwarding(Type eventType)
+        void INonGenericRemoteEventDispatcher.NotifyForwardingActive(Type eventType)
         {
             if (eventType == null)
                 throw new ArgumentNullException(nameof(eventType));
 
-            GetTypedDispatcher(eventType).ActivateForwarding();
+            GetTypedDispatcher(eventType).NotifyForwardingActive();
         }
 
-        void INonGenericRemoteEventDispatcher.DeactivateForwarding(Type eventType)
+        void INonGenericRemoteEventDispatcher.NotifyForwardingInactive(Type eventType)
         {
             if (eventType == null)
                 throw new ArgumentNullException(nameof(eventType));
 
-            GetTypedDispatcher(eventType).DeactivateForwarding();
+            GetTypedDispatcher(eventType).NotifyForwardingInactive();
         }
     }
 
@@ -244,12 +244,12 @@ namespace AI4E.Modularity.Integration
             return RemoteDispatchAsync(typedEvent);
         }
 
-        public void ActivateForwarding()
+        public void NotifyForwardingActive()
         {
             _forwardingActive = true;
         }
 
-        public void DeactivateForwarding()
+        public void NotifyForwardingInactive()
         {
             _forwardingActive = false;
         }
