@@ -6,7 +6,7 @@
  *                  (3) AI4E.Integration.EventAuthorizationVerifyer
  * Version:         1.0
  * Author:          Andreas Trütschel
- * Last modified:   18.06.2017 
+ * Last modified:   01.07.2017 
  * Status:          Ready
  * --------------------------------------------------------------------------------------------------------------------
  */
@@ -161,6 +161,16 @@ namespace AI4E.Integration
             return NotifyAsync(typeof(TEvent), evt);
         }
 
+        /// <summary>
+        /// Asynchronously dispatches an event.
+        /// </summary>
+        /// <param name="eventType">The type of the event.</param>
+        /// <param name="evt">The event to dispatch.</param>
+        /// <returns>
+        /// A task representing the asynchronous operation.
+        /// </returns>
+        /// <exception cref="ArgumentNullException">Thrown if either <paramref name="eventType"/> or <paramref name="evt"/> is null.</exception>
+        /// <exception cref="ArgumentException">Thrown if <paramref name="evt"/> is not of the type <paramref name="eventType"/> or a derived type.</exception>
         public Task NotifyAsync(Type eventType, object evt)
         {
             if (eventType == null)
@@ -328,6 +338,15 @@ namespace AI4E.Integration
             return Task.CompletedTask;
         }
 
+        /// <summary>
+        /// Asynchronously dispatches an event.
+        /// </summary>
+        /// <param name="evt">The event to dispatch.</param>
+        /// <returns>
+        /// A task representing the asynchronous operation.
+        /// </returns>
+        /// <exception cref="ArgumentNullException">Thrown if <paramref name="evt"/> is null.</exception>
+        /// <exception cref="ArgumentException">Thrown if <paramref name="evt"/> is not of the type <see cref="EventType"/> or a derived type.</exception>
         public Task NotifyAsync(object evt)
         {
             if (evt == null)

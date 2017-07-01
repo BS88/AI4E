@@ -9,7 +9,7 @@
  *                  (6) AI4E.Integration.ITypedNonGenericEventDispatcher
  * Version:         1.0
  * Author:          Andreas Trütschel
- * Last modified:   01.06.2017 
+ * Last modified:   01.07.2017 
  * Status:          Ready
  * --------------------------------------------------------------------------------------------------------------------
  */
@@ -104,7 +104,7 @@ namespace AI4E.Integration
     }
 
     /// <summary>
-    /// A secured event dispatcher that controls access.
+    /// Represents a event dispatcher that controls access.
     /// </summary>
     public interface ISecureEventDispatcher : IEventDispatcher
     {
@@ -128,7 +128,7 @@ namespace AI4E.Integration
     }
 
     /// <summary>
-    /// A secured typed event dispatcher that controls access.
+    /// Represents a typed event dispatcher that controls access.
     /// </summary>
     public interface ISecureEventDispatcher<TEvent> : IEventDispatcher<TEvent>
     {
@@ -150,10 +150,18 @@ namespace AI4E.Integration
     }
 
     /// <summary>
-    /// Represents an event dispatcher that dispatches events to event handler.
+    /// Represents a non-generic event dispatcher that dispatches events to event handler.
     /// </summary>
     public interface INonGenericEventDispatcher
     {
+        /// <summary>
+        /// Returns a typed event dispatcher for the specified event type.
+        /// </summary>
+        /// <param name="eventType">The type of event.</param>
+        /// <returns>A typed event dispatcher for events of type <paramref name="eventType"/>.</returns>
+        /// <exception cref="ArgumentNullException">Thrown if <paramref name="eventType"/> is null.</exception>
+        ITypedNonGenericEventDispatcher GetTypedDispatcher(Type eventType);
+
         /// <summary>
         /// Asynchronously dispatches an event.
         /// </summary>
@@ -165,10 +173,11 @@ namespace AI4E.Integration
         /// <exception cref="ArgumentNullException">Thrown if either <paramref name="eventType"/> or <paramref name="evt"/> is null.</exception>
         /// <exception cref="ArgumentException">Thrown if <paramref name="evt"/> is not of the type <paramref name="eventType"/> or a derived type.</exception>
         Task NotifyAsync(Type eventType, object evt);
-
-        ITypedNonGenericEventDispatcher GetTypedDispatcher(Type eventType);
     }
 
+    /// <summary>
+    /// Represents a typed non-generic event dispatcher that dispatches events to event handler.
+    /// </summary>
     public interface ITypedNonGenericEventDispatcher
     {
         /// <summary>
