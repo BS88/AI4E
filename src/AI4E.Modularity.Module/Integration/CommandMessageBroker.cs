@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
 using AI4E.Async;
-using AI4E.Integration;
 
 namespace AI4E.Modularity.Integration
 {

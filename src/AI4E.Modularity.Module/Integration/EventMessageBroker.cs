@@ -25,7 +25,7 @@ namespace AI4E.Modularity.Integration
 
             Console.WriteLine($"Receiving 'DispatchEvent' for event type '{message.EventType.FullName}' with event '{message.Event}'.");
 
-            return _remoteEventDispatcher.RemoteDispatchAsync(message.EventType, message.Event);
+            return _remoteEventDispatcher.LocalDispatchAsync(message.EventType, message.Event);
         }
 
         public Task HandleAsync(ActivateEventForwarding message)

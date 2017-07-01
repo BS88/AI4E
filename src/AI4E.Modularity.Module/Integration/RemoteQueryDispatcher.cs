@@ -92,15 +92,15 @@ namespace AI4E.Modularity.Integration
             return GetTypedDispatcher(queryType, resultType).QueryAsync(query);
         }
 
-        public Task<TResult> RemoteDispatchAsync<TQuery, TResult>(TQuery query)
+        public Task<TResult> LocalDispatchAsync<TQuery, TResult>(TQuery query)
         {
             if (query == null)
                 throw new ArgumentNullException(nameof(query));
 
-            return GetTypedDispatcher<TQuery, TResult>().RemoteDispatchAsync(query);
+            return GetTypedDispatcher<TQuery, TResult>().LocalDispatchAsync(query);
         }
 
-        public Task<object> RemoteDispatchAsync(Type queryType, Type resultType, object query)
+        public Task<object> LocalDispatchAsync(Type queryType, Type resultType, object query)
         {
             if (queryType == null)
                 throw new ArgumentNullException(nameof(queryType));
@@ -111,7 +111,7 @@ namespace AI4E.Modularity.Integration
             if (query == null)
                 throw new ArgumentNullException(nameof(query));
 
-            return GetTypedDispatcher(queryType, resultType).RemoteDispatchAsync(query);
+            return GetTypedDispatcher(queryType, resultType).LocalDispatchAsync(query);
         }
 
         public void NotifyForwardingActive<TQuery, TResult>()
@@ -212,7 +212,7 @@ namespace AI4E.Modularity.Integration
             return await QueryAsync(typedQuery);
         }
 
-        public async Task<TResult> RemoteDispatchAsync(TQuery query)
+        public async Task<TResult> LocalDispatchAsync(TQuery query)
         {
             if (query == null)
                 throw new ArgumentNullException(nameof(query));
@@ -228,7 +228,7 @@ namespace AI4E.Modularity.Integration
             return default(TResult);
         }
 
-        public async Task<object> RemoteDispatchAsync(object query)
+        public async Task<object> LocalDispatchAsync(object query)
         {
             if (query == null)
                 throw new ArgumentNullException(nameof(query));
@@ -238,7 +238,7 @@ namespace AI4E.Modularity.Integration
                 throw new ArgumentException("The argument is not of the specified query type or a derived type.", nameof(query));
             }
 
-            return await RemoteDispatchAsync(typedQuery);
+            return await LocalDispatchAsync(typedQuery);
         }
 
         public void NotifyForwardingActive()

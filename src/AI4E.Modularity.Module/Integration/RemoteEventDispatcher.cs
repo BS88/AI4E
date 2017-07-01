@@ -111,12 +111,12 @@ namespace AI4E.Modularity.Integration
             return Task.CompletedTask;
         }
 
-        public Task RemoteDispatchAsync<TEvent>(TEvent evt)
+        public Task LocalDispatchAsync<TEvent>(TEvent evt)
         {
-            return GetTypedDispatcher<TEvent>().RemoteDispatchAsync(evt);
+            return GetTypedDispatcher<TEvent>().LocalDispatchAsync(evt);
         }
 
-        public Task RemoteDispatchAsync(Type eventType, object evt)
+        public Task LocalDispatchAsync(Type eventType, object evt)
         {
             if (eventType == null)
                 throw new ArgumentNullException(nameof(eventType));
@@ -124,7 +124,7 @@ namespace AI4E.Modularity.Integration
             if (evt == null)
                 throw new ArgumentNullException(nameof(evt));
 
-            return GetTypedDispatcher(eventType).RemoteDispatchAsync(evt);
+            return GetTypedDispatcher(eventType).LocalDispatchAsync(evt);
         }
 
         public void NotifyForwardingActive<TEvent>()
@@ -195,7 +195,7 @@ namespace AI4E.Modularity.Integration
 
             if (IsForwardingActive)
             {
-                return RemoteDispatchAsync(evt);
+                return LocalDispatchAsync(evt);
             }
 
             return _eventMessageTranslator.DispatchAsync(evt);
@@ -214,7 +214,7 @@ namespace AI4E.Modularity.Integration
             return NotifyAsync(typedEvent);
         }
 
-        public Task RemoteDispatchAsync(TEvent evt)
+        public Task LocalDispatchAsync(TEvent evt)
         {
             if (evt == null)
                 throw new ArgumentNullException(nameof(evt));
@@ -233,7 +233,7 @@ namespace AI4E.Modularity.Integration
             return Task.WhenAll(tasks);
         }
 
-        public Task RemoteDispatchAsync(object evt)
+        public Task LocalDispatchAsync(object evt)
         {
             if (evt == null)
                 throw new ArgumentNullException(nameof(evt));
@@ -243,7 +243,7 @@ namespace AI4E.Modularity.Integration
                 throw new ArgumentException("The argument is not of the specified event type or a derived type.", nameof(evt));
             }
 
-            return RemoteDispatchAsync(typedEvent);
+            return LocalDispatchAsync(typedEvent);
         }
 
         public void NotifyForwardingActive()

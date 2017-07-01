@@ -26,7 +26,7 @@ namespace AI4E.Modularity.Integration
 
             Console.WriteLine($"Received 'DispatchQuery' for query type '{message.QueryType.FullName}' and result '{message.ResultType.FullName}' with query '{message.Query}'.");
 
-            var answer = new QueryDispatchResult(await _remoteQueryDispatcher.RemoteDispatchAsync(message.QueryType, message.ResultType, message.Query));
+            var answer = new QueryDispatchResult(await _remoteQueryDispatcher.LocalDispatchAsync(message.QueryType, message.ResultType, message.Query));
 
             return answer;
         }

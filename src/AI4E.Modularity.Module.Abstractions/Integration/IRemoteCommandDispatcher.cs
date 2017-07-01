@@ -26,12 +26,12 @@ namespace AI4E.Modularity.Integration
 
     public interface INonGenericRemoteCommandDispatcher : INonGenericCommandDispatcher
     {
+        new ITypedNonGenericRemoteCommandDispatcher GetTypedDispatcher(Type commandType);
+
         Task<ICommandResult> LocalDispatchAsync(Type commandType, object command);
 
         void NotifyForwardingActive(Type commandType);
         void NotifyForwardingInactive(Type commandType);
-
-        new ITypedNonGenericRemoteCommandDispatcher GetTypedDispatcher(Type commandType);
     }
 
     public interface ITypedNonGenericRemoteCommandDispatcher : ITypedNonGenericCommandDispatcher
