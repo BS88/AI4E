@@ -33,6 +33,7 @@
 
 using System;
 using System.Collections.Concurrent;
+using System.Diagnostics;
 using System.Threading.Tasks;
 using AI4E.Async;
 using Microsoft.Extensions.DependencyInjection;
@@ -44,9 +45,12 @@ namespace AI4E.Integration
     /// </summary>
     public sealed class QueryDispatcher : IQueryDispatcher, ISecureQueryDispatcher, INonGenericQueryDispatcher
     {
-        private readonly ConcurrentDictionary<(Type, Type), object> _typedDispatcher = new ConcurrentDictionary<(Type, Type), object>();
+        private static readonly Type _typedDispatcherType = typeof(QueryDispatcher<,>);
+
         private readonly IServiceProvider _serviceProvider;
         private readonly IQueryAuthorizationVerifyer _authorizationVerifyer;
+        private readonly ConcurrentDictionary<(Type, Type), ITypedNonGenericQueryDispatcher> _typedDispatchers
+            = new ConcurrentDictionary<(Type, Type), ITypedNonGenericQueryDispatcher>();
 
         /// <summary>
         /// Creates a new instance of the <see cref="QueryDispatcher"/> type.
@@ -61,7 +65,7 @@ namespace AI4E.Integration
         /// <param name="serviceProvider">A <see cref="IServiceProvider"/> used to obtain services.</param>
         /// <param name="authorizationVerifyer">A <see cref="IQueryAuthorizationVerifyer"/> that controls authorization or <see cref="QueryAuthorizationVerifyer.Default"/>.</param>
         /// <exception cref="ArgumentNullException">Thrown if either <paramref name="serviceProvider"/> or <paramref name="authorizationVerifyer"/> is null.</exception>
-        public QueryDispatcher(IServiceProvider serviceProvider, IQueryAuthorizationVerifyer authorizationVerifyer)
+        public QueryDispatcher(IServiceProvider serviceProvider, IQueryAuthorizationVerifyer authorizationVerifyer) // TODO: Reorder arguments
         {
             if (serviceProvider == null)
                 throw new ArgumentNullException(nameof(serviceProvider));
@@ -106,9 +110,19 @@ namespace AI4E.Integration
         /// </returns>
         public IQueryDispatcher<TQuery, TResult> GetTypedDispatcher<TQuery, TResult>()
         {
-            return _typedDispatcher.GetOrAdd((typeof(TQuery), typeof(TResult)),
+            return _typedDispatchers.GetOrAdd((typeof(TQuery), typeof(TResult)),
                                              t => new QueryDispatcher<TQuery, TResult>(_serviceProvider, _authorizationVerifyer))
                                              as IQueryDispatcher<TQuery, TResult>;
+        }
+
+        public ITypedNonGenericQueryDispatcher GetTypedDispatcher(Type queryType, Type resultType)
+        {
+            return _typedDispatchers.GetOrAdd((queryType, resultType), type =>
+            {
+                var result = Activator.CreateInstance(_typedDispatcherType.MakeGenericType(queryType, resultType), _serviceProvider, _authorizationVerifyer);
+                Debug.Assert(result != null);
+                return result as ITypedNonGenericQueryDispatcher;
+            });
         }
 
         /// <summary>
@@ -133,6 +147,20 @@ namespace AI4E.Integration
                 throw new UnauthorizedAccessException();
 
             return GetTypedDispatcher<TQuery, TResult>().QueryAsync(query);
+        }
+
+        public Task<object> QueryAsync(Type queryType, Type resultType, object query)
+        {
+            if (queryType == null)
+                throw new ArgumentNullException(nameof(queryType));
+
+            if (resultType == null)
+                throw new ArgumentNullException(nameof(resultType));
+
+            if (query == null)
+                throw new ArgumentNullException(nameof(query));
+
+            return GetTypedDispatcher(queryType, resultType).QueryAsync(query);
         }
 
         /// <summary>
@@ -166,16 +194,6 @@ namespace AI4E.Integration
 
             return _authorizationVerifyer.AuthorizeQuery<TQuery, TResult>(query);
         }
-
-        Task<object> INonGenericQueryDispatcher.QueryAsync(Type queryType, Type resultType, object query)
-        {
-            throw new NotImplementedException();
-        }
-
-        ITypedNonGenericQueryDispatcher INonGenericQueryDispatcher.GetTypedDispatcher(Type queryType, Type resultType)
-        {
-            throw new NotImplementedException();
-        }
     }
 
     /// <summary>
@@ -183,7 +201,7 @@ namespace AI4E.Integration
     /// </summary>
     /// <typeparam name="TQuery">The type of query.</typeparam>
     /// <typeparam name="TResult">The type of result.</typeparam>
-    public sealed class QueryDispatcher<TQuery, TResult> : IQueryDispatcher<TQuery, TResult>, ISecureQueryDispatcher<TQuery, TResult> // TODO: Implement ITypedNonGenericQueryDispatcher
+    public sealed class QueryDispatcher<TQuery, TResult> : IQueryDispatcher<TQuery, TResult>, ISecureQueryDispatcher<TQuery, TResult>, ITypedNonGenericQueryDispatcher
     {
         private readonly IAsyncSingleHandlerRegistry<IQueryHandler<TQuery, TResult>> _handlerRegistry
             = new AsyncSingleHandlerRegistry<IQueryHandler<TQuery, TResult>>();
@@ -214,6 +232,10 @@ namespace AI4E.Integration
             _serviceProvider = serviceProvider;
             _authorizationVerifyer = authorizationVerifyer;
         }
+
+        Type ITypedNonGenericQueryDispatcher.QueryType => typeof(TQuery);
+
+        Type ITypedNonGenericQueryDispatcher.ResultType => typeof(TResult);
 
         /// <summary>
         /// Asynchronously registers a query handler.
@@ -264,6 +286,19 @@ namespace AI4E.Integration
             }
 
             return CovariantAwaitable.FromResult(default(TResult));
+        }
+
+        public async Task<object> QueryAsync(object query)
+        {
+            if (query == null)
+                throw new ArgumentNullException(nameof(query));
+
+            if (!(query is TQuery typedQuery))
+            {
+                throw new ArgumentException("The argument is not of the specified query type or a derived type.", nameof(query));
+            }
+
+            return await QueryAsync(typedQuery);
         }
 
         /// <summary>
