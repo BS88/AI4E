@@ -38,7 +38,7 @@ namespace AI4E.Modularity.Integration
 
             Console.WriteLine($"Received 'ActivateQueryForwarding' for query type '{message.QueryType.FullName}' and result '{message.ResultType.FullName}'.");
 
-            _remoteQueryDispatcher.ActivateForwarding(message.QueryType, message.ResultType);
+            _remoteQueryDispatcher.NotifyForwardingActive(message.QueryType, message.ResultType);
 
             return Task.CompletedTask;
         }
@@ -50,7 +50,7 @@ namespace AI4E.Modularity.Integration
 
             Console.WriteLine($"Received 'DeactivateQueryForwarding' for query type '{message.QueryType.FullName}' and result '{message.ResultType.FullName}'.");
 
-            _remoteQueryDispatcher.DeactivateForwarding(message.QueryType, message.ResultType);
+            _remoteQueryDispatcher.NotifyForwardingInactive(message.QueryType, message.ResultType);
 
             return Task.CompletedTask;
         }

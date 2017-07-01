@@ -10,16 +10,16 @@ namespace AI4E.Modularity.Integration
 
         Task<TResult> RemoteDispatchAsync<TQuery, TResult>(TQuery query);
 
-        void ActivateForwarding<TQuery, TResult>();
-        void DeactivateForwarding<TQuery, TResult>();
+        void NotifyForwardingActive<TQuery, TResult>();
+        void NotifyForwardingInactive<TQuery, TResult>();
     }
 
     public interface IRemoteQueryDispatcher<TQuery, TResult> : IQueryDispatcher<TQuery, TResult>
     {
         Task<TResult> RemoteDispatchAsync(TQuery query);
 
-        void ActivateForwarding();
-        void DeactivateForwarding();
+        void NotifyForwardingActive();
+        void NotifyForwardingInactive();
     }
 
     public interface INonGenericRemoteQueryDispatcher : INonGenericQueryDispatcher
@@ -28,15 +28,15 @@ namespace AI4E.Modularity.Integration
 
         Task<object> RemoteDispatchAsync(Type queryType, Type resultType, object query);
 
-        void ActivateForwarding(Type queryType, Type resultType);
-        void DeactivateForwarding(Type queryType, Type resultType);
+        void NotifyForwardingActive(Type queryType, Type resultType);
+        void NotifyForwardingInactive(Type queryType, Type resultType);
     }
 
     public interface ITypedNonGenericRemoteQueryDispatcher : ITypedNonGenericQueryDispatcher
     {
         Task<object> RemoteDispatchAsync(object query);
 
-        void ActivateForwarding();
-        void DeactivateForwarding();
+        void NotifyForwardingActive();
+        void NotifyForwardingInactive();
     }
 }

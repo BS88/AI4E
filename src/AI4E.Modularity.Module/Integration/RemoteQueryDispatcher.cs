@@ -114,17 +114,17 @@ namespace AI4E.Modularity.Integration
             return GetTypedDispatcher(queryType, resultType).RemoteDispatchAsync(query);
         }
 
-        public void ActivateForwarding<TQuery, TResult>()
+        public void NotifyForwardingActive<TQuery, TResult>()
         {
-            GetTypedDispatcher<TQuery, TResult>().ActivateForwarding();
+            GetTypedDispatcher<TQuery, TResult>().NotifyForwardingActive();
         }
 
-        public void DeactivateForwarding<TQuery, TResult>()
+        public void NotifyForwardingInactive<TQuery, TResult>()
         {
-            GetTypedDispatcher<TQuery, TResult>().DeactivateForwarding();
+            GetTypedDispatcher<TQuery, TResult>().NotifyForwardingInactive();
         }
 
-        void INonGenericRemoteQueryDispatcher.ActivateForwarding(Type queryType, Type resultType)
+        void INonGenericRemoteQueryDispatcher.NotifyForwardingActive(Type queryType, Type resultType)
         {
             if (queryType == null)
                 throw new ArgumentNullException(nameof(queryType));
@@ -132,10 +132,10 @@ namespace AI4E.Modularity.Integration
             if (resultType == null)
                 throw new ArgumentNullException(nameof(resultType));
 
-            GetTypedDispatcher(queryType, resultType).ActivateForwarding();
+            GetTypedDispatcher(queryType, resultType).NotifyForwardingActive();
         }
 
-        void INonGenericRemoteQueryDispatcher.DeactivateForwarding(Type queryType, Type resultType)
+        void INonGenericRemoteQueryDispatcher.NotifyForwardingInactive(Type queryType, Type resultType)
         {
             if (queryType == null)
                 throw new ArgumentNullException(nameof(queryType));
@@ -143,7 +143,7 @@ namespace AI4E.Modularity.Integration
             if (resultType == null)
                 throw new ArgumentNullException(nameof(resultType));
 
-            GetTypedDispatcher(queryType, resultType).DeactivateForwarding();
+            GetTypedDispatcher(queryType, resultType).NotifyForwardingInactive();
         }
     }
 
@@ -235,12 +235,12 @@ namespace AI4E.Modularity.Integration
             return await RemoteDispatchAsync(typedQuery);
         }
 
-        public void ActivateForwarding()
+        public void NotifyForwardingActive()
         {
             _isForwardingActive = true;
         }
 
-        public void DeactivateForwarding()
+        public void NotifyForwardingInactive()
         {
             _isForwardingActive = false;
         }
