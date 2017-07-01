@@ -6,7 +6,7 @@
  *                  (3) AI4E.Integration.QueryAuthorizationVerifyer
  * Version:         1.0
  * Author:          Andreas Trütschel
- * Last modified:   01.06.2017 
+ * Last modified:   01.07.2017 
  * Status:          Ready
  * --------------------------------------------------------------------------------------------------------------------
  */
