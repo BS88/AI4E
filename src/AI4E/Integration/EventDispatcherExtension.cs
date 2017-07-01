@@ -5,7 +5,7 @@
  *                  AI4E.Integration.EventDispatcherExtension.AnonymousEventHandler'1
  * Version:         1.0
  * Author:          Andreas Trütschel
- * Last modified:   11.05.2017 
+ * Last modified:   01.07.2017 
  * Status:          Ready
  * --------------------------------------------------------------------------------------------------------------------
  */
@@ -63,6 +63,34 @@ namespace AI4E.Integration
             return eventDispatcher.RegisterAsync(new AnonymousEventHandler<TEvent>(handler));
         }
 
+        public static Task<IHandlerRegistration<IEventHandler<TEvent>>> RegisterAsync<TEvent, TEventHandler>(this IEventDispatcher eventDispatcher)
+            where TEventHandler : IEventHandler<TEvent>
+        {
+            if (eventDispatcher == null)
+                throw new ArgumentNullException(nameof(eventDispatcher));
+
+            return eventDispatcher.RegisterAsync((IHandlerFactory<IEventHandler<TEvent>>)(IHandlerFactory<TEventHandler>)new DefaultHandlerFactory<TEventHandler>());
+        }
+
+        public static Task<IHandlerRegistration<IEventHandler<TEvent>>> RegisterAsync<TEvent>(this IEventDispatcher eventDispatcher, IEventHandler<TEvent> singletonHandler)
+        {
+            if (eventDispatcher == null)
+                throw new ArgumentNullException(nameof(eventDispatcher));
+
+            return eventDispatcher.RegisterAsync(new DefaultHandlerFactory<IEventHandler<TEvent>>(singletonHandler));
+        }
+
+        public static Task NotifyAsync(this INonGenericEventDispatcher eventDispatcher, object evt)
+        {
+            if (eventDispatcher == null)
+                throw new ArgumentNullException(nameof(eventDispatcher));
+
+            if (evt == null)
+                throw new ArgumentNullException(nameof(evt));
+
+            return eventDispatcher.NotifyAsync(evt.GetType(), evt);
+        }
+
         private class AnonymousEventHandler<TEvent> : IEventHandler<TEvent>, IHandlerFactory<IEventHandler<TEvent>>
         {
             private readonly Func<TEvent, Task> _handler;
@@ -86,23 +114,6 @@ namespace AI4E.Integration
             {
                 return this;
             }
-        }
-
-        public static Task<IHandlerRegistration<IEventHandler<TEvent>>> RegisterAsync<TEvent, TEventHandler>(this IEventDispatcher eventDispatcher)
-            where TEventHandler : IEventHandler<TEvent>
-        {
-            if (eventDispatcher == null)
-                throw new ArgumentNullException(nameof(eventDispatcher));
-
-            return eventDispatcher.RegisterAsync((IHandlerFactory<IEventHandler<TEvent>>)(IHandlerFactory<TEventHandler>)new DefaultHandlerFactory<TEventHandler>());
-        }
-
-        public static Task<IHandlerRegistration<IEventHandler<TEvent>>> RegisterAsync<TEvent>(this IEventDispatcher eventDispatcher, IEventHandler<TEvent> singletonHandler)
-        {
-            if (eventDispatcher == null)
-                throw new ArgumentNullException(nameof(eventDispatcher));
-
-            return eventDispatcher.RegisterAsync(new DefaultHandlerFactory<IEventHandler<TEvent>>(singletonHandler));
         }
     }
 }
