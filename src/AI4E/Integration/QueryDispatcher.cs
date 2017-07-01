@@ -115,6 +115,16 @@ namespace AI4E.Integration
                                              as IQueryDispatcher<TQuery, TResult>;
         }
 
+        /// <summary>
+        /// Returns a typed non-generic query dispatcher for the specified query and result types.
+        /// </summary>
+        /// <param name="queryType">The type of query.</param>
+        /// <param name="resultType">The type of result.</param>
+        /// <returns>
+        /// A typed non-generic query dispatcher for queries of type <paramref name="queryType"/>
+        /// and results of type <paramref name="resultType"/>.
+        /// </returns>
+        /// <exception cref="ArgumentNullException">Thrown if either <paramref name="queryType"/> or <paramref name="resultType"/> is null.</exception>
         public ITypedNonGenericQueryDispatcher GetTypedDispatcher(Type queryType, Type resultType)
         {
             return _typedDispatchers.GetOrAdd((queryType, resultType), type =>
@@ -149,6 +159,18 @@ namespace AI4E.Integration
             return GetTypedDispatcher<TQuery, TResult>().QueryAsync(query);
         }
 
+        /// <summary>
+        /// Asynchronously dispatches a query.
+        /// </summary>
+        /// <param name="queryType">The type of query.</param>
+        /// <param name="resultType">The type of result.</param>
+        /// <param name="query">The query to dispatch.</param>
+        /// <returns>
+        /// A task representing the asynchronous operation.
+        /// The <see cref="Taske{Object}.Result"/> contains the query result or null if nothing was found.
+        /// </returns>
+        /// <exception cref="ArgumentNullException">Thrown if any of <paramref name="queryType"/>, <paramref name="resultType"/> or <paramref name="query"/> is null.</exception>
+        /// <exception cref="ArgumentException">Throw is <paramref name="query"/> is not of type <paramref name="queryType"/> or a derived type.</exception>
         public Task<object> QueryAsync(Type queryType, Type resultType, object query)
         {
             if (queryType == null)
@@ -290,6 +312,15 @@ namespace AI4E.Integration
             return CovariantAwaitable.FromResult(default(TResult));
         }
 
+        /// <summary>
+        /// Asynchronously dispatches a query. 
+        /// </summary>
+        /// <param name="query">The query to dispatch.</param>
+        /// <returns>
+        /// A task representing the asynchronous operation.
+        /// The <see cref="Task{Object}.Result"/> contains the query result or null if nothing was found.
+        /// </returns>
+        /// <exception cref="ArgumentNullException">Thrown if <paramref name="query"/> is null.</exception>
         public async Task<object> QueryAsync(object query)
         {
             if (query == null)

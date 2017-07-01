@@ -9,7 +9,7 @@
  *                  (6) AI4E.Integration.ITypedNonGenericQueryDispatcher
  * Version:         1.0
  * Author:          Andreas Trütschel
- * Last modified:   18.06.2017 
+ * Last modified:   01.07.2017 
  * Status:          Ready
  * --------------------------------------------------------------------------------------------------------------------
  */
@@ -55,7 +55,7 @@ namespace AI4E.Integration
         /// A <see cref="IHandlerRegistration"/> representing the asynchronous operation.
         /// The <see cref="IHandlerRegistration"/> cancels the handler registration if completed.
         /// </returns>
-        /// <exception cref="System.ArgumentNullException">Thrown if <paramref name="queryHandlerFactory"/> is null.</exception>
+        /// <exception cref="ArgumentNullException">Thrown if <paramref name="queryHandlerFactory"/> is null.</exception>
         Task<IHandlerRegistration<IQueryHandler<TQuery, TResult>>> RegisterAsync<TQuery, TResult>(IHandlerFactory<IQueryHandler<TQuery, TResult>> queryHandlerFactory); // TODO: Correct xml-comments
 
         /// <summary>
@@ -80,7 +80,7 @@ namespace AI4E.Integration
         /// The <see cref="ICovariantAwaitable{TResult}.Result"/> contains the query result 
         /// or the default value of <typeparamref name="TResult"/> if nothing was found.
         /// </returns>
-        /// <exception cref="System.ArgumentNullException">Thrown if <paramref name="query"/> is null.</exception>
+        /// <exception cref="ArgumentNullException">Thrown if <paramref name="query"/> is null.</exception>
         ICovariantAwaitable<TResult> QueryAsync<TQuery, TResult>(TQuery query);
     }
 
@@ -99,7 +99,7 @@ namespace AI4E.Integration
         /// A <see cref="IHandlerRegistration"/> representing the asynchronous operation.
         /// The <see cref="IHandlerRegistration"/> cancels the handler registration if completed.
         /// </returns>
-        /// <exception cref="System.ArgumentNullException">Thrown if <paramref name="queryHandlerFactory"/> is null.</exception>
+        /// <exception cref="ArgumentNullException">Thrown if <paramref name="queryHandlerFactory"/> is null.</exception>
         Task<IHandlerRegistration<IQueryHandler<TQuery, TResult>>> RegisterAsync(IHandlerFactory<IQueryHandler<TQuery, TResult>> queryHandlerFactory); // TODO: Correct xml-comments
 
         /// <summary>
@@ -111,12 +111,12 @@ namespace AI4E.Integration
         /// The <see cref="ICovariantAwaitable{TResult}.Result"/> contains the query result 
         /// or the default value of <typeparamref name="TResult"/> if nothing was found.
         /// </returns>
-        /// <exception cref="System.ArgumentNullException">Thrown if <paramref name="query"/> is null.</exception>
+        /// <exception cref="ArgumentNullException">Thrown if <paramref name="query"/> is null.</exception>
         ICovariantAwaitable<TResult> QueryAsync(TQuery query);
     }
 
     /// <summary>
-    /// A secured query dispatcher that controls access.
+    /// Represents a query dispatcher that controls access.
     /// </summary>
     public interface ISecureQueryDispatcher : IQueryDispatcher
     {
@@ -127,7 +127,7 @@ namespace AI4E.Integration
         /// <typeparam name="TResult">The type of result.</typeparam>
         /// <param name="queryHandlerFactory">The query handler that shall be registered.</param>
         /// <returns>True if registering <paramref name="queryHandlerFactory"/> is authorized, false otherwise.</returns>
-        /// <exception cref="System.ArgumentNullException">Thrown if <paramref name="queryHandlerFactory"/> is null.</exception>
+        /// <exception cref="ArgumentNullException">Thrown if <paramref name="queryHandlerFactory"/> is null.</exception>
         bool IsRegistrationAuthorized<TQuery, TResult>(IHandlerFactory<IQueryHandler<TQuery, TResult>> queryHandlerFactory);
 
         /// <summary>
@@ -137,12 +137,12 @@ namespace AI4E.Integration
         /// <typeparam name="TResult">The type of result.</typeparam>
         /// <param name="query">The query that shall be dispatched.</param>
         /// <returns>True if dispatching <paramref name="query"/> is authorized, false otherwise.</returns>
-        /// <exception cref="System.ArgumentNullException">Thrown if <paramref name="query"/> is null.</exception>
+        /// <exception cref="ArgumentNullException">Thrown if <paramref name="query"/> is null.</exception>
         bool IsDispatchAuthorized<TQuery, TResult>(TQuery query);
     }
 
     /// <summary>
-    /// A secured query dispatcher that controls access.
+    /// Represents a query dispatcher that controls access.
     /// </summary>
     /// <typeparam name="TQuery">The type of query.</typeparam>
     /// <typeparam name="TResult">The type of result.</typeparam>
@@ -153,7 +153,7 @@ namespace AI4E.Integration
         /// </summary>
         /// <param name="queryHandlerFactory">The query handler that shall be registered.</param>
         /// <returns>True if registering <paramref name="queryHandlerFactory"/> is authorized, false otherwise.</returns>
-        /// <exception cref="System.ArgumentNullException">Thrown if <paramref name="queryHandlerFactory"/> is null.</exception>
+        /// <exception cref="ArgumentNullException">Thrown if <paramref name="queryHandlerFactory"/> is null.</exception>
         bool IsRegistrationAuthorized(IHandlerFactory<IQueryHandler<TQuery, TResult>> queryHandlerFactory);
 
         /// <summary>
@@ -161,23 +161,66 @@ namespace AI4E.Integration
         /// </summary>
         /// <param name="query">The query that shall be dispatched.</param>
         /// <returns>True if dispatching <paramref name="query"/> is authorized, false otherwise.</returns>
-        /// <exception cref="System.ArgumentNullException">Thrown if <paramref name="query"/> is null.</exception>
+        /// <exception cref="ArgumentNullException">Thrown if <paramref name="query"/> is null.</exception>
         bool IsDispatchAuthorized(TQuery query);
     }
 
+    /// <summary>
+    /// Represents a non-generic query dispatcher that dispatches queries to query handlers.
+    /// </summary>
     public interface INonGenericQueryDispatcher
     {
-        Task<object> QueryAsync(Type queryType, Type resultType, object query);
-
+        /// <summary>
+        /// Returns a typed non-generic query dispatcher for the specified query and result types.
+        /// </summary>
+        /// <param name="queryType">The type of query.</param>
+        /// <param name="resultType">The type of result.</param>
+        /// <returns>
+        /// A typed non-generic query dispatcher for queries of type <paramref name="queryType"/>
+        /// and results of type <paramref name="resultType"/>.
+        /// </returns>
+        /// <exception cref="ArgumentNullException">Thrown if either <paramref name="queryType"/> or <paramref name="resultType"/> is null.</exception>
         ITypedNonGenericQueryDispatcher GetTypedDispatcher(Type queryType, Type resultType);
+
+        /// <summary>
+        /// Asynchronously dispatches a query.
+        /// </summary>
+        /// <param name="queryType">The type of query.</param>
+        /// <param name="resultType">The type of result.</param>
+        /// <param name="query">The query to dispatch.</param>
+        /// <returns>
+        /// A task representing the asynchronous operation.
+        /// The <see cref="Taske{Object}.Result"/> contains the query result or null if nothing was found.
+        /// </returns>
+        /// <exception cref="ArgumentNullException">Thrown if any of <paramref name="queryType"/>, <paramref name="resultType"/> or <paramref name="query"/> is null.</exception>
+        /// <exception cref="ArgumentException">Throw is <paramref name="query"/> is not of type <paramref name="queryType"/> or a derived type.</exception>
+        Task<object> QueryAsync(Type queryType, Type resultType, object query);
     }
 
+    /// <summary>
+    /// Represents a typed non-generic query dispatcher that dispatches queries to query handler.
+    /// </summary>
     public interface ITypedNonGenericQueryDispatcher
     {
+        /// <summary>
+        /// Asynchronously dispatches a query. 
+        /// </summary>
+        /// <param name="query">The query to dispatch.</param>
+        /// <returns>
+        /// A task representing the asynchronous operation.
+        /// The <see cref="Task{Object}.Result"/> contains the query result or null if nothing was found.
+        /// </returns>
+        /// <exception cref="ArgumentNullException">Thrown if <paramref name="query"/> is null.</exception>
         Task<object> QueryAsync(object query);
 
+        /// <summary>
+        /// Gets the type of query.
+        /// </summary>
         Type QueryType { get; }
 
+        /// <summary>
+        /// Gets the type of result.
+        /// </summary>
         Type ResultType { get; }
     }
 }
