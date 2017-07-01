@@ -150,6 +150,10 @@ namespace AI4E.Modularity.Integration
             _handlerRegistry = new AsyncSingleHandlerRegistry<ICommandHandler<TCommand>>(new DispatchForwarding(this));
         }
 
+        Type ITypedNonGenericCommandDispatcher.CommandType => typeof(TCommand);
+
+        public bool IsForwardingActive => _isForwardingActive;
+
         public Task<IHandlerRegistration<ICommandHandler<TCommand>>> RegisterAsync(IHandlerFactory<ICommandHandler<TCommand>> commandHandlerFactory)
         {
             if (commandHandlerFactory == null)
@@ -237,8 +241,6 @@ namespace AI4E.Modularity.Integration
             _isForwardingActive = false;
         }
 
-        Type ITypedNonGenericCommandDispatcher.CommandType => typeof(TCommand);
-
         private sealed class DispatchForwarding : IDispatchForwarding
         {
             private readonly RemoteCommandDispatcher<TCommand> _commandDispatcher;
@@ -265,5 +267,7 @@ namespace AI4E.Modularity.Integration
                 return _commandDispatcher._commandMessageTranslator.UnregisterForwardingAsync<TCommand>();
             }
         }
+
+
     }
 }

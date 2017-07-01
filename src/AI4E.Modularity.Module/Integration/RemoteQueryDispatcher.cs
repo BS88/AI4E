@@ -169,6 +169,12 @@ namespace AI4E.Modularity.Integration
             _handlerRegistry = new AsyncSingleHandlerRegistry<IQueryHandler<TQuery, TResult>>(new DispatchForwarding(this));
         }
 
+        Type ITypedNonGenericQueryDispatcher.QueryType => typeof(TQuery);
+
+        Type ITypedNonGenericQueryDispatcher.ResultType => typeof(TResult);
+
+        public bool IsForwardingActive => _isForwardingActive;
+
         public Task<IHandlerRegistration<IQueryHandler<TQuery, TResult>>> RegisterAsync(IHandlerFactory<IQueryHandler<TQuery, TResult>> queryHandlerFactory)
         {
             if (queryHandlerFactory == null)
@@ -244,10 +250,6 @@ namespace AI4E.Modularity.Integration
         {
             _isForwardingActive = false;
         }
-
-        Type ITypedNonGenericQueryDispatcher.QueryType => typeof(TQuery);
-
-        Type ITypedNonGenericQueryDispatcher.ResultType => typeof(TResult);
 
         private sealed class DispatchForwarding : IDispatchForwarding
         {

@@ -20,6 +20,8 @@ namespace AI4E.Modularity.Integration
 
         void NotifyForwardingActive();
         void NotifyForwardingInactive();
+
+        bool IsForwardingActive { get; }
     }
 
     public interface INonGenericRemoteQueryDispatcher : INonGenericQueryDispatcher
@@ -38,5 +40,7 @@ namespace AI4E.Modularity.Integration
 
         void NotifyForwardingActive();
         void NotifyForwardingInactive();
+
+        bool IsForwardingActive { get; }
     }
 }

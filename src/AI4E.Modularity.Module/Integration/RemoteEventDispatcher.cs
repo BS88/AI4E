@@ -178,6 +178,8 @@ namespace AI4E.Modularity.Integration
 
         public bool IsForwardingActive => _forwardingActive;
 
+        Type ITypedNonGenericEventDispatcher.EventType => typeof(TEvent);
+
         public Task<IHandlerRegistration<IEventHandler<TEvent>>> RegisterAsync(IHandlerFactory<IEventHandler<TEvent>> eventHandlerFactory)
         {
             if (eventHandlerFactory == null)
@@ -253,8 +255,6 @@ namespace AI4E.Modularity.Integration
         {
             _forwardingActive = false;
         }
-
-        Type ITypedNonGenericEventDispatcher.EventType => typeof(TEvent);
 
         private sealed class DispatchForwarding : IDispatchForwarding
         {
