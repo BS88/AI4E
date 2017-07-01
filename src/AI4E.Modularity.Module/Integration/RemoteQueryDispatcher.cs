@@ -32,6 +32,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Diagnostics;
+using System.Threading;
 using System.Threading.Tasks;
 using AI4E.Async;
 using AI4E.Integration;
@@ -136,12 +137,12 @@ namespace AI4E.Modularity.Integration
         /// <typeparam name="TResult">The type of result.</typeparam>
         /// <param name="query">The query to dispatch.</param>
         /// <returns>
-        /// A covariant awaitable representing the asynchronous operation.
-        /// The <see cref="ICovariantAwaitable{TResult}.Result"/> contains the query result 
+        /// A task representing the asynchronous operation.
+        /// The <see cref="Task{TResult}.Result"/> contains the query result 
         /// or the default value of <typeparamref name="TResult"/> if nothing was found.
         /// </returns>
         /// <exception cref="ArgumentNullException">Thrown if <paramref name="query"/> is null.</exception>
-        public ICovariantAwaitable<TResult> QueryAsync<TQuery, TResult>(TQuery query)
+        public Task<TResult> QueryAsync<TQuery, TResult>(TQuery query)
         {
             if (query == null)
                 throw new ArgumentNullException(nameof(query));
@@ -266,6 +267,8 @@ namespace AI4E.Modularity.Integration
     /// <typeparam name="TResult">The type of result.</typeparam>
     public sealed class RemoteQueryDispatcher<TQuery, TResult> : IRemoteQueryDispatcher<TQuery, TResult>, ITypedNonGenericRemoteQueryDispatcher
     {
+        private static volatile Task<TResult> _defaultResult;
+
         private readonly IQueryMessageTranslator _queryMessageTranslator;
         private readonly IServiceProvider _serviceProvider;
         private readonly IAsyncSingleHandlerRegistry<IQueryHandler<TQuery, TResult>> _handlerRegistry;
@@ -313,12 +316,12 @@ namespace AI4E.Modularity.Integration
         /// </summary>
         /// <param name="query">The query to dispatch.</param>
         /// <returns>
-        /// A covariant awaitable representing the asynchronous operation.
-        /// The <see cref="ICovariantAwaitable{TResult}.Result"/> contains the query result 
+        /// A task representing the asynchronous operation.
+        /// The <see cref="Task{TResult}.Result"/> contains the query result 
         /// or the default value of <typeparamref name="TResult"/> if nothing was found.
         /// </returns>
         /// <exception cref="ArgumentNullException">Thrown if <paramref name="query"/> is null.</exception>
-        public ICovariantAwaitable<TResult> QueryAsync(TQuery query)
+        public Task<TResult> QueryAsync(TQuery query)
         {
             if (query == null)
                 throw new ArgumentNullException(nameof(query));
@@ -331,7 +334,7 @@ namespace AI4E.Modularity.Integration
                 }
             }
 
-            return CovariantAwaitable.FromTask(_queryMessageTranslator.DispatchAsync<TQuery, TResult>(query));
+            return _queryMessageTranslator.DispatchAsync<TQuery, TResult>(query);
         }
 
         /// <summary>
@@ -366,7 +369,7 @@ namespace AI4E.Modularity.Integration
         /// or the default value of <typeparamref name="TResult"/> if the query could not be dispatched.
         /// </returns>
         /// <exception cref="ArgumentNullException">Thrown if <paramref name="query"/> is null.</exception>
-        public async Task<TResult> LocalDispatchAsync(TQuery query)
+        public Task<TResult> LocalDispatchAsync(TQuery query)
         {
             if (query == null)
                 throw new ArgumentNullException(nameof(query));
@@ -375,11 +378,26 @@ namespace AI4E.Modularity.Integration
             {
                 using (var scope = _serviceProvider.CreateScope())
                 {
-                    return await handler.GetHandler(scope.ServiceProvider).HandleAsync(query); // TODO: Use Task in QueryDispatcher.QueryAsync and IQueryHandler.HandleAsync
+                    return handler.GetHandler(scope.ServiceProvider).HandleAsync(query); // TODO: Use Task in QueryDispatcher.QueryAsync and IQueryHandler.HandleAsync
                 }
             }
 
-            return default(TResult);
+            return GetTaskOfDefaultResult();
+        }
+
+        private static Task<TResult> GetTaskOfDefaultResult()
+        {
+            var defaultResult = _defaultResult;
+
+            if (defaultResult == null)
+            {
+                defaultResult = Task.FromResult(default(TResult));
+
+                // We may override a value that was set concurrently but this is ok.
+                _defaultResult = defaultResult; 
+            }
+
+            return defaultResult;
         }
 
         /// <summary>

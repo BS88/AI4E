@@ -142,13 +142,13 @@ namespace AI4E.Integration
         /// <typeparam name="TResult">The type of result.</typeparam>
         /// <param name="query">The query to dispatch.</param>
         /// <returns>
-        /// A covariant awaitable representing the asynchronous operation.
-        /// The <see cref="ICovariantAwaitable{TResult}.Result"/> contains the query result 
+        /// A task representing the asynchronous operation.
+        /// The <see cref="Task{TResult}.Result"/> contains the query result 
         /// or the default value of <typeparamref name="TResult"/> if nothing was found.
         /// </returns>
         /// <exception cref="ArgumentNullException">Thrown if <paramref name="query"/> is null.</exception>
         /// <exception cref="UnauthorizedAccessException">Thrown if the access is unauthorized.</exception>
-        public ICovariantAwaitable<TResult> QueryAsync<TQuery, TResult>(TQuery query)
+        public Task<TResult> QueryAsync<TQuery, TResult>(TQuery query)
         {
             if (query == null)
                 throw new ArgumentNullException(nameof(query));
@@ -287,13 +287,13 @@ namespace AI4E.Integration
         /// </summary>
         /// <param name="query">The query to dispatch.</param>
         /// <returns>
-        /// A covariant awaitable representing the asynchronous operation.
-        /// The <see cref="ICovariantAwaitable{TResult}.Result"/> contains the query result 
+        /// A task representing the asynchronous operation.
+        /// The <see cref="Task{TResult}.Result"/> contains the query result 
         /// or the default value of <typeparamref name="TResult"/> if nothing was found.
         /// </returns>
         /// <exception cref="ArgumentNullException">Thrown if <paramref name="query"/> is null.</exception>
         /// <exception cref="UnauthorizedAccessException">Thrown if the access is unauthorized.</exception>
-        public ICovariantAwaitable<TResult> QueryAsync(TQuery query)
+        public Task<TResult> QueryAsync(TQuery query)
         {
             if (query == null)
                 throw new ArgumentNullException(nameof(query));
@@ -309,7 +309,7 @@ namespace AI4E.Integration
                 }
             }
 
-            return CovariantAwaitable.FromResult(default(TResult));
+            return Task.FromResult(default(TResult));
         }
 
         /// <summary>

@@ -36,7 +36,6 @@
 
 using System;
 using System.Threading.Tasks;
-using AI4E.Async;
 
 namespace AI4E.Integration
 {
@@ -76,12 +75,12 @@ namespace AI4E.Integration
         /// <typeparam name="TResult">The type of result.</typeparam>
         /// <param name="query">The query to dispatch.</param>
         /// <returns>
-        /// A covariant awaitable representing the asynchronous operation.
-        /// The <see cref="ICovariantAwaitable{TResult}.Result"/> contains the query result 
+        /// A task representing the asynchronous operation.
+        /// The <see cref="Task{TResult}.Result"/> contains the query result 
         /// or the default value of <typeparamref name="TResult"/> if nothing was found.
         /// </returns>
         /// <exception cref="ArgumentNullException">Thrown if <paramref name="query"/> is null.</exception>
-        ICovariantAwaitable<TResult> QueryAsync<TQuery, TResult>(TQuery query);
+        Task<TResult> QueryAsync<TQuery, TResult>(TQuery query);
     }
 
     /// <summary>
@@ -107,12 +106,12 @@ namespace AI4E.Integration
         /// </summary>
         /// <param name="query">The query to dispatch.</param>
         /// <returns>
-        /// A covariant awaitable representing the asynchronous operation.
-        /// The <see cref="ICovariantAwaitable{TResult}.Result"/> contains the query result 
+        /// A task representing the asynchronous operation.
+        /// The <see cref="Task{TResult}.Result"/> contains the query result 
         /// or the default value of <typeparamref name="TResult"/> if nothing was found.
         /// </returns>
         /// <exception cref="ArgumentNullException">Thrown if <paramref name="query"/> is null.</exception>
-        ICovariantAwaitable<TResult> QueryAsync(TQuery query);
+        Task<TResult> QueryAsync(TQuery query);
     }
 
     /// <summary>

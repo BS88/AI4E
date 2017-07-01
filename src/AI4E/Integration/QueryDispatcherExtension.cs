@@ -49,14 +49,14 @@ namespace AI4E.Integration
         /// <param name="queryDispatcher">The query dispatcher.</param>
         /// <param name="query">The query to dispatch.</param>
         /// <returns>
-        /// A covariant awaitable representing the asynchronous operation.
-        /// The <see cref="ICovariantAwaitable{TResult}.Result"/> contains the query result 
+        /// A task representing the asynchronous operation.
+        /// The <see cref="Task{TResult}.Result"/> contains the query result 
         /// or the default value of <typeparamref name="TResult"/> if nothing was found.
         /// </returns>
         /// <exception cref="ArgumentNullException">
         /// Thrown if either <paramref name="queryDispatcher"/> or <paramref name="query"/> is null.
         /// </exception>
-        public static ICovariantAwaitable<TResult> QueryAsync<TResult>(this IQueryDispatcher queryDispatcher, Query<TResult> query)
+        public static Task<TResult> QueryAsync<TResult>(this IQueryDispatcher queryDispatcher, Query<TResult> query)
         {
             if (queryDispatcher == null)
                 throw new ArgumentNullException(nameof(queryDispatcher));
@@ -70,14 +70,14 @@ namespace AI4E.Integration
         /// <typeparam name="TResult">The type of result.</typeparam>
         /// <param name="queryDispatcher">The query dispatcher.</param>
         /// <returns>
-        /// A covariant awaitable representing the asynchronous operation.
-        /// The <see cref="ICovariantAwaitable{TResult}.Result"/> contains the query result 
+        /// A task representing the asynchronous operation.
+        /// The <see cref="Task{TResult}.Result"/> contains the query result 
         /// or the default value of <typeparamref name="TResult"/> if nothing was found.
         /// </returns>
         /// <exception cref="ArgumentNullException">
         /// Thrown if <paramref name="queryDispatcher"/> is null.
         /// </exception>
-        public static ICovariantAwaitable<TResult> QueryAsync<TResult>(this IQueryDispatcher queryDispatcher)
+        public static Task<TResult> QueryAsync<TResult>(this IQueryDispatcher queryDispatcher)
         {
             if (queryDispatcher == null)
                 throw new ArgumentNullException(nameof(queryDispatcher));
@@ -93,14 +93,14 @@ namespace AI4E.Integration
         /// <param name="queryDispatcher">The query dispatcher.</param>
         /// <param name="query">The query to dispatch.</param>
         /// <returns>
-        /// A covariant awaitable representing the asynchronous operation.
-        /// The <see cref="ICovariantAwaitable{TResult}.Result"/> contains the query result 
+        /// A task representing the asynchronous operation.
+        /// The <see cref="Task{TResult}.Result"/> contains the query result 
         /// or the default value of <typeparamref name="TResult"/> if nothing was found.
         /// </returns>
         /// <exception cref="ArgumentNullException">
         /// Thrown if either <paramref name="queryDispatcher"/> or <paramref name="query"/> is null.
         /// </exception>
-        public static ICovariantAwaitable<TResult> QueryAsync<TId, TResult>(this IQueryDispatcher queryDispatcher, ByIdQuery<TId, TResult> query)
+        public static Task<TResult> QueryAsync<TId, TResult>(this IQueryDispatcher queryDispatcher, ByIdQuery<TId, TResult> query)
             where TId : struct, IEquatable<TId>
         {
             if (queryDispatcher == null)
@@ -117,14 +117,14 @@ namespace AI4E.Integration
         /// <param name="queryDispatcher">The query dispatcher.</param>
         /// <param name="id">The id that identifies the result.</param>
         /// <returns>
-        /// A covariant awaitable representing the asynchronous operation.
-        /// The <see cref="ICovariantAwaitable{TResult}.Result"/> contains the query result 
+        /// A task representing the asynchronous operation.
+        /// The <see cref="Task{TResult}.Result"/> contains the query result 
         /// or the default value of <typeparamref name="TResult"/> if nothing was found.
         /// </returns>
         /// <exception cref="ArgumentNullException">
         /// Thrown if <paramref name="queryDispatcher"/> is null.
         /// </exception>
-        public static ICovariantAwaitable<TResult> ByIdAsync<TId, TResult>(this IQueryDispatcher queryDispatcher, TId id)
+        public static Task<TResult> ByIdAsync<TId, TResult>(this IQueryDispatcher queryDispatcher, TId id)
                     where TId : struct, IEquatable<TId>
         {
             if (queryDispatcher == null)
@@ -140,14 +140,14 @@ namespace AI4E.Integration
         /// <param name="queryDispatcher">The query dispatcher.</param>
         /// <param name="query">The query to dispatch.</param>
         /// <returns>
-        /// A covariant awaitable representing the asynchronous operation.
-        /// The <see cref="ICovariantAwaitable{TResult}.Result"/> contains the query result 
+        /// A task representing the asynchronous operation.
+        /// The <see cref="Task{TResult}.Result"/> contains the query result 
         /// or the default value of <typeparamref name="TResult"/> if nothing was found.
         /// </returns>
         /// <exception cref="ArgumentNullException">
         /// Thrown if either <paramref name="queryDispatcher"/> or <paramref name="query"/> is null.
         /// </exception>
-        public static ICovariantAwaitable<TResult> QueryAsync<TResult>(this IQueryDispatcher queryDispatcher, ByIdQuery<TResult> query)
+        public static Task<TResult> QueryAsync<TResult>(this IQueryDispatcher queryDispatcher, ByIdQuery<TResult> query)
         {
             if (queryDispatcher == null)
                 throw new ArgumentNullException(nameof(queryDispatcher));
@@ -162,14 +162,14 @@ namespace AI4E.Integration
         /// <param name="queryDispatcher">The query dispatcher.</param>
         /// <param name="id">The id that identifies the result.</param>
         /// <returns>
-        /// A covariant awaitable representing the asynchronous operation.
-        /// The <see cref="ICovariantAwaitable{TResult}.Result"/> contains the query result 
+        /// A task representing the asynchronous operation.
+        /// The <see cref="Task{TResult}.Result"/> contains the query result 
         /// or the default value of <typeparamref name="TResult"/> if nothing was found.
         /// </returns>
         /// <exception cref="ArgumentNullException">
         /// Thrown if <paramref name="queryDispatcher"/> is null.
         /// </exception>
-        public static ICovariantAwaitable<TResult> ByIdAsync<TResult>(this IQueryDispatcher queryDispatcher, Guid id)
+        public static Task<TResult> ByIdAsync<TResult>(this IQueryDispatcher queryDispatcher, Guid id)
         {
             if (queryDispatcher == null)
                 throw new ArgumentNullException(nameof(queryDispatcher));
@@ -186,14 +186,14 @@ namespace AI4E.Integration
         /// <param name="queryDispatcher">The query dispatcher.</param>
         /// <param name="query">The query to dispatch.</param>
         /// <returns>
-        /// A covariant awaitable representing the asynchronous operation.
-        /// The <see cref="ICovariantAwaitable{TResult}.Result"/> contains the query result 
+        /// A task representing the asynchronous operation.
+        /// The <see cref="Task{TResult}.Result"/> contains the query result 
         /// or the default value of <typeparamref name="TResult"/> if nothing was found.
         /// </returns>
         /// <exception cref="ArgumentNullException">
         /// Thrown if either <paramref name="queryDispatcher"/> or <paramref name="query"/> is null.
         /// </exception>
-        public static ICovariantAwaitable<TResult> QueryAsync<TId, TParent, TResult>(this IQueryDispatcher queryDispatcher, ByParentQuery<TId, TParent, TResult> query)
+        public static Task<TResult> QueryAsync<TId, TParent, TResult>(this IQueryDispatcher queryDispatcher, ByParentQuery<TId, TParent, TResult> query)
             where TId : struct, IEquatable<TId>
         {
             if (queryDispatcher == null)
@@ -211,14 +211,14 @@ namespace AI4E.Integration
         /// <param name="queryDispatcher">The query dispatcher.</param>
         /// <param name="parentId">The id that identifies the results parent.</param>
         /// <returns>
-        /// A covariant awaitable representing the asynchronous operation.
-        /// The <see cref="ICovariantAwaitable{TResult}.Result"/> contains the query result 
+        /// A task representing the asynchronous operation.
+        /// The <see cref="Task{TResult}.Result"/> contains the query result 
         /// or the default value of <typeparamref name="TResult"/> if nothing was found.
         /// </returns>
         /// <exception cref="ArgumentNullException">
         /// Thrown if <paramref name="queryDispatcher"/> is null.
         /// </exception>
-        public static ICovariantAwaitable<TResult> ByParent<TId, TParent, TResult>(this IQueryDispatcher queryDispatcher, TId parentId)
+        public static Task<TResult> ByParent<TId, TParent, TResult>(this IQueryDispatcher queryDispatcher, TId parentId)
                     where TId : struct, IEquatable<TId>
         {
             if (queryDispatcher == null)
@@ -235,14 +235,14 @@ namespace AI4E.Integration
         /// <param name="queryDispatcher">The query dispatcher.</param>
         /// <param name="query">The query to dispatch.</param>
         /// <returns>
-        /// A covariant awaitable representing the asynchronous operation.
-        /// The <see cref="ICovariantAwaitable{TResult}.Result"/> contains the query result 
+        /// A task representing the asynchronous operation.
+        /// The <see cref="Task{TResult}.Result"/> contains the query result 
         /// or the default value of <typeparamref name="TResult"/> if nothing was found.
         /// </returns>
         /// <exception cref="ArgumentNullException">
         /// Thrown if either <paramref name="queryDispatcher"/> or <paramref name="query"/> is null.
         /// </exception>
-        public static ICovariantAwaitable<TResult> QueryAsync<TParent, TResult>(this IQueryDispatcher queryDispatcher, ByParentQuery<TParent, TResult> query)
+        public static Task<TResult> QueryAsync<TParent, TResult>(this IQueryDispatcher queryDispatcher, ByParentQuery<TParent, TResult> query)
         {
             if (queryDispatcher == null)
                 throw new ArgumentNullException(nameof(queryDispatcher));
@@ -258,14 +258,14 @@ namespace AI4E.Integration
         /// <param name="queryDispatcher">The query dispatcher.</param>
         /// <param name="parentId">The id that identifies the results parent.</param>
         /// <returns>
-        /// A covariant awaitable representing the asynchronous operation.
+        /// A task representing the asynchronous operation.
         /// The <see cref="ICovariantAwaitable{TResult}.Result"/> contains the query result 
         /// or the default value of <typeparamref name="TResult"/> if nothing was found.
         /// </returns>
         /// <exception cref="ArgumentNullException">
         /// Thrown if <paramref name="queryDispatcher"/> is null.
         /// </exception>
-        public static ICovariantAwaitable<TResult> ByParent<TParent, TResult>(this IQueryDispatcher queryDispatcher, Guid parentId)
+        public static Task<TResult> ByParent<TParent, TResult>(this IQueryDispatcher queryDispatcher, Guid parentId)
         {
             if (queryDispatcher == null)
                 throw new ArgumentNullException(nameof(queryDispatcher));
@@ -287,7 +287,7 @@ namespace AI4E.Integration
         /// <exception cref="ArgumentNullException">
         /// Thrown if either <paramref name="queryDispatcher"/> or <paramref name="handler"/> is null.
         /// </exception>
-        public static Task<IHandlerRegistration<IQueryHandler<TQuery, TResult>>> OnQuery<TQuery, TResult>(this IQueryDispatcher queryDispatcher, Func<TQuery, ICovariantAwaitable<TResult>> handler) // TODO: Correct xml-comments
+        public static Task<IHandlerRegistration<IQueryHandler<TQuery, TResult>>> OnQuery<TQuery, TResult>(this IQueryDispatcher queryDispatcher, Func<TQuery, Task<TResult>> handler) // TODO: Correct xml-comments
         {
             if (queryDispatcher == null)
                 throw new ArgumentNullException(nameof(queryDispatcher));
@@ -300,16 +300,16 @@ namespace AI4E.Integration
 
         private class AnonymousQueryHandler<TQuery, TResult> : IQueryHandler<TQuery, TResult>, IHandlerFactory<IQueryHandler<TQuery, TResult>>
         {
-            private readonly Func<TQuery, ICovariantAwaitable<TResult>> _handler;
+            private readonly Func<TQuery, Task<TResult>> _handler;
 
-            internal AnonymousQueryHandler(Func<TQuery, ICovariantAwaitable<TResult>> handler)
+            internal AnonymousQueryHandler(Func<TQuery, Task<TResult>> handler)
             {
                 Debug.Assert(handler != null);
 
                 _handler = handler;
             }
 
-            public ICovariantAwaitable<TResult> HandleAsync(TQuery query)
+            public Task<TResult> HandleAsync(TQuery query)
             {
                 if (query == null)
                     throw new ArgumentNullException(nameof(query));

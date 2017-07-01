@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Threading.Tasks;
-using AI4E.Async;
 using AI4E.Integration;
 
 namespace AI4E.Modularity.Integration
@@ -21,7 +20,7 @@ namespace AI4E.Modularity.Integration
             _messageEndPoint = messageEndPoint;
         }
 
-        public async ICovariantAwaitable<TResult> HandleAsync(TQuery query)
+        public async Task<TResult> HandleAsync(TQuery query)
         {
             if (query == null)
                 throw new ArgumentNullException(nameof(query));

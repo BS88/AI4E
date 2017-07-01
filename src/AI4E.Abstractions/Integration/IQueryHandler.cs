@@ -4,7 +4,7 @@
  * Types:           AI4E.Integration.IQueryHandler'2
  * Version:         1.0
  * Author:          Andreas Trütschel
- * Last modified:   29.04.2017 
+ * Last modified:   01.07.2017 
  * Status:          Ready
  * --------------------------------------------------------------------------------------------------------------------
  */
@@ -29,7 +29,7 @@
  * --------------------------------------------------------------------------------------------------------------------
  */
 
-using AI4E.Async;
+using System.Threading.Tasks;
 
 namespace AI4E.Integration
 {
@@ -38,17 +38,17 @@ namespace AI4E.Integration
     /// </summary>
     /// <typeparam name="TQuery">The type of query.</typeparam>
     /// <typeparam name="TResult">The type of result.</typeparam>
-    public interface IQueryHandler<in TQuery, out TResult>
+    public interface IQueryHandler<in TQuery, TResult>
     {
         /// <summary>
         /// Asynchrnously handles a query.
         /// </summary>
         /// <param name="query">The query that shall be handled.</param>
         /// <returns>
-        /// A covariant awaitable that represents the asynchronous operation.
-        /// The <see cref="ICovariantAwaitable{TResult}.Result"/> contains the query result or the default value of <typeparamref name="TResult"/> if nothing was found.
+        /// A task that represents the asynchronous operation.
+        /// The <see cref="Task{TResult}.Result"/> contains the query result or the default value of <typeparamref name="TResult"/> if nothing was found.
         /// </returns>
         /// <exception cref="System.ArgumentNullException">Thrown if <paramref name="query"/> is null.</exception>
-        ICovariantAwaitable<TResult> HandleAsync(TQuery query);
+        Task<TResult> HandleAsync(TQuery query);
     }
 }
