@@ -57,15 +57,15 @@ namespace AI4E.Integration
         /// </summary>
         /// <param name="serviceProvider">A <see cref="IServiceProvider"/> used to obtain services.</param>
         /// <exception cref="ArgumentNullException">Thrown if <paramref name="serviceProvider"/> is null.</exception>
-        public QueryDispatcher(IServiceProvider serviceProvider) : this(serviceProvider, QueryAuthorizationVerifyer.Default) { }
+        public QueryDispatcher(IServiceProvider serviceProvider) : this(QueryAuthorizationVerifyer.Default, serviceProvider) { }
 
         /// <summary>
         /// Creates a new instance of the <see cref="QueryDispatcher"/> type.
         /// </summary>
-        /// <param name="serviceProvider">A <see cref="IServiceProvider"/> used to obtain services.</param>
         /// <param name="authorizationVerifyer">A <see cref="IQueryAuthorizationVerifyer"/> that controls authorization or <see cref="QueryAuthorizationVerifyer.Default"/>.</param>
+        /// <param name="serviceProvider">A <see cref="IServiceProvider"/> used to obtain services.</param>
         /// <exception cref="ArgumentNullException">Thrown if either <paramref name="serviceProvider"/> or <paramref name="authorizationVerifyer"/> is null.</exception>
-        public QueryDispatcher(IServiceProvider serviceProvider, IQueryAuthorizationVerifyer authorizationVerifyer) // TODO: Reorder arguments
+        public QueryDispatcher(IQueryAuthorizationVerifyer authorizationVerifyer, IServiceProvider serviceProvider)
         {
             if (serviceProvider == null)
                 throw new ArgumentNullException(nameof(serviceProvider));
@@ -111,7 +111,7 @@ namespace AI4E.Integration
         public IQueryDispatcher<TQuery, TResult> GetTypedDispatcher<TQuery, TResult>()
         {
             return _typedDispatchers.GetOrAdd((typeof(TQuery), typeof(TResult)),
-                                             t => new QueryDispatcher<TQuery, TResult>(_serviceProvider, _authorizationVerifyer))
+                                             t => new QueryDispatcher<TQuery, TResult>(_authorizationVerifyer, _serviceProvider))
                                              as IQueryDispatcher<TQuery, TResult>;
         }
 
@@ -119,7 +119,7 @@ namespace AI4E.Integration
         {
             return _typedDispatchers.GetOrAdd((queryType, resultType), type =>
             {
-                var result = Activator.CreateInstance(_typedDispatcherType.MakeGenericType(queryType, resultType), _serviceProvider, _authorizationVerifyer);
+                var result = Activator.CreateInstance(_typedDispatcherType.MakeGenericType(queryType, resultType), _authorizationVerifyer, _serviceProvider);
                 Debug.Assert(result != null);
                 return result as ITypedNonGenericQueryDispatcher;
             });
@@ -213,16 +213,18 @@ namespace AI4E.Integration
         /// </summary>
         /// <param name="serviceProvider">A <see cref="IServiceProvider"/> used to obtain services.</param>
         /// <exception cref="ArgumentNullException">Thrown if <paramref name="serviceProvider"/> is null.</exception>
-        public QueryDispatcher(IServiceProvider serviceProvider) : this(serviceProvider, QueryAuthorizationVerifyer.Default) { }
+        public QueryDispatcher(IServiceProvider serviceProvider) : this(QueryAuthorizationVerifyer.Default, serviceProvider) { }
 
         /// <summary>
         /// Creates a new instance of the <see cref="QueryDispatcher{TQuery, TResult}"/> type.
         /// </summary>
-        /// <param name="serviceProvider">A <see cref="IServiceProvider"/> used to obtain services.</param>
         /// <param name="authorizationVerifyer">A <see cref="IQueryAuthorizationVerifyer"/> that controls authorization or <see cref="QueryAuthorizationVerifyer.Default"/>.</param>
+        /// <param name="serviceProvider">A <see cref="IServiceProvider"/> used to obtain services.</param>
         /// <exception cref="ArgumentNullException">Thrown if either <paramref name="serviceProvider"/> or <paramref name="authorizationVerifyer"/> is null.</exception>
-        public QueryDispatcher(IServiceProvider serviceProvider, IQueryAuthorizationVerifyer authorizationVerifyer)
+        public QueryDispatcher(IQueryAuthorizationVerifyer authorizationVerifyer, IServiceProvider serviceProvider)
         {
+            // Remark: If you modify/delete this constructors arguments, remember to also change the non-generic GetTypedDispatcher() method above
+
             if (serviceProvider == null)
                 throw new ArgumentNullException(nameof(serviceProvider));
 

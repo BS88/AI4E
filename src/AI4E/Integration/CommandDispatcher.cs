@@ -56,15 +56,15 @@ namespace AI4E.Integration
         /// </summary>
         /// <param name="serviceProvider">A <see cref="IServiceProvider"/> used to obtain services.</param>
         /// <exception cref="ArgumentNullException">Thrown if <paramref name="serviceProvider"/> is null.</exception>
-        public CommandDispatcher(IServiceProvider serviceProvider) : this(serviceProvider, CommandAuthorizationVerifyer.Default) { }
+        public CommandDispatcher(IServiceProvider serviceProvider) : this(CommandAuthorizationVerifyer.Default, serviceProvider) { }
 
         /// <summary>
         /// Creates a new instance of the <see cref="CommandDispatcher"/> type.
         /// </summary>
-        /// <param name="serviceProvider">A <see cref="IServiceProvider"/> used to obtain services.</param>
         /// <param name="authorizationVerifyer">An <see cref="ICommandAuthorizationVerifyer"/> that controls authorization or <see cref="CommandAuthorizationVerifyer.Default"/>.</param>
+        /// <param name="serviceProvider">A <see cref="IServiceProvider"/> used to obtain services.</param>
         /// <exception cref="ArgumentNullException">Thrown if either <paramref name="serviceProvider"/> or <paramref name="authorizationVerifyer"/> is null.</exception>
-        public CommandDispatcher(IServiceProvider serviceProvider, ICommandAuthorizationVerifyer authorizationVerifyer) // TODO: Reorder arguments
+        public CommandDispatcher(ICommandAuthorizationVerifyer authorizationVerifyer, IServiceProvider serviceProvider)
         {
             if (serviceProvider == null)
                 throw new ArgumentNullException(nameof(serviceProvider));
@@ -105,7 +105,7 @@ namespace AI4E.Integration
         /// <returns>A typed command dispatcher for command of type <typeparamref name="TCommand"/>.</returns>
         public ICommandDispatcher<TCommand> GetTypedDispatcher<TCommand>()
         {
-            return _typedDispatchers.GetOrAdd(typeof(TCommand), t => new CommandDispatcher<TCommand>(_serviceProvider, _authorizationVerifyer)) as ICommandDispatcher<TCommand>;
+            return _typedDispatchers.GetOrAdd(typeof(TCommand), t => new CommandDispatcher<TCommand>(_authorizationVerifyer, _serviceProvider)) as ICommandDispatcher<TCommand>;
         }
 
         public ITypedNonGenericCommandDispatcher GetTypedDispatcher(Type commandType)
@@ -115,7 +115,7 @@ namespace AI4E.Integration
 
             return _typedDispatchers.GetOrAdd(commandType, type =>
             {
-                var result = Activator.CreateInstance(_typedDispatcherType.MakeGenericType(commandType), _serviceProvider, _authorizationVerifyer);
+                var result = Activator.CreateInstance(_typedDispatcherType.MakeGenericType(commandType), _authorizationVerifyer, _serviceProvider);
                 Debug.Assert(result != null);
                 return result as ITypedNonGenericCommandDispatcher;
             });
@@ -197,16 +197,18 @@ namespace AI4E.Integration
         /// </summary>
         /// <param name="serviceProvider">A <see cref="IServiceProvider"/> used to obtain services.</param>
         /// <exception cref="ArgumentNullException">Thrown if <paramref name="serviceProvider"/>is null.</exception>
-        public CommandDispatcher(IServiceProvider serviceProvider) : this(serviceProvider, CommandAuthorizationVerifyer.Default) { }
+        public CommandDispatcher(IServiceProvider serviceProvider) : this(CommandAuthorizationVerifyer.Default, serviceProvider) { }
 
         /// <summary>
         /// Creates a new instance of the <see cref="CommandDispatcher{TCommand}"/> type.
         /// </summary>
-        /// <param name="serviceProvider">A <see cref="IServiceProvider"/> used to obtain services.</param>
         /// <param name="authorizationVerifyer">An <see cref="ICommandAuthorizationVerifyer"/> that controls authorization or <see cref="CommandAuthorizationVerifyer.Default"/>.</param>
+        /// <param name="serviceProvider">A <see cref="IServiceProvider"/> used to obtain services.</param>
         /// <exception cref="ArgumentNullException">Thrown if either <paramref name="serviceProvider"/> or <paramref name="authorizationVerifyer"/> is null.</exception>
-        public CommandDispatcher(IServiceProvider serviceProvider, ICommandAuthorizationVerifyer authorizationVerifyer) // TODO: Reorder arguments
+        public CommandDispatcher(ICommandAuthorizationVerifyer authorizationVerifyer, IServiceProvider serviceProvider)
         {
+            // Remark: If you modify/delete this constructors arguments, remember to also change the non-generic GetTypedDispatcher() method above
+
             if (serviceProvider == null)
                 throw new ArgumentNullException(nameof(serviceProvider));
 

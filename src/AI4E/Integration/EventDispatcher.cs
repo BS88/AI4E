@@ -58,15 +58,15 @@ namespace AI4E.Integration
         /// </summary>
         /// <param name="serviceProvider">A <see cref="IServiceProvider"/> used to obtain services.</param>
         /// <exception cref="ArgumentNullException">Thrown if <paramref name="serviceProvider"/> is null.</exception>
-        public EventDispatcher(IServiceProvider serviceProvider) : this(serviceProvider, EventAuthorizationVerifyer.Default) { }
+        public EventDispatcher(IServiceProvider serviceProvider) : this(EventAuthorizationVerifyer.Default, serviceProvider) { }
 
         /// <summary>
         /// Creates a new instance of the <see cref="EventDispatcher"/> type.
         /// </summary>
-        /// <param name="serviceProvider">A <see cref="IServiceProvider"/> used to obtain services.</param>
         /// <param name="authorizationVerifyer">An <see cref="IEventAuthorizationVerifyer"/> that controls authorization or <see cref="EventAuthorizationVerifyer.Default"/>.</param>
+        /// <param name="serviceProvider">A <see cref="IServiceProvider"/> used to obtain services.</param>
         /// <exception cref="ArgumentNullException">Thrown if either <paramref name="serviceProvider"/> or <paramref name="authorizationVerifyer"/> is null.</exception>
-        public EventDispatcher(IServiceProvider serviceProvider, IEventAuthorizationVerifyer authorizationVerifyer)
+        public EventDispatcher(IEventAuthorizationVerifyer authorizationVerifyer, IServiceProvider serviceProvider)
         {
             if (serviceProvider == null)
                 throw new ArgumentNullException(nameof(serviceProvider));
@@ -107,7 +107,7 @@ namespace AI4E.Integration
         /// <returns>A typed event dispatcher for events of type <typeparamref name="TEvent"/>.</returns>
         public IEventDispatcher<TEvent> GetTypedDispatcher<TEvent>()
         {
-            return _typedDispatchers.GetOrAdd(typeof(TEvent), t => new EventDispatcher<TEvent>(_serviceProvider, _authorizationVerifyer)) as IEventDispatcher<TEvent>;
+            return _typedDispatchers.GetOrAdd(typeof(TEvent), t => new EventDispatcher<TEvent>(_authorizationVerifyer, _serviceProvider)) as IEventDispatcher<TEvent>;
         }
 
         public ITypedNonGenericEventDispatcher GetTypedDispatcher(Type eventType)
@@ -117,7 +117,7 @@ namespace AI4E.Integration
 
             return _typedDispatchers.GetOrAdd(eventType, type =>
             {
-                var wrapper = Activator.CreateInstance(_typedDispatcherType.MakeGenericType(eventType), _serviceProvider, _authorizationVerifyer);
+                var wrapper = Activator.CreateInstance(_typedDispatcherType.MakeGenericType(eventType), _authorizationVerifyer, _serviceProvider);
                 Debug.Assert(wrapper != null);
                 return wrapper as ITypedNonGenericEventDispatcher;
             });
@@ -245,16 +245,18 @@ namespace AI4E.Integration
         /// </summary>
         /// <param name="serviceProvider">A <see cref="IServiceProvider"/> used to obtain services.</param>
         /// <exception cref="ArgumentNullException">Thrown if <paramref name="serviceProvider"/> is null.</exception>
-        public EventDispatcher(IServiceProvider serviceProvider) : this(serviceProvider, EventAuthorizationVerifyer.Default) { }
+        public EventDispatcher(IServiceProvider serviceProvider) : this(EventAuthorizationVerifyer.Default, serviceProvider) { }
 
         /// <summary>
         /// Creates a new instance of the <see cref="EventDispatcher{TEvent}"/> type.
         /// </summary>
-        /// <param name="serviceProvider">A <see cref="IServiceProvider"/> used to obtain services.</param>
         /// <param name="authorizationVerifyer">An <see cref="IEventAuthorizationVerifyer"/> that controls authorization or <see cref="EventAuthorizationVerifyer.Default"/>.</param>
+        /// <param name="serviceProvider">A <see cref="IServiceProvider"/> used to obtain services.</param>
         /// <exception cref="ArgumentNullException">Thrown if either <paramref name="serviceProvider"/> or <paramref name="authorizationVerifyer"/> is null.</exception>
-        public EventDispatcher(IServiceProvider serviceProvider, IEventAuthorizationVerifyer authorizationVerifyer)
+        public EventDispatcher(IEventAuthorizationVerifyer authorizationVerifyer, IServiceProvider serviceProvider) 
         {
+            // Remark: If you modify/delete this constructors arguments, remember to also change the non-generic GetTypedDispatcher() method above
+
             if (serviceProvider == null)
                 throw new ArgumentNullException(nameof(serviceProvider));
 
