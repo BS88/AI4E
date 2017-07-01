@@ -5,7 +5,7 @@
  *                  AI4E.Integration.CommandDispatcherExtension.AnonymousCommandHandler'1
  * Version:         1.0
  * Author:          Andreas Trütschel
- * Last modified:   11.05.2017 
+ * Last modified:   01.07.2017 
  * Status:          Ready
  * --------------------------------------------------------------------------------------------------------------------
  */
@@ -63,6 +63,47 @@ namespace AI4E.Integration
             return commandDispatcher.RegisterAsync(new AnonymousCommandHandler<TCommand>(handler));
         }
 
+        /// <summary>
+        /// Asynchronously registers a command handler of the specified type for the specified type of command.
+        /// </summary>
+        /// <typeparam name="TCommand">The type of command.</typeparam>
+        /// <typeparam name="TCommandHandler">The type of command handler.</typeparam>
+        /// <param name="commandDispatcher">The command dispatcher.</param>
+        /// <returns>
+        /// A <see cref="IHandlerRegistration"/> representing the asynchronous operation.
+        /// The <see cref="IHandlerRegistration"/> cancels the handler registration if completed.
+        /// </returns>
+        /// <exception cref="ArgumentNullException">Thrown if <paramref name="commandDispatcher"/> is null.</exception>
+        public static Task<IHandlerRegistration<ICommandHandler<TCommand>>> RegisterAsync<TCommand, TCommandHandler>(this ICommandDispatcher commandDispatcher)
+            where TCommandHandler : ICommandHandler<TCommand>
+        {
+            if (commandDispatcher == null)
+                throw new ArgumentNullException(nameof(commandDispatcher));
+
+            return commandDispatcher.RegisterAsync((IHandlerFactory<ICommandHandler<TCommand>>)(IHandlerFactory<TCommandHandler>)new DefaultHandlerFactory<TCommandHandler>());
+        }
+
+        /// <summary>
+        /// Asynchronously dispatches a command of the specified command type.
+        /// </summary>
+        /// <param name="commandDispatcher">The command dispatcher.</param>
+        /// <param name="command">The command to dispatch.</param>
+        /// <returns>
+        /// A task representing the asynchronous operation.
+        /// The <see cref="Task{TResult}.Result"/> contains a <see cref="ICommandResult"/> indicating command handling state.
+        /// </returns>
+        /// <exception cref="ArgumentNullException">Thrown if <paramref name="command"/> is null.</exception>
+        public static Task<ICommandResult> DispatchAsync(this INonGenericCommandDispatcher commandDispatcher, object command)
+        {
+            if (commandDispatcher == null)
+                throw new ArgumentNullException(nameof(commandDispatcher));
+
+            if (command == null)
+                throw new ArgumentNullException(nameof(command));
+
+            return commandDispatcher.DispatchAsync(command.GetType(), command);
+        }
+
         private class AnonymousCommandHandler<TCommand> : ICommandHandler<TCommand>, IHandlerFactory<ICommandHandler<TCommand>>
         {
             private readonly Func<TCommand, Task<ICommandResult>> _handler;
@@ -86,15 +127,5 @@ namespace AI4E.Integration
                 return _handler(command);
             }
         }
-
-        public static Task<IHandlerRegistration<ICommandHandler<TCommand>>> RegisterAsync<TCommand, TCommandHandler>(this ICommandDispatcher commandDispatcher)
-            where TCommandHandler : ICommandHandler<TCommand>
-        {
-            if (commandDispatcher == null)
-                throw new ArgumentNullException(nameof(commandDispatcher));
-
-            return commandDispatcher.RegisterAsync((IHandlerFactory<ICommandHandler<TCommand>>)(IHandlerFactory<TCommandHandler>)new DefaultHandlerFactory<TCommandHandler>());
-        }
     }
 }
-

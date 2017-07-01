@@ -7,11 +7,9 @@
  *                  (4) AI4E.Integration.ISecureCommandDispatcher'1
  *                  (5) AI4E.Integration.INonGenericCommandDispatcher
  *                  (6) AI4E.Integration.ITypedNonGenericCommandDispatcher
- *                  (7) AI4E.Integration.CommandDispatchException
  * Version:         1.0
  * Author:          Andreas Trütschel
- * Last modified:   01.06.2017 
- * Status:          Ready
+ * Last modified:   01.07.2017 
  * --------------------------------------------------------------------------------------------------------------------
  */
 
@@ -36,7 +34,6 @@
  */
 
 using System;
-using System.Runtime.Serialization;
 using System.Threading.Tasks;
 
 namespace AI4E.Integration
@@ -72,7 +69,7 @@ namespace AI4E.Integration
         /// <param name="command">The command to dispatch.</param>
         /// <returns>
         /// A task representing the asynchronous operation.
-        /// The <see cref="Task{TResult}.Result"/> contains a <see cref="CommandResult"/> indicating command handling state.
+        /// The <see cref="Task{TResult}.Result"/> contains a <see cref="ICommandResult"/> indicating command handling state.
         /// </returns>
         /// <exception cref="ArgumentNullException">Thrown if <paramref name="command"/> is null.</exception>
         Task<ICommandResult> DispatchAsync<TCommand>(TCommand command);
@@ -101,14 +98,14 @@ namespace AI4E.Integration
         /// <param name="command">The command to dispatch.</param>
         /// <returns>
         /// A task representing the asynchronous operation.
-        /// The <see cref="Task{TResult}.Result"/> contains a <see cref="CommandResult"/> indicating command handling state.
+        /// The <see cref="Task{TResult}.Result"/> contains a <see cref="ICommandResult"/> indicating command handling state.
         /// </returns>
         /// <exception cref="ArgumentNullException">Thrown if <paramref name="command"/> is null.</exception>
         Task<ICommandResult> DispatchAsync(TCommand command);
     }
 
     /// <summary>
-    /// A secured command dispatcher that controls access.
+    /// Represents a command dispatcher that controls access.
     /// </summary>
     public interface ISecureCommandDispatcher : ICommandDispatcher
     {
@@ -132,7 +129,7 @@ namespace AI4E.Integration
     }
 
     /// <summary>
-    /// A secured typed command dispatcher that controls access.
+    /// Represents a typed command dispatcher that controls access.
     /// </summary>
     public interface ISecureCommandDispatcher<TCommand> : ICommandDispatcher<TCommand>
     {
@@ -153,83 +150,53 @@ namespace AI4E.Integration
         bool IsDispatchAuthorized(TCommand command);
     }
 
+    /// <summary>
+    /// Represents a non-generic command dispatcher that dispatches commands to command handlers.
+    /// </summary>
     public interface INonGenericCommandDispatcher
     {
+        /// <summary>
+        /// Returns a typed non-generic command dispatcher for the specified command type.
+        /// </summary>
+        /// <param name="commandType">The type of command.</param>
+        /// <returns>A typed non-gemeric command dispatcher for commands of type <paramref name="commandType"/>.</returns>
+        /// <exception cref="ArgumentNullException">Thrown if <paramref name="commandType"/> is null.</exception>
         ITypedNonGenericCommandDispatcher GetTypedDispatcher(Type commandType);
 
+        /// <summary>
+        /// Asynchronously dispatches a command of the specified command type.
+        /// </summary>
+        /// <param name="commandType">The type of command.</param>
+        /// <param name="command">The command to dispatch.</param>
+        /// <returns>
+        /// A task representing the asynchronous operation.
+        /// The <see cref="Task{TResult}.Result"/> contains a <see cref="ICommandResult"/> indicating command handling state.
+        /// </returns>
+        /// <exception cref="ArgumentNullException">Thrown if either <paramref name="commandType"/> or <paramref name="command"/> is null.</exception>
+        /// <exception cref="ArgumentException">Thrown if <paramref name="command"/> is not of type <paramref name="commandType"/> or a derived type.</exception>
         Task<ICommandResult> DispatchAsync(Type commandType, object command);
     }
 
+    /// <summary>
+    /// Represents a non-generic typed command dispatcher that dispatches commands to command handlers.
+    /// </summary>
     public interface ITypedNonGenericCommandDispatcher
     {
+        /// <summary>
+        /// Asynchronously dispatches a command.
+        /// </summary>
+        /// <param name="command">The command to dispatch.</param>
+        /// <returns>
+        /// A task representing the asynchronous operation.
+        /// The <see cref="Task{TResult}.Result"/> contains a <see cref="ICommandResult"/> indicating command handling state.
+        /// </returns>
+        /// <exception cref="ArgumentNullException">Thrown if <paramref name="command"/> is null.</exception>
+        /// <exception cref="ArgumentException">Thrown if <paramref name="command"/> is not of type <see cref="CommandType"/> or a derived type.</exception>
         Task<ICommandResult> DispatchAsync(object command);
 
+        /// <summary>
+        /// Gets the type of commands the dispatcher can handler.
+        /// </summary>
         Type CommandType { get; }
     }
-
-    ///// <summary>
-    ///// Represents a type of exception that is thrown when a command cannot be dispatched.
-    ///// </summary>
-    //[Serializable]
-    //public class CommandDispatchException : Exception
-    //{
-    //    /// <summary>
-    //    /// Creates a new instance of the <see cref="CommandDispatchException"/> type with the specified type of command.
-    //    /// </summary>
-    //    /// <param name="commandType">The type of command.</param>
-    //    /// <exception cref="ArgumentNullException">Thrown if <paramref name="commandType"/> is null.</exception>
-    //    public CommandDispatchException(Type commandType) : base("The command cannot be dispatched.")
-    //    {
-    //        if (commandType == null)
-    //            throw new ArgumentNullException(nameof(commandType));
-
-    //        CommandType = commandType;
-    //    }
-
-    //    /// <summary>
-    //    /// Creates a new instance of the <see cref="CommandDispatchException"/> type with the specified type of command and error message.
-    //    /// </summary>
-    //    /// <param name="commandType">The type of command.</param>
-    //    /// <param name="message">A message describing the exception.</param>
-    //    /// <exception cref="ArgumentNullException">Thrown if <paramref name="commandType"/> is null.</exception>
-    //    public CommandDispatchException(Type commandType, string message) : base(message)
-    //    {
-    //        if (commandType == null)
-    //            throw new ArgumentNullException(nameof(commandType));
-
-    //        CommandType = commandType;
-    //    }
-
-    //    /// <summary>
-    //    /// Creates a new instance of the <see cref="CommandDispatchException"/> type with the specified type of command, error message and inner exception.
-    //    /// </summary>
-    //    /// <param name="commandType">The type of command.</param>
-    //    /// <param name="message">A message describing the exception.</param>
-    //    /// <param name="innerException">An exception that caused the command dispatch exception.</param>
-    //    /// <exception cref="ArgumentNullException">Thrown if <paramref name="commandType"/> is null.</exception>
-    //    public CommandDispatchException(Type commandType, string message, Exception innerException) : base(message, innerException)
-    //    {
-    //        if (commandType == null)
-    //            throw new ArgumentNullException(nameof(commandType));
-
-    //        CommandType = commandType;
-    //    }
-
-    //    protected CommandDispatchException(SerializationInfo info, StreamingContext context) : base(info, context)
-    //    {
-    //        CommandType = (Type)info.GetValue(nameof(CommandType), typeof(Type));
-    //    }
-
-    //    /// <summary>
-    //    /// Gets the type of command.
-    //    /// </summary>
-    //    public Type CommandType { get; }
-
-    //    public override void GetObjectData(SerializationInfo info, StreamingContext context)
-    //    {
-    //        base.GetObjectData(info, context);
-
-    //        info.AddValue(nameof(CommandType), CommandType);
-    //    }
-    //}
 }

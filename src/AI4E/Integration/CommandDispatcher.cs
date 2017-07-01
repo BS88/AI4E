@@ -7,7 +7,6 @@
  * Version:         1.0
  * Author:          Andreas Trütschel
  * Last modified:   01.07.2017 
- * Status:          Ready
  * --------------------------------------------------------------------------------------------------------------------
  */
 
@@ -108,6 +107,12 @@ namespace AI4E.Integration
             return _typedDispatchers.GetOrAdd(typeof(TCommand), t => new CommandDispatcher<TCommand>(_authorizationVerifyer, _serviceProvider)) as ICommandDispatcher<TCommand>;
         }
 
+        /// <summary>
+        /// Returns a typed non-generic command dispatcher for the specified command type.
+        /// </summary>
+        /// <param name="commandType">The type of command.</param>
+        /// <returns>A typed non-gemeric command dispatcher for commands of type <paramref name="commandType"/>.</returns>
+        /// <exception cref="ArgumentNullException">Thrown if <paramref name="commandType"/> is null.</exception>
         public ITypedNonGenericCommandDispatcher GetTypedDispatcher(Type commandType)
         {
             if (commandType == null)
@@ -139,6 +144,17 @@ namespace AI4E.Integration
             return GetTypedDispatcher<TCommand>().DispatchAsync(command);
         }
 
+        /// <summary>
+        /// Asynchronously dispatches a command of the specified command type.
+        /// </summary>
+        /// <param name="commandType">The type of command.</param>
+        /// <param name="command">The command to dispatch.</param>
+        /// <returns>
+        /// A task representing the asynchronous operation.
+        /// The <see cref="Task{TResult}.Result"/> contains a <see cref="ICommandResult"/> indicating command handling state.
+        /// </returns>
+        /// <exception cref="ArgumentNullException">Thrown if either <paramref name="commandType"/> or <paramref name="command"/> is null.</exception>
+        /// <exception cref="ArgumentException">Thrown if <paramref name="command"/> is not of type <paramref name="commandType"/> or a derived type.</exception>
         public Task<ICommandResult> DispatchAsync(Type commandType, object command)
         {
             if (commandType == null)
@@ -248,7 +264,7 @@ namespace AI4E.Integration
         /// <param name="command">The command to dispatch.</param>
         /// <returns>
         /// A task representing the asynchronous operation.
-        /// The <see cref="Task{TResult}.Result"/> contains a <see cref="CommandResult"/> indicating command handling state.
+        /// The <see cref="Task{TResult}.Result"/> contains a <see cref="ICommandResult"/> indicating command handling state.
         /// </returns>
         /// <exception cref="ArgumentNullException">Thrown if <paramref name="command"/> is null.</exception>
         public Task<ICommandResult> DispatchAsync(TCommand command)
@@ -281,6 +297,16 @@ namespace AI4E.Integration
             return Task.FromResult<ICommandResult>(CommandResult.DispatchFailure<TCommand>());
         }
 
+        /// <summary>
+        /// Asynchronously dispatches a command.
+        /// </summary>
+        /// <param name="command">The command to dispatch.</param>
+        /// <returns>
+        /// A task representing the asynchronous operation.
+        /// The <see cref="Task{TResult}.Result"/> contains a <see cref="ICommandResult"/> indicating command handling state.
+        /// </returns>
+        /// <exception cref="ArgumentNullException">Thrown if <paramref name="command"/> is null.</exception>
+        /// <exception cref="ArgumentException">Thrown if <paramref name="command"/> is not of type <see cref="CommandType"/> or a derived type.</exception>
         public Task<ICommandResult> DispatchAsync(object command)
         {
             if (command == null)
