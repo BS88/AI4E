@@ -2,11 +2,9 @@
  * --------------------------------------------------------------------------------------------------------------------
  * Filename:        IEventConflictResolver.cs
  * Types:           AI4E.IEventConflictResolver'1
- *                  AI4E.INonGenericEventDispatcher
  * Version:         1.0
  * Author:          Andreas Trütschel
  * Last modified:   16.05.2017 
- * Status:          Ready
  * --------------------------------------------------------------------------------------------------------------------
  */
 
