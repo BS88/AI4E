@@ -12,6 +12,7 @@ namespace AI4E
 {
     public static class ServiceProviderExtension
     {
+        [Obsolete("Use 'UseMessaging()'")]
         public static void/*IEnumerable<IHandlerRegistration>*/ UseCommandHandlers(this IServiceProvider serviceProvider)
         {
             if (serviceProvider == null)
@@ -47,6 +48,7 @@ namespace AI4E
             //return result;
         }
 
+        [Obsolete("Use 'UseMessaging()'")]
         public static /*IEnumerable<IHandlerRegistration>*/void UseQueryHandlers(this IServiceProvider serviceProvider)
         {
             if (serviceProvider == null)
@@ -85,6 +87,7 @@ namespace AI4E
             //return result;
         }
 
+        [Obsolete("Use 'UseMessaging()'")]
         public static /*IEnumerable<IHandlerRegistration>*/void UseEventHandlers(this IServiceProvider serviceProvider)
         {
             if (serviceProvider == null)
@@ -121,6 +124,7 @@ namespace AI4E
             //return result;
         }
 
+        [Obsolete]
         public static /*IEnumerable<IHandlerRegistration>*/ void UseEventReplayer<TEventBase, TEntityBase>(this IServiceProvider serviceProvider)
         {
             if (serviceProvider == null)
@@ -160,6 +164,11 @@ namespace AI4E
             }
 
             //return result;
+        }
+
+        public static void UseMessaging(this IServiceProvider serviceProvider)
+        {
+
         }
     }
 }

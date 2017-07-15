@@ -4,7 +4,7 @@
  * Types:           AI4E.Integration.CommandResultExtension
  * Version:         1.0
  * Author:          Andreas Trütschel
- * Last modified:   07.05.2017 
+ * Last modified:   15.07.2017 
  * Status:          Ready
  * --------------------------------------------------------------------------------------------------------------------
  */
@@ -32,6 +32,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using AI4E.Integration.CommandResults;
 
 namespace AI4E.Integration
 {
@@ -40,17 +41,6 @@ namespace AI4E.Integration
     /// </summary>
     public static class CommandResultExtension
     {
-        /// <summary>
-        /// Returns a boolean value indicating whether the specified command result signals a successful command execution.
-        /// </summary>
-        /// <param name="commandResult">The command result.</param>
-        /// <returns>True if the command was executed successfully, false otherwise. </returns>
-        [Obsolete("Use IsSuccess property")]
-        public static bool IsSuccess(this ICommandResult commandResult)
-        {
-            return commandResult.IsSuccess;
-        }
-
         public static bool IsUnauthorized(this ICommandResult commandResult)
         {
             return commandResult is UnauthenticatedCommandResult;
@@ -81,6 +71,43 @@ namespace AI4E.Integration
         public static bool IsConcurrencyIssue(this ICommandResult commandResult)
         {
             return commandResult is ConcurrencyIssueCommandResult;
+        }
+
+        public static bool IsEntityNotFound(this ICommandResult commandResult)
+        {
+            return commandResult is EntityNotFoundCommandResult;
+        }
+
+        public static bool IsEntityNotFound(this ICommandResult commandResult, out Type entityType, out Guid id)
+        {
+            if (commandResult is EntityNotFoundCommandResult entityNotFoundCommandResult)
+            {
+                entityType = entityNotFoundCommandResult.EntityType;
+                id = entityNotFoundCommandResult.Id;
+                return true;
+            }
+
+            entityType = default(Type);
+            id = default(Guid);
+
+            return false;
+        }
+
+        public static bool IsTimeout(this ICommandResult commandResult)
+        {
+            return commandResult is TimeoutCommandResult;
+        }
+
+        public static bool IsTimeout(this ICommandResult commandResult, out DateTime dueTime)
+        {
+            if (commandResult is TimeoutCommandResult timeoutCommandResult)
+            {
+                dueTime = timeoutCommandResult.DueTime;
+                return true;
+            }
+
+            dueTime = default(DateTime);
+            return false;
         }
     }
 }

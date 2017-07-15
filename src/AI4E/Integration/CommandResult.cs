@@ -1,12 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using AI4E.Integration.CommandResults;
 
 namespace AI4E.Integration
 {
     public static class CommandResult
     {
-        private static readonly SuccessCommandResult _success = new SuccessCommandResult();
-        private static readonly FailureCommandResult _failure = new FailureCommandResult();
         private static readonly ValidationFailureCommandResult _validationFailure = new ValidationFailureCommandResult();
         private static readonly UnauthorizedCommandResult _unauthorized = new UnauthorizedCommandResult();
         private static readonly UnauthenticatedCommandResult _unauthenticated = new UnauthenticatedCommandResult();
@@ -14,7 +13,7 @@ namespace AI4E.Integration
 
         public static SuccessCommandResult Success()
         {
-            return _success;
+            return SuccessCommandResult.Default;
         }
 
         public static SuccessCommandResult Success(string message)
@@ -24,7 +23,7 @@ namespace AI4E.Integration
 
         public static FailureCommandResult Failure()
         {
-            return _failure;
+            return FailureCommandResult.UnknownFailure;
         }
 
         public static FailureCommandResult Failure(string message)

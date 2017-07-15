@@ -4,8 +4,7 @@
  * Types:           AI4E.Modularity.MessageEndPoint
  * Version:         1.0
  * Author:          Andreas Trütschel
- * Last modified:   16.06.2017 
- * Status:          Ready
+ * Last modified:   06.07.2017 
  * --------------------------------------------------------------------------------------------------------------------
  */
 
@@ -31,13 +30,14 @@
 
 using System;
 using System.Collections.Concurrent;
-using System.Diagnostics;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using AI4E.Async;
 using AI4E.Async.Processing;
+using Microsoft.Extensions.Logging;
 using Nito.AsyncEx;
+using static System.Diagnostics.Debug;
 
 namespace AI4E.Modularity
 {
@@ -58,6 +58,7 @@ namespace AI4E.Modularity
 
         private readonly Stream _underlyingStream;
         private readonly ISerializer _serializer;
+        private readonly ILogger _logger;
         private readonly IServiceProvider _serviceProvider;
         private readonly AsyncProcess _receiveProcess;
         private readonly TaskCompletionSource<object> _completion = new TaskCompletionSource<object>();
@@ -100,6 +101,14 @@ namespace AI4E.Modularity
             _initialization = InitializeAsync();
         }
 
+        public MessageEndPoint(Stream underlyingStream,
+                               ISerializer serializer,
+                               ILogger<MessageEndPoint> logger,
+                               IServiceProvider serviceProvider) : this(underlyingStream, serializer, serviceProvider)
+        {
+            _logger = logger;
+        }
+
         #endregion
 
         #region Handler
@@ -122,7 +131,13 @@ namespace AI4E.Modularity
             ThrowIfDisposed();
             await Initialization;
 
-            return await GetMessageReceiver<TMessage>().RegisterAsync(handlerFactory);
+            _logger?.LogInformation($"Registering handler for message type '{typeof(TMessage).FullName}'.");
+
+            var result = await GetMessageReceiver<TMessage>().RegisterAsync(handlerFactory);
+
+            _logger?.LogInformation($"Registered handler for message type '{typeof(TMessage).FullName}'.");
+
+            return result;
         }
 
         /// <summary>
@@ -144,7 +159,13 @@ namespace AI4E.Modularity
             ThrowIfDisposed();
             await Initialization;
 
-            return await GetMessageReceiver<TMessage>().RegisterAsync(handlerFactory);
+            _logger?.LogInformation($"Registering handler for message type '{typeof(TMessage).FullName}' and result type '{typeof(TMessage).FullName}'.");
+
+            var result = await GetMessageReceiver<TMessage>().RegisterAsync(handlerFactory);
+
+            _logger?.LogInformation($"Registered handler for message type '{typeof(TMessage).FullName}' and result type '{typeof(TMessage).FullName}'.");
+
+            return result;
         }
 
         private MessageReceiver<TMessage> GetMessageReceiver<TMessage>()
@@ -157,43 +178,20 @@ namespace AI4E.Modularity
         #region Send
 
         /// <summary>
-        /// Asynchronously send the specified message to the remote endpoint and awaits its answer.
+        /// Asynchronously sends the specified message to the remote endpoint and awaits its answer.
         /// </summary>
         /// <typeparam name="TMessage">The type of message.</typeparam>
         /// <param name="message">The message to send to the remove end point.</param>
         /// <param name="cancellation">A <see cref="CancellationToken"/> used to cancel the asynchronous operation or <see cref="CancellationToken.None"/>.</param>
         /// <returns>A task representing the asynchronous operation.</returns>
         /// <exception cref="ArgumentNullException">Thrown if <paramref name="message"/> is null.</exception>
-        public async Task SendAsync<TMessage>(TMessage message, CancellationToken cancellation)
+        public Task SendAsync<TMessage>(TMessage message, CancellationToken cancellation)
         {
-            ThrowIfDisposed();
-            await Initialization;
-
-            uint seqNum;
-            var completionSource = new TaskCompletionSource<object>();
-
-            do
-            {
-                seqNum = GetNextSeqNum();
-            }
-            while (!_responseTable.TryAdd(seqNum, completionSource));
-
-            try
-            {
-                // Serialize message and send
-                await SendPayloadAsync(_serializer.Serialize(message), seqNum, 0, MessageType.Message, MessageEncoding.Bson, cancellation);
-
-                // Wait for terminate ack
-                await Task.WhenAny(completionSource.Task, cancellation.AsTask());
-            }
-            finally
-            {
-                _responseTable.TryRemove(seqNum, out _);
-            }
+            return SendInternalAsync(message, cancellation);
         }
 
         /// <summary>
-        /// Asynchronously send the specified message to the remote endpoint and awaits its answer.
+        /// Asynchronously sends the specified message to the remote endpoint and awaits its answer.
         /// </summary>
         /// <typeparam name="TMessage">The type of message.</typeparam>
         /// <typeparam name="TResponse">The type of response.</typeparam>
@@ -207,37 +205,7 @@ namespace AI4E.Modularity
         /// <exception cref="ArgumentNullException">Thrown if <paramref name="message"/> is null.</exception>
         public async Task<TResponse> SendAsync<TMessage, TResponse>(TMessage message, CancellationToken cancellation)
         {
-            ThrowIfDisposed();
-            await Initialization;
-
-            ThrowIfDisposed();
-            await Initialization;
-
-            uint seqNum;
-            var completionSource = new TaskCompletionSource<object>();
-
-            do
-            {
-                seqNum = GetNextSeqNum();
-            }
-            while (!_responseTable.TryAdd(seqNum, completionSource));
-
-            var task = completionSource.Task;
-
-            try
-            {
-                // Serialize message and send
-                await SendPayloadAsync(_serializer.Serialize(message), seqNum, 0, MessageType.Message, MessageEncoding.Bson, cancellation);
-
-                // Wait for terminate ack
-                await Task.WhenAny(task, cancellation.AsTask());
-            }
-            finally
-            {
-                _responseTable.TryRemove(seqNum, out _);
-            }
-
-            if ((await task) is TResponse response)
+            if ((await SendInternalAsync(message, cancellation)) is TResponse response)
             {
                 return response;
             }
@@ -245,19 +213,70 @@ namespace AI4E.Modularity
             return default(TResponse);
         }
 
+        private async Task<object> SendInternalAsync<TMessage>(TMessage message, CancellationToken cancellation)
+        {
+            ThrowIfDisposed();
+            await Initialization;
+
+            // Reserve a new slot in the response table.
+            using (var responseTableSlot = new ResponseTableSlot(this))
+            {
+                _logger?.LogInformation($"Sending message of type '{typeof(TMessage).FullName}' with seq-num '{responseTableSlot.SeqNum}'.");
+
+                cancellation.ThrowIfCancellationRequested();
+
+                try
+                {
+                    // Serialize the message and send it.
+                    await SendPayloadAsync(_serializer.Serialize(message), responseTableSlot.SeqNum, 0, MessageType.Message, MessageEncoding.Bson, cancellation);
+                }
+                catch (Exception exc) when (!(exc is ObjectDisposedException))
+                {
+                    _logger?.LogError($"The message with the seq-num '{responseTableSlot.SeqNum}' could not be sent.", exc);
+
+                    throw;
+                }
+
+                _logger?.LogInformation($"Sent message with seq-num '{responseTableSlot.SeqNum}'. Waiting for response.");
+
+                try
+                {
+                    // Wait for a reponse fromthe remote end-point or cancellation alternatively.
+                    await Task.WhenAny(responseTableSlot.Response, cancellation.AsTask());
+                }
+                catch (MessageHandlerNotFoundException)
+                {
+                    _logger?.LogInformation($"The receiver cannot handle the message with seq-num '{responseTableSlot.SeqNum}'. No suitable message handler was found.");
+
+                    throw;
+                }
+                catch (Exception exc) when (!(exc is OperationCanceledException))
+                {
+                    _logger?.LogInformation($"Received response for the message with seq-num '{responseTableSlot.SeqNum}'.");
+
+                    throw;
+                }
+
+                _logger?.LogInformation($"Received response for the message with seq-num '{responseTableSlot.SeqNum}'.");
+
+                return await responseTableSlot.Response;
+            }
+        }
+
         private async Task SendPayloadAsync(byte[] payload, uint seqNum, uint corrId, MessageType type, MessageEncoding encoding, CancellationToken cancellation)
         {
-            Debug.Assert(payload != null);
-            Debug.Assert(type > 0 && type <= MessageType.MaxEnum);
-            Debug.Assert(encoding > 0 && (byte)encoding <= 0xF || encoding == MessageEncoding.Unkown && payload.Length == 0);
-            Debug.Assert(payload.GetLongLength(0) <= int.MaxValue);
+            Assert(payload != null);
+            Assert(type > 0 && type <= MessageType.MaxEnum);
+            Assert(encoding > 0 && (byte)encoding <= 0xF || encoding == MessageEncoding.Unkown && payload.Length == 0);
+            Assert(payload.GetLongLength(0) <= int.MaxValue);
 
             var packetLength = payload.Length + _headerLength;
             var padding = (4 * ((packetLength + 3) / 4) - packetLength);
 
-            Debug.Assert(padding >= 0 && padding <= 3);
-            Debug.Assert((packetLength + padding) % 4 == 0);
+            Assert(padding >= 0 && padding <= 3);
+            Assert((packetLength + padding) % 4 == 0);
 
+            // Build the packet header.
             var header = new byte[_headerLength];
 
             using (var memStream = new MemoryStream(header))
@@ -276,16 +295,22 @@ namespace AI4E.Modularity
             {
                 using (await _sendLock.LockAsync())
                 {
+                    // Send the packet header.
                     await _underlyingStream.WriteAsync(header, 0, header.Length, cancellation);
+
+                    // Only send a payload and padding if payload is available.
                     if (payload.Length > 0)
                     {
+                        // Send the payload.
                         await _underlyingStream.WriteAsync(payload, 0, payload.Length, cancellation);
-                        await _underlyingStream.WriteAsync(header, 0, padding, cancellation); // Just send anything to pad the message
+
+                        // Just send anything to pad the message.
+                        await _underlyingStream.WriteAsync(header, 0, padding, cancellation);
                     }
                     else
                     {
-                        // Payload is empty && the header length is a multiple of 4 => There is no padding
-                        Debug.Assert(padding == 0);
+                        // Payload is empty and the header length is a multiple of 4 => There must be no padding
+                        Assert(padding == 0);
                     }
 
                     await _underlyingStream.FlushAsync();
@@ -296,8 +321,6 @@ namespace AI4E.Modularity
                 throw ObjectDisposedException(exc);
             }
         }
-
-        private bool IsDisposed => _completing != null;
 
         private Task SendProtocolVersionNotSupportedErrorAsync(uint corrId, CancellationToken cancellation)
         {
@@ -341,54 +364,31 @@ namespace AI4E.Modularity
 
         private async Task RequestInitAsync(CancellationToken cancellation)
         {
-            uint seqNum;
-            var completionSource = new TaskCompletionSource<object>();
-
-            do
+            using (var resonseTableSlot = new ResponseTableSlot(this))
             {
-                seqNum = GetNextSeqNum();
-            }
-            while (!_responseTable.TryAdd(seqNum, completionSource));
+                // Send init message
+                await SendInitAsync(resonseTableSlot.SeqNum, cancellation);
 
-            try
-            {
-                // Send termination message
-                await SendInitAsync(seqNum, cancellation);
-
-                // Wait for terminate ack
-                await Task.WhenAny(completionSource.Task, cancellation.AsTask());
-            }
-            finally
-            {
-                _responseTable.TryRemove(seqNum, out _);
+                // Wait for init ack
+                await Task.WhenAny(resonseTableSlot.Response, cancellation.AsTask());
             }
         }
 
         private async Task RequestTerminationAsync(CancellationToken cancellation)
         {
-            uint seqNum;
-            var completionSource = new TaskCompletionSource<object>();
-
-            do
-            {
-                seqNum = GetNextSeqNum();
-            }
-            while (!_responseTable.TryAdd(seqNum, completionSource));
-
-            try
+            using (var resonseTableSlot = new ResponseTableSlot(this))
             {
                 // Send termination message
-                await SendTerminateAsync(seqNum, cancellation);
+                await SendTerminateAsync(resonseTableSlot.SeqNum, cancellation);
 
                 // Wait for terminate ack
-                await Task.WhenAny(completionSource.Task, cancellation.AsTask());
-            }
-            finally
-            {
-                _responseTable.TryRemove(seqNum, out _);
+                await Task.WhenAny(resonseTableSlot.Response, cancellation.AsTask());
             }
         }
 
+        /// <summary>
+        /// Gets the next available legal seq-num.
+        /// </summary>
         private uint GetNextSeqNum()
         {
             uint result;
@@ -402,17 +402,70 @@ namespace AI4E.Modularity
             return result;
         }
 
+        /// <summary>
+        /// Represents a slot in the reponse table.
+        /// </summary>
+        private struct ResponseTableSlot : IDisposable
+        {
+            private readonly MessageEndPoint _messageEndPoint;
+            private readonly uint _seqNum;
+            private readonly TaskCompletionSource<object> _completionSource;
+
+            /// <summary>
+            /// Creates a new slot in the response table.
+            /// </summary>
+            /// <param name="messageEndPoint">The message end point.</param>
+            public ResponseTableSlot(MessageEndPoint messageEndPoint)
+            {
+                Assert(messageEndPoint != null);
+
+                _messageEndPoint = messageEndPoint;
+                _seqNum = 0;
+
+                _completionSource = new TaskCompletionSource<object>();
+
+                // Allocate the next free seq-num that must not habe an entry in the response table.
+                do
+                {
+                    _seqNum = _messageEndPoint.GetNextSeqNum();
+                }
+                while (!_messageEndPoint._responseTable.TryAdd(_seqNum, _completionSource));
+            }
+
+            /// <summary>
+            /// Gets the seq-num of the response table slot.
+            /// </summary>
+            public uint SeqNum => _seqNum;
+
+            /// <summary>
+            /// Gets the task that represens the response.
+            /// </summary>
+            public Task<object> Response => _completionSource.Task;
+
+            /// <summary>
+            /// Removes the entry from the reponse table.
+            /// </summary>
+            public void Dispose()
+            {
+                _messageEndPoint._responseTable.TryRemove(_seqNum, out _);
+            }
+        }
+
         #endregion
 
         #region Receive
 
         private async Task ReceiveProcedure(CancellationToken cancellation)
         {
+            _logger?.LogInformation($"Started receive procedure.");
+
             while (cancellation.ThrowOrContinue())
             {
                 try
                 {
                     var (payload, type, encoding, seqNum, corrId) = await ReceiveMessageAsync(cancellation);
+
+                    _logger?.LogInformation($"Received message of type {type} with seq-num {seqNum}.");
 
                     if (type != MessageType.Unknown)
                     {
@@ -462,7 +515,7 @@ namespace AI4E.Modularity
                         corrId = binaryReader.ReadUInt32();
                         padding = (4 * ((packetLength + 3) / 4) - packetLength);
 
-                        Debug.Assert(padding >= 0 && padding <= 3);
+                        Assert(padding >= 0 && padding <= 3);
                     }
                     else
                     {
@@ -482,7 +535,7 @@ namespace AI4E.Modularity
                 else
                 {
                     // Payload is empty && the header length is a multiple of 4 => There is no padding
-                    Debug.Assert(padding == 0);
+                    Assert(padding == 0);
                 }
             }
             catch (IOException exc) when (IsDisposed)
@@ -737,10 +790,16 @@ namespace AI4E.Modularity
             _completion.TrySetResult(null);
         }
 
+        private bool IsDisposed => _completing != null;
+
         private void ThrowIfDisposed()
         {
             if (IsDisposed)
+            {
+                _logger?.LogError("The end point is disposed and cannot be used.");
+
                 throw ObjectDisposedException();
+            }
         }
 
         private T ThrowIfDisposed<T>(T t)
