@@ -46,9 +46,8 @@ namespace AI4E.Integration
         /// Checks whether dispatching  the specified query is authorized.
         /// </summary>
         /// <typeparam name="TQuery">The type of query.</typeparam>
-        /// <typeparam name="TResult">The type of result.</typeparam>
         /// <param name="query">The query that shall be dispatched.</param>
         /// <returns>True if the query dispatch is authorized, false otherwise.</returns>
-        bool AuthorizeQuery<TQuery, TResult>(TQuery query);
+        bool AuthorizeQuery<TQuery>(TQuery query);
     }
 }

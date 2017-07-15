@@ -4,13 +4,11 @@ namespace AI4E.Modularity.Integration
 {
     public sealed class UnregisterQueryForwarding
     {
-        public UnregisterQueryForwarding(Type queryType, Type resultType)
+        public UnregisterQueryForwarding(Type queryType)
         {
             QueryType = queryType;
-            ResultType = resultType;
         }
 
         public Type QueryType { get; }
-        public Type ResultType { get; }
     }
 }

@@ -1,11 +1,10 @@
 ﻿/* Summary
  * --------------------------------------------------------------------------------------------------------------------
  * Filename:        IQueryHandler.cs
- * Types:           AI4E.Integration.IQueryHandler'2
+ * Types:           AI4E.Integration.IQueryHandler'1
  * Version:         1.0
  * Author:          Andreas Trütschel
- * Last modified:   01.07.2017 
- * Status:          Ready
+ * Last modified:   15.07.2017 
  * --------------------------------------------------------------------------------------------------------------------
  */
 
@@ -37,8 +36,7 @@ namespace AI4E.Integration
     /// Represents a query handler.
     /// </summary>
     /// <typeparam name="TQuery">The type of query.</typeparam>
-    /// <typeparam name="TResult">The type of result.</typeparam>
-    public interface IQueryHandler<in TQuery, TResult>
+    public interface IQueryHandler<in TQuery>
     {
         /// <summary>
         /// Asynchrnously handles a query.
@@ -46,9 +44,8 @@ namespace AI4E.Integration
         /// <param name="query">The query that shall be handled.</param>
         /// <returns>
         /// A task that represents the asynchronous operation.
-        /// The <see cref="Task{TResult}.Result"/> contains the query result or the default value of <typeparamref name="TResult"/> if nothing was found.
         /// </returns>
         /// <exception cref="System.ArgumentNullException">Thrown if <paramref name="query"/> is null.</exception>
-        Task<TResult> HandleAsync(TQuery query);
+        Task<IQueryResult> HandleAsync(TQuery query);
     }
 }

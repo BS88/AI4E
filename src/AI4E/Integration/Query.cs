@@ -13,7 +13,7 @@
  *                  AI4E.Integration.IByParentQueryHandler'2
  * Version:         1.0
  * Author:          Andreas Trütschel
- * Last modified:   29.04.2017 
+ * Last modified:   17.07.2017 
  * Status:          Ready
  * --------------------------------------------------------------------------------------------------------------------
  */
@@ -40,7 +40,6 @@
 
 using System;
 
-// ReSharper disable UnusedTypeParameter
 namespace AI4E.Integration
 {
     /// <summary>
@@ -160,17 +159,12 @@ namespace AI4E.Integration
     }
 
     /// <summary>
-    /// Represents a query handler that handles queries of type <see cref="Query{TResult}"/>.
-    /// </summary>
-    /// <typeparam name="TResult">The type of result.</typeparam>
-    public interface IQueryHandler<TResult> : IQueryHandler<Query<TResult>, TResult> { }
-
-    /// <summary>
     /// Represents a query handler that handles queries of type <see cref="ByIdQuery{TId, TResult}"/>.
     /// </summary>
     /// <typeparam name="TId">The type of id.</typeparam>
     /// <typeparam name="TResult">The type of result.</typeparam>
-    public interface IByIdQueryHandler<TId, TResult> : IQueryHandler<ByIdQuery<TId, TResult>, TResult>
+    [Obsolete]
+    public interface IByIdQueryHandler<TId, TResult> : IQueryHandler<ByIdQuery<TId, TResult>>
         where TId : struct, IEquatable<TId>
     { }
 
@@ -178,7 +172,8 @@ namespace AI4E.Integration
     /// Represents a query handler that handles queries of type <see cref="ByIdQuery{TResult}"/>.
     /// </summary>
     /// <typeparam name="TResult">The type of result.</typeparam>
-    public interface IByIdQueryHandler<TResult> : IQueryHandler<ByIdQuery<TResult>, TResult> { }
+    [Obsolete]
+    public interface IByIdQueryHandler<TResult> : IQueryHandler<ByIdQuery<TResult>> { }
 
     /// <summary>
     /// Represents a query handler that handles queries of type <see cref="IByParentQueryHandler{TId, TParent, TResult}"/>.
@@ -186,7 +181,8 @@ namespace AI4E.Integration
     /// <typeparam name="TId">The type of id.</typeparam>
     /// <typeparam name="TParent">The type of parent.</typeparam>
     /// <typeparam name="TResult">The type of result.</typeparam>
-    public interface IByParentQueryHandler<TId, TParent, TResult> : IQueryHandler<ByParentQuery<TId, TParent, TResult>, TResult>
+    [Obsolete]
+    public interface IByParentQueryHandler<TId, TParent, TResult> : IQueryHandler<ByParentQuery<TId, TParent, TResult>>
         where TId : struct, IEquatable<TId>
     { }
 
@@ -195,6 +191,6 @@ namespace AI4E.Integration
     /// </summary>
     /// <typeparam name="TParent">The type of parent.</typeparam>
     /// <typeparam name="TResult">The type of result.</typeparam>
-    public interface IByParentQueryHandler<TParent, TResult> : IQueryHandler<ByParentQuery<TParent, TResult>, TResult> { }
+    [Obsolete]
+    public interface IByParentQueryHandler<TParent, TResult> : IQueryHandler<ByParentQuery<TParent, TResult>> { }
 }
-// ReSharper restore UnusedTypeParameter

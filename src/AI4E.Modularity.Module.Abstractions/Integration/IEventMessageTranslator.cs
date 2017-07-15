@@ -1,4 +1,5 @@
 ﻿using System.Threading.Tasks;
+using AI4E.Integration;
 
 namespace AI4E.Modularity.Integration
 {
@@ -6,6 +7,6 @@ namespace AI4E.Modularity.Integration
     {
         Task RegisterForwardingAsync<TEvent>();
         Task UnregisterForwardingAsync<TEvent>();
-        Task DispatchAsync<TEvent>(TEvent evt);
+        Task<IAggregateEventResult> DispatchAsync<TEvent>(TEvent evt);
     }
 }

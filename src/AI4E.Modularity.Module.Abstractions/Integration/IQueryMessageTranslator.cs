@@ -1,12 +1,13 @@
 ﻿using System.Threading.Tasks;
+using AI4E.Integration;
 
 namespace AI4E.Modularity.Integration
 {
     public interface IQueryMessageTranslator
     {
-        Task RegisterForwardingAsync<TQuery, TResult>();
-        Task UnregisterForwardingAsync<TQuery, TResult>();
+        Task RegisterForwardingAsync<TQuery>();
+        Task UnregisterForwardingAsync<TQuery>();
 
-        Task<TResult> DispatchAsync<TQuery, TResult>(TQuery query);
+        Task<IQueryResult> DispatchAsync<TQuery>(TQuery query);
     }
 }

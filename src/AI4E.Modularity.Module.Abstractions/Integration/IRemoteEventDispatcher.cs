@@ -8,7 +8,7 @@ namespace AI4E.Modularity.Integration
     {
         new IRemoteEventDispatcher<TEvent> GetTypedDispatcher<TEvent>();
 
-        Task LocalDispatchAsync<TEvent>(TEvent evt);
+        Task<IAggregateEventResult> LocalDispatchAsync<TEvent>(TEvent evt);
 
         void NotifyForwardingActive<TEvent>();
         void NotifyForwardingInactive<TEvent>();
@@ -16,7 +16,7 @@ namespace AI4E.Modularity.Integration
 
     public interface IRemoteEventDispatcher<TEvent> : IEventDispatcher<TEvent>
     {
-        Task LocalDispatchAsync(TEvent evt);
+        Task<IAggregateEventResult> LocalDispatchAsync(TEvent evt);
 
         void NotifyForwardingActive();
         void NotifyForwardingInactive();
@@ -28,7 +28,7 @@ namespace AI4E.Modularity.Integration
     {
         new ITypedNonGenericRemoteEventDispatcher GetTypedDispatcher(Type eventType);
 
-        Task LocalDispatchAsync(Type eventType, object evt);
+        Task<IAggregateEventResult> LocalDispatchAsync(Type eventType, object evt);
 
         void NotifyForwardingActive(Type eventType);
         void NotifyForwardingInactive(Type eventType);
@@ -36,7 +36,7 @@ namespace AI4E.Modularity.Integration
 
     public interface ITypedNonGenericRemoteEventDispatcher : ITypedNonGenericEventDispatcher
     {
-        Task LocalDispatchAsync(object evt);
+        Task<IAggregateEventResult> LocalDispatchAsync(object evt);
 
         void NotifyForwardingActive();
         void NotifyForwardingInactive();

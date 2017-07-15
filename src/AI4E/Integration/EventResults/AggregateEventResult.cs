@@ -1,12 +1,10 @@
 ﻿/* Summary
  * --------------------------------------------------------------------------------------------------------------------
- * Filename:        ICommandResult.cs 
- * Types:           (1) AI4E.Integration.ICommandResult
- *                  (2) AI4E.Integration.ICommandResult'1
+ * Filename:        EventAggregateResult.cs 
+ * Types:           AI4E.Integration.EventResults.EventAggregateResult
  * Version:         1.0
  * Author:          Andreas Trütschel
  * Last modified:   15.07.2017 
- * Status:          Ready
  * --------------------------------------------------------------------------------------------------------------------
  */
 
@@ -30,20 +28,30 @@
  * --------------------------------------------------------------------------------------------------------------------
  */
 
-using System;
+using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.Linq;
 
-namespace AI4E.Integration
+namespace AI4E.Integration.EventResults
 {
-    /// <summary>
-    /// Defines the type of result a command handler returns.
-    /// </summary>
-    public interface ICommandResult : IDispatchResult
+    public sealed class AggregateEventResult : IAggregateEventResult
     {
+        public AggregateEventResult(IEnumerable<IEventResult> eventResults)
+        {
+            EventResults = eventResults.ToImmutableArray();
+        }
 
-    }
+        public ImmutableArray<IEventResult> EventResults { get; }
 
-    public interface ICommandResult<TResult> : ICommandResult, IDispatchResult<TResult>
-    {
+        public bool IsSuccess => EventResults.Length == 0 || EventResults.All(p => p.IsSuccess);
 
+        string IDispatchResult.Message => IsSuccess ? "Success" : "Failure";
+
+        string IEventResult.Message => ((IDispatchResult)this).Message;
+
+        public override string ToString()
+        {
+            return ((IDispatchResult)this).Message;
+        }
     }
 }

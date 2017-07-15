@@ -29,7 +29,6 @@
  */
 
 using System;
-using System.Diagnostics;
 
 namespace AI4E.Integration.CommandResults
 {
@@ -41,17 +40,5 @@ namespace AI4E.Integration.CommandResults
         }
 
         public DateTime DueTime { get; }
-
-        protected override bool IsEqualByValue(object obj)
-        {
-            Debug.Assert(obj is TimeoutCommandResult);
-
-            return DueTime == ((TimeoutCommandResult)obj).DueTime;
-        }
-
-        public override int GetHashCode()
-        {
-            return GetType().GetHashCode() ^ DueTime.GetHashCode();
-        }
     }
 }

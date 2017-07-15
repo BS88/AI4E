@@ -44,7 +44,7 @@ namespace AI4E.Modularity.Integration
             return GetTypedDispatcher(eventType).UnregisterForwardingAsync();
         }
 
-        public Task DispatchAsync(Type eventType, object evt)
+        public Task<IAggregateEventResult> DispatchAsync(Type eventType, object evt)
         {
             if (eventType == null)
                 throw new ArgumentNullException(nameof(eventType));
@@ -134,7 +134,7 @@ namespace AI4E.Modularity.Integration
             }
         }
 
-        public Task DispatchAsync(object evt)
+        public Task<IAggregateEventResult> DispatchAsync(object evt)
         {
             if (evt == null)
                 throw new ArgumentNullException(nameof(evt));

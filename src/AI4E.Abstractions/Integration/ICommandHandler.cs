@@ -4,8 +4,7 @@
  * Types:           AI4E.Integration.ICommandHandler'1
  * Version:         1.0
  * Author:          Andreas Trütschel
- * Last modified:   09.05.2017 
- * Status:          Ready
+ * Last modified:   09.05.2017
  * --------------------------------------------------------------------------------------------------------------------
  */
 
@@ -45,7 +44,6 @@ namespace AI4E.Integration
         /// <param name="command">The command that shall be handled.</param>
         /// <returns>
         /// A task representing the asynchronous operation.
-        /// The <see cref="Task{TResult}.Result"/> contains a <see cref="ICommandResult"/> indicating command handling state.
         /// </returns>
         /// <exception cref="System.ArgumentNullException">Thrown  if <paramref name="command"/> is null.</exception>
         Task<ICommandResult> HandleAsync(TCommand command);

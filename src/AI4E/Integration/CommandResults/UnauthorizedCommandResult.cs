@@ -28,24 +28,10 @@
  * --------------------------------------------------------------------------------------------------------------------
  */
 
-using System.Diagnostics;
-
 namespace AI4E.Integration.CommandResults
 {
     public class UnauthorizedCommandResult : FailureCommandResult
     {
         public UnauthorizedCommandResult() : base("Action forbidden") { }
-
-        protected override bool IsEqualByValue(object obj)
-        {
-            Debug.Assert(obj is UnauthorizedCommandResult);
-
-            return true;
-        }
-
-        public override int GetHashCode()
-        {
-            return GetType().GetHashCode();
-        }
     }
 }

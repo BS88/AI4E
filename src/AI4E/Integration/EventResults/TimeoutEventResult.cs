@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Diagnostics;
 
 namespace AI4E.Integration.EventResults
 {
@@ -11,17 +10,5 @@ namespace AI4E.Integration.EventResults
         }
 
         public DateTime DueTime { get; }
-
-        protected override bool IsEqualByValue(object obj)
-        {
-            Debug.Assert(obj is TimeoutEventResult);
-
-            return DueTime == ((TimeoutEventResult)obj).DueTime;
-        }
-
-        public override int GetHashCode()
-        {
-            return GetType().GetHashCode() ^ DueTime.GetHashCode();
-        }
     }
 }

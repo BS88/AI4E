@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
+using AI4E.Integration;
 
 namespace AI4E.Modularity.Integration
 {
@@ -15,36 +16,36 @@ namespace AI4E.Modularity.Integration
             _messageEndPoint = messageEndPoint;
         }
 
-        public Task RegisterForwardingAsync<TQuery, TResult>()
+        public Task RegisterForwardingAsync<TQuery>()
         {
-            var message = new RegisterQueryForwarding(typeof(TQuery), typeof(TResult));
+            var message = new RegisterQueryForwarding(typeof(TQuery));
 
-            Console.WriteLine($"Sending 'RegisterQueryForwarding' for query type '{message.QueryType.FullName}' and result '{message.ResultType.FullName}'.");
+            Console.WriteLine($"Sending 'RegisterQueryForwarding' for query type '{message.QueryType.FullName}'.");
 
             return _messageEndPoint.SendAsync(message);
         }
 
-        public Task UnregisterForwardingAsync<TQuery, TResult>()
+        public Task UnregisterForwardingAsync<TQuery>()
         {
-            var message = new UnregisterQueryForwarding(typeof(TQuery), typeof(TResult));
+            var message = new UnregisterQueryForwarding(typeof(TQuery));
 
-            Console.WriteLine($"Sending 'UnregisterQueryForwarding' for query type '{message.QueryType.FullName}' and result '{message.ResultType.FullName}'.");
+            Console.WriteLine($"Sending 'UnregisterQueryForwarding' for query type '{message.QueryType.FullName}'.");
 
             return _messageEndPoint.SendAsync(message);
         }
 
-        public async Task<TResult> DispatchAsync<TQuery, TResult>(TQuery query)
+        public async Task<IQueryResult> DispatchAsync<TQuery>(TQuery query)
         {
             if (query == null)
                 throw new ArgumentNullException(nameof(query));
 
-            var message = new DispatchQuery(typeof(TQuery), typeof(TResult), query);
+            var message = new DispatchQuery(typeof(TQuery), query);
 
-            Console.WriteLine($"Sending 'DispatchQuery' for query type '{message.QueryType.FullName}' and result '{message.ResultType.FullName}' with query '{message.Query}'.");
+            Console.WriteLine($"Sending 'DispatchQuery' for query type '{message.QueryType.FullName}' with query '{message.Query}'.");
 
             var answer = await _messageEndPoint.SendAsync<DispatchQuery, QueryDispatchResult>(message);
 
-            return (TResult)answer.QueryResult;
+            return answer.QueryResult;
         }
     }
 }

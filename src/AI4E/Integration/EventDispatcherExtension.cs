@@ -52,7 +52,7 @@ namespace AI4E.Integration
         /// The <see cref="IHandlerRegistration"/> cancels the handler registration if completed.
         /// </returns>
         /// <exception cref="ArgumentNullException">Thrown if either <paramref name="eventDispatcher"/> or <paramref name="handler"/> is null.</exception>
-        public static Task<IHandlerRegistration<IEventHandler<TEvent>>> OnEvent<TEvent>(this IEventDispatcher eventDispatcher, Func<TEvent, Task> handler) // TODO: Correct xml-comments
+        public static Task<IHandlerRegistration<IEventHandler<TEvent>>> OnEvent<TEvent>(this IEventDispatcher eventDispatcher, Func<TEvent, Task<IEventResult>> handler) // TODO: Correct xml-comments
         {
             if (eventDispatcher == null)
                 throw new ArgumentNullException(nameof(eventDispatcher));
@@ -93,16 +93,16 @@ namespace AI4E.Integration
 
         private class AnonymousEventHandler<TEvent> : IEventHandler<TEvent>, IHandlerFactory<IEventHandler<TEvent>>
         {
-            private readonly Func<TEvent, Task> _handler;
+            private readonly Func<TEvent, Task<IEventResult>> _handler;
 
-            internal AnonymousEventHandler(Func<TEvent, Task> handler)
+            internal AnonymousEventHandler(Func<TEvent, Task<IEventResult>> handler)
             {
                 Debug.Assert(handler != null);
 
                 _handler = handler;
             }
 
-            public Task HandleAsync(TEvent evt)
+            public Task<IEventResult> HandleAsync(TEvent evt)
             {
                 if (evt == null)
                     throw new ArgumentNullException(nameof(evt));

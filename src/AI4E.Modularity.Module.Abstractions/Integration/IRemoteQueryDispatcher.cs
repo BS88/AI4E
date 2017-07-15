@@ -46,27 +46,23 @@ namespace AI4E.Modularity.Integration
         /// Returns a typed query handler for the specified query and result type.
         /// </summary>
         /// <typeparam name="TQuery">The type of query.</typeparam>
-        /// <typeparam name="TResult">The type of result.</typeparam>
         /// <returns>A typed query dispatcher.</returns>
-        new IRemoteQueryDispatcher<TQuery, TResult> GetTypedDispatcher<TQuery, TResult>();
+        new IRemoteQueryDispatcher<TQuery> GetTypedDispatcher<TQuery>();
 
         /// <summary>
         /// Asynchronously dispatches a query locally only.
         /// </summary>
         /// <typeparam name="TQuery">The type of query.</typeparam>
-        /// <typeparam name="TResult">The type of result.</typeparam>
         /// <param name="query">The query to dispatch.</param>
         /// <returns>
         /// A task representing the asynchronous operation.
-        /// The <see cref="Task{TResult}.Result"/> contains the result of the query operation
-        /// or the default value of <typeparamref name="TResult"/> if the query could not be handled.
         /// </returns>
         /// <exception cref="ArgumentNullException">Thrown if <paramref name="query"/> is null.</exception>
-        Task<TResult> LocalDispatchAsync<TQuery, TResult>(TQuery query);
+        Task<IQueryResult> LocalDispatchAsync<TQuery>(TQuery query);
 
         // TODO: Move this to a separate interface.
-        void NotifyForwardingActive<TQuery, TResult>();
-        void NotifyForwardingInactive<TQuery, TResult>();
+        void NotifyForwardingActive<TQuery>();
+        void NotifyForwardingInactive<TQuery>();
     }
 
     /// <summary>
@@ -74,7 +70,7 @@ namespace AI4E.Modularity.Integration
     /// </summary>
     /// <typeparam name="TQuery">The type of query.</typeparam>
     /// <typeparam name="TResult">The type of result.</typeparam>
-    public interface IRemoteQueryDispatcher<TQuery, TResult> : IQueryDispatcher<TQuery, TResult>
+    public interface IRemoteQueryDispatcher<TQuery> : IQueryDispatcher<TQuery>
     {
         /// <summary>
         /// Asynchronously dispatches a query locally only.
@@ -82,11 +78,9 @@ namespace AI4E.Modularity.Integration
         /// <param name="query">The query to dispatch.</param>
         /// <returns>
         /// A task representing the asynchronous operation.
-        /// The <see cref="Task{TResult}.Result"/> contains the result of the query operation
-        /// or the default value of <typeparamref name="TResult"/> if the query could not be dispatched.
         /// </returns>
         /// <exception cref="ArgumentNullException">Thrown if <paramref name="query"/> is null.</exception>
-        Task<TResult> LocalDispatchAsync(TQuery query);
+        Task<IQueryResult> LocalDispatchAsync(TQuery query);
 
         // TODO: Move this to a separate interface.
         bool IsForwardingActive { get; }
@@ -104,28 +98,27 @@ namespace AI4E.Modularity.Integration
         /// Returns a non-generic typed remote query handler for the specified type of query and result.
         /// </summary>
         /// <param name="queryType">The type of query.</param>
-        /// <param name="resultType">The type of result.</param>
         /// <returns>A non-generic typed remote query dispatcher.</returns>
-        new ITypedNonGenericRemoteQueryDispatcher GetTypedDispatcher(Type queryType, Type resultType);
+        /// <exception cref="ArgumentNullException">Thrown if <paramref name="queryType"/> is null.</exception>
+        new ITypedNonGenericRemoteQueryDispatcher GetTypedDispatcher(Type queryType);
 
         /// <summary>
         /// Asynchronously dispatched a query locally only.
         /// </summary>
         /// <param name="queryType">The type of query.</param>
-        /// <param name="resultType">The type of result.</param>
         /// <param name="query">The query to dispatch.</param>
         /// <returns>
         /// A task representing the asynchronous operation.
         /// The <see cref="Task{TResult}.Result"/> contains the result of the query operation
         /// or the default value of <paramref name="resultType"/> if the query could not be dispatched.
         /// </returns>
-        /// <exception cref="ArgumentNullException">Thrown if any of <paramref name="queryType"/>, <paramref name="resultType"/> or <paramref name="query"/> is null.</exception>
+        /// <exception cref="ArgumentNullException">Thrown if either <paramref name="queryType"/> or <paramref name="query"/> is null.</exception>
         /// <exception cref="ArgumentException">Thrown if <paramref name="query"/> is not of type <paramref name="queryType"/> or a derived type.</exception>
-        Task<object> LocalDispatchAsync(Type queryType, Type resultType, object query);
+        Task<IQueryResult> LocalDispatchAsync(Type queryType, object query);
 
         // TODO: Move this to a separate interface.
-        void NotifyForwardingActive(Type queryType, Type resultType);
-        void NotifyForwardingInactive(Type queryType, Type resultType);
+        void NotifyForwardingActive(Type queryType);
+        void NotifyForwardingInactive(Type queryType);
     }
 
     /// <summary>
@@ -137,7 +130,6 @@ namespace AI4E.Modularity.Integration
         /// Asynchronously dispatched a query locally only.
         /// </summary>
         /// <param name="queryType">The type of query.</param>
-        /// <param name="resultType">The type of result.</param>
         /// <param name="query">The query to dispatch.</param>
         /// <returns>
         /// A task representing the asynchronous operation.
@@ -146,7 +138,7 @@ namespace AI4E.Modularity.Integration
         /// </returns>
         /// <exception cref="ArgumentNullException">Thrown if <paramref name="query"/> is null.</exception>
         /// <exception cref="ArgumentException">Thrown if <paramref name="query"/> is not of type <see cref="ITypedNonGenericQueryDispatcher.QueryType"/> or a derived type.</exception>
-        Task<object> LocalDispatchAsync(object query);
+        Task<IQueryResult> LocalDispatchAsync(object query);
 
         // TODO: Move this to a separate interface.
         void NotifyForwardingActive();

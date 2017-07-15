@@ -36,6 +36,7 @@ using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Threading.Tasks;
 using AI4E.Async;
+using AI4E.Integration.QueryResults;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace AI4E.Integration
@@ -45,12 +46,12 @@ namespace AI4E.Integration
     /// </summary>
     public sealed class QueryDispatcher : IQueryDispatcher, ISecureQueryDispatcher, INonGenericQueryDispatcher
     {
-        private static readonly Type _typedDispatcherType = typeof(QueryDispatcher<,>);
+        private static readonly Type _typedDispatcherType = typeof(QueryDispatcher<>);
 
         private readonly IServiceProvider _serviceProvider;
         private readonly IQueryAuthorizationVerifyer _authorizationVerifyer;
-        private readonly ConcurrentDictionary<(Type, Type), ITypedNonGenericQueryDispatcher> _typedDispatchers
-            = new ConcurrentDictionary<(Type, Type), ITypedNonGenericQueryDispatcher>();
+        private readonly ConcurrentDictionary<Type, ITypedNonGenericQueryDispatcher> _typedDispatchers
+            = new ConcurrentDictionary<Type, ITypedNonGenericQueryDispatcher>();
 
         /// <summary>
         /// Creates a new instance of the <see cref="QueryDispatcher"/> type.
@@ -81,14 +82,12 @@ namespace AI4E.Integration
         /// Asynchronously registers a query handler.
         /// </summary>
         /// <typeparam name="TQuery">The type of query.</typeparam>
-        /// <typeparam name="TResult">The type of result.</typeparam>
         /// <param name="queryHandlerFactory">The query handler to register.</param>
         /// <returns>
-        /// A <see cref="IHandlerRegistration"/> representing the asynchronous operation.
-        /// The <see cref="IHandlerRegistration"/> cancels the handler registration if completed.
+        /// TODO
         /// </returns>
         /// <exception cref="ArgumentNullException">Thrown if <paramref name="queryHandlerFactory"/> is null.</exception>
-        public Task<IHandlerRegistration<IQueryHandler<TQuery, TResult>>> RegisterAsync<TQuery, TResult>(IHandlerFactory<IQueryHandler<TQuery, TResult>> queryHandlerFactory) // TODO: Correct xml-comments
+        public Task<IHandlerRegistration<IQueryHandler<TQuery>>> RegisterAsync<TQuery>(IHandlerFactory<IQueryHandler<TQuery>> queryHandlerFactory) // TODO: Correct xml-comments
         {
             if (queryHandlerFactory == null)
                 throw new ArgumentNullException(nameof(queryHandlerFactory));
@@ -96,23 +95,21 @@ namespace AI4E.Integration
             if (!_authorizationVerifyer.AuthorizeHandlerRegistry())
                 throw new UnauthorizedAccessException();
 
-            return GetTypedDispatcher<TQuery, TResult>().RegisterAsync(queryHandlerFactory);
+            return GetTypedDispatcher<TQuery>().RegisterAsync(queryHandlerFactory);
         }
 
         /// <summary>
         /// Returns a typed query dispatcher for the specified query and result types.
         /// </summary>
         /// <typeparam name="TQuery">The type of query.</typeparam>
-        /// <typeparam name="TResult">The type of result.</typeparam>
         /// <returns>
-        /// A typed query dispatcher for queries of type <typeparamref name="TQuery"/> 
-        /// and results of type <typeparamref name="TResult"/>.
+        /// A typed query dispatcher for queries of type <typeparamref name="TQuery"/>.
         /// </returns>
-        public IQueryDispatcher<TQuery, TResult> GetTypedDispatcher<TQuery, TResult>()
+        public IQueryDispatcher<TQuery> GetTypedDispatcher<TQuery>()
         {
-            return _typedDispatchers.GetOrAdd((typeof(TQuery), typeof(TResult)),
-                                             t => new QueryDispatcher<TQuery, TResult>(_authorizationVerifyer, _serviceProvider))
-                                             as IQueryDispatcher<TQuery, TResult>;
+            return _typedDispatchers.GetOrAdd(typeof(TQuery),
+                                             t => new QueryDispatcher<TQuery>(_authorizationVerifyer, _serviceProvider))
+                                             as IQueryDispatcher<TQuery>;
         }
 
         /// <summary>
@@ -125,11 +122,11 @@ namespace AI4E.Integration
         /// and results of type <paramref name="resultType"/>.
         /// </returns>
         /// <exception cref="ArgumentNullException">Thrown if either <paramref name="queryType"/> or <paramref name="resultType"/> is null.</exception>
-        public ITypedNonGenericQueryDispatcher GetTypedDispatcher(Type queryType, Type resultType)
+        public ITypedNonGenericQueryDispatcher GetTypedDispatcher(Type queryType)
         {
-            return _typedDispatchers.GetOrAdd((queryType, resultType), type =>
+            return _typedDispatchers.GetOrAdd(queryType, type =>
             {
-                var result = Activator.CreateInstance(_typedDispatcherType.MakeGenericType(queryType, resultType), _authorizationVerifyer, _serviceProvider);
+                var result = Activator.CreateInstance(_typedDispatcherType.MakeGenericType(queryType), _authorizationVerifyer, _serviceProvider);
                 Debug.Assert(result != null);
                 return result as ITypedNonGenericQueryDispatcher;
             });
@@ -139,61 +136,52 @@ namespace AI4E.Integration
         /// Asynchronously dispatches a query.
         /// </summary>
         /// <typeparam name="TQuery">The type of query.</typeparam>
-        /// <typeparam name="TResult">The type of result.</typeparam>
         /// <param name="query">The query to dispatch.</param>
         /// <returns>
         /// A task representing the asynchronous operation.
-        /// The <see cref="Task{TResult}.Result"/> contains the query result 
-        /// or the default value of <typeparamref name="TResult"/> if nothing was found.
         /// </returns>
         /// <exception cref="ArgumentNullException">Thrown if <paramref name="query"/> is null.</exception>
         /// <exception cref="UnauthorizedAccessException">Thrown if the access is unauthorized.</exception>
-        public Task<TResult> QueryAsync<TQuery, TResult>(TQuery query)
+        public Task<IQueryResult> QueryAsync<TQuery>(TQuery query)
         {
             if (query == null)
                 throw new ArgumentNullException(nameof(query));
 
-            if (!_authorizationVerifyer.AuthorizeQuery<TQuery, TResult>(query))
+            if (!_authorizationVerifyer.AuthorizeQuery<TQuery>(query))
                 throw new UnauthorizedAccessException();
 
-            return GetTypedDispatcher<TQuery, TResult>().QueryAsync(query);
+            return GetTypedDispatcher<TQuery>().QueryAsync(query);
         }
 
         /// <summary>
         /// Asynchronously dispatches a query.
         /// </summary>
         /// <param name="queryType">The type of query.</param>
-        /// <param name="resultType">The type of result.</param>
         /// <param name="query">The query to dispatch.</param>
         /// <returns>
         /// A task representing the asynchronous operation.
-        /// The <see cref="Taske{Object}.Result"/> contains the query result or null if nothing was found.
         /// </returns>
-        /// <exception cref="ArgumentNullException">Thrown if any of <paramref name="queryType"/>, <paramref name="resultType"/> or <paramref name="query"/> is null.</exception>
+        /// <exception cref="ArgumentNullException">Thrown if either<paramref name="queryType"/> or <paramref name="query"/> is null.</exception>
         /// <exception cref="ArgumentException">Throw is <paramref name="query"/> is not of type <paramref name="queryType"/> or a derived type.</exception>
-        public Task<object> QueryAsync(Type queryType, Type resultType, object query)
+        public Task<IQueryResult> QueryAsync(Type queryType, object query)
         {
             if (queryType == null)
                 throw new ArgumentNullException(nameof(queryType));
 
-            if (resultType == null)
-                throw new ArgumentNullException(nameof(resultType));
-
             if (query == null)
                 throw new ArgumentNullException(nameof(query));
 
-            return GetTypedDispatcher(queryType, resultType).QueryAsync(query);
+            return GetTypedDispatcher(queryType).QueryAsync(query);
         }
 
         /// <summary>
         /// Returns a boolean value indicating whether registering the specified query handler is authorized.
         /// </summary>
         /// <typeparam name="TQuery">The type of query.</typeparam>
-        /// <typeparam name="TResult">The type of result.</typeparam>
         /// <param name="queryHandlerFactory">The query handler that shall be registered.</param>
         /// <returns>True if registering <paramref name="queryHandlerFactory"/> is authorized, false otherwise.</returns>
         /// <exception cref="ArgumentNullException">Thrown if <paramref name="queryHandlerFactory"/> is null.</exception>
-        public bool IsRegistrationAuthorized<TQuery, TResult>(IHandlerFactory<IQueryHandler<TQuery, TResult>> queryHandlerFactory)
+        public bool IsRegistrationAuthorized<TQuery>(IHandlerFactory<IQueryHandler<TQuery>> queryHandlerFactory)
         {
             if (queryHandlerFactory == null)
                 throw new ArgumentNullException(nameof(queryHandlerFactory));
@@ -205,16 +193,15 @@ namespace AI4E.Integration
         /// Returns a boolean value indicating whether dispatching the specified query handler is authorized.
         /// </summary>
         /// <typeparam name="TQuery">The type of query.</typeparam>
-        /// <typeparam name="TResult">The type of result.</typeparam>
         /// <param name="query">The query that shall be dispatched.</param>
         /// <returns>True if dispatching <paramref name="query"/> is authorized, false otherwise.</returns>
         /// <exception cref="ArgumentNullException">Thrown if <paramref name="query"/> is null.</exception>
-        public bool IsDispatchAuthorized<TQuery, TResult>(TQuery query)
+        public bool IsDispatchAuthorized<TQuery>(TQuery query)
         {
             if (query == null)
                 throw new ArgumentNullException(nameof(query));
 
-            return _authorizationVerifyer.AuthorizeQuery<TQuery, TResult>(query);
+            return _authorizationVerifyer.AuthorizeQuery<TQuery>(query);
         }
     }
 
@@ -222,11 +209,10 @@ namespace AI4E.Integration
     /// Represents a typed query dispatcher that dispatches queries to query handlers.
     /// </summary>
     /// <typeparam name="TQuery">The type of query.</typeparam>
-    /// <typeparam name="TResult">The type of result.</typeparam>
-    public sealed class QueryDispatcher<TQuery, TResult> : IQueryDispatcher<TQuery, TResult>, ISecureQueryDispatcher<TQuery, TResult>, ITypedNonGenericQueryDispatcher
+    public sealed class QueryDispatcher<TQuery> : IQueryDispatcher<TQuery>, ISecureQueryDispatcher<TQuery>, ITypedNonGenericQueryDispatcher
     {
-        private readonly IAsyncSingleHandlerRegistry<IQueryHandler<TQuery, TResult>> _handlerRegistry
-            = new AsyncSingleHandlerRegistry<IQueryHandler<TQuery, TResult>>();
+        private readonly IAsyncSingleHandlerRegistry<IQueryHandler<TQuery>> _handlerRegistry
+            = new AsyncSingleHandlerRegistry<IQueryHandler<TQuery>>();
         private readonly IServiceProvider _serviceProvider;
         private readonly IQueryAuthorizationVerifyer _authorizationVerifyer;
 
@@ -259,8 +245,6 @@ namespace AI4E.Integration
 
         Type ITypedNonGenericQueryDispatcher.QueryType => typeof(TQuery);
 
-        Type ITypedNonGenericQueryDispatcher.ResultType => typeof(TResult);
-
         /// <summary>
         /// Asynchronously registers a query handler.
         /// </summary>
@@ -271,7 +255,7 @@ namespace AI4E.Integration
         /// </returns>
         /// <exception cref="ArgumentNullException">Thrown if <paramref name="queryHandlerFactory"/> is null.</exception>
         /// <exception cref="UnauthorizedAccessException">Thrown if the access is unauthorized.</exception>
-        public Task<IHandlerRegistration<IQueryHandler<TQuery, TResult>>> RegisterAsync(IHandlerFactory<IQueryHandler<TQuery, TResult>> queryHandlerFactory) // TODO: Correct xml-comments
+        public Task<IHandlerRegistration<IQueryHandler<TQuery>>> RegisterAsync(IHandlerFactory<IQueryHandler<TQuery>> queryHandlerFactory) // TODO: Correct xml-comments
         {
             if (queryHandlerFactory == null)
                 throw new ArgumentNullException(nameof(queryHandlerFactory));
@@ -288,17 +272,15 @@ namespace AI4E.Integration
         /// <param name="query">The query to dispatch.</param>
         /// <returns>
         /// A task representing the asynchronous operation.
-        /// The <see cref="Task{TResult}.Result"/> contains the query result 
-        /// or the default value of <typeparamref name="TResult"/> if nothing was found.
         /// </returns>
         /// <exception cref="ArgumentNullException">Thrown if <paramref name="query"/> is null.</exception>
         /// <exception cref="UnauthorizedAccessException">Thrown if the access is unauthorized.</exception>
-        public Task<TResult> QueryAsync(TQuery query)
+        public Task<IQueryResult> QueryAsync(TQuery query)
         {
             if (query == null)
                 throw new ArgumentNullException(nameof(query));
 
-            if (!_authorizationVerifyer.AuthorizeQuery<TQuery, TResult>(query))
+            if (!_authorizationVerifyer.AuthorizeQuery(query))
                 throw new UnauthorizedAccessException();
 
             if (_handlerRegistry.TryGetHandler(out var handler))
@@ -309,7 +291,7 @@ namespace AI4E.Integration
                 }
             }
 
-            return Task.FromResult(default(TResult));
+            return Task.FromResult<IQueryResult>(FailureQueryResult.UnkownFailure); // TODO
         }
 
         /// <summary>
@@ -321,7 +303,7 @@ namespace AI4E.Integration
         /// The <see cref="Task{Object}.Result"/> contains the query result or null if nothing was found.
         /// </returns>
         /// <exception cref="ArgumentNullException">Thrown if <paramref name="query"/> is null.</exception>
-        public async Task<object> QueryAsync(object query)
+        public async Task<IQueryResult> QueryAsync(object query)
         {
             if (query == null)
                 throw new ArgumentNullException(nameof(query));
@@ -340,7 +322,7 @@ namespace AI4E.Integration
         /// <param name="queryHandler">The query handler that shall be registered.</param>
         /// <returns>True if registering <paramref name="queryHandler"/> is authorized, false otherwise.</returns>
         /// <exception cref="ArgumentNullException">Thrown if <paramref name="queryHandler"/> is null.</exception>
-        public bool IsRegistrationAuthorized(IHandlerFactory<IQueryHandler<TQuery, TResult>> queryHandler)
+        public bool IsRegistrationAuthorized(IHandlerFactory<IQueryHandler<TQuery>> queryHandler)
         {
             if (queryHandler == null)
                 throw new ArgumentNullException(nameof(queryHandler));
@@ -359,7 +341,7 @@ namespace AI4E.Integration
             if (query == null)
                 throw new ArgumentNullException(nameof(query));
 
-            return _authorizationVerifyer.AuthorizeQuery<TQuery, TResult>(query);
+            return _authorizationVerifyer.AuthorizeQuery(query);
         }
     }
 
@@ -374,7 +356,7 @@ namespace AI4E.Integration
             return true;
         }
 
-        public bool AuthorizeQuery<TQuery, TResult>(TQuery query)
+        public bool AuthorizeQuery<TQuery>(TQuery query)
         {
             return true;
         }

@@ -30,7 +30,6 @@
 
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Diagnostics;
 
 namespace AI4E.Integration.CommandResults
 {
@@ -44,17 +43,5 @@ namespace AI4E.Integration.CommandResults
         }
 
         public ImmutableArray<ValidationResult> ValidationResults { get; }
-
-        protected override bool IsEqualByValue(object obj) // TODO
-        {
-            Debug.Assert(obj is ValidationFailureCommandResult);
-
-            return base.IsEqualByValue(obj);
-        }
-
-        public override int GetHashCode() // TODO
-        {
-            return base.GetHashCode();
-        }
     }
 }

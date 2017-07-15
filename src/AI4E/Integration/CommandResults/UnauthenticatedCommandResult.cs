@@ -28,24 +28,10 @@
  * --------------------------------------------------------------------------------------------------------------------
  */
 
-using System.Diagnostics;
-
 namespace AI4E.Integration.CommandResults
 {
     public class UnauthenticatedCommandResult : FailureCommandResult
     {
         public UnauthenticatedCommandResult() : base("Authentication required") { }
-
-        protected override bool IsEqualByValue(object obj)
-        {
-            Debug.Assert(obj is UnauthenticatedCommandResult);
-
-            return true;
-        }
-
-        public override int GetHashCode()
-        {
-            return GetType().GetHashCode();
-        }
     }
 }

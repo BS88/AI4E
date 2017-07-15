@@ -28,25 +28,10 @@
  * --------------------------------------------------------------------------------------------------------------------
  */
 
-
-using System.Diagnostics;
-
 namespace AI4E.Integration.CommandResults
 {
     public class ConcurrencyIssueCommandResult : FailureCommandResult
     {
         public ConcurrencyIssueCommandResult() : base("A concurrency issue occured.") { }
-
-        protected override bool IsEqualByValue(object obj)
-        {
-            Debug.Assert(obj is ConcurrencyIssueCommandResult);
-
-            return true;
-        }
-
-        public override int GetHashCode()
-        {
-            return GetType().GetHashCode();
-        }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
+using AI4E.Integration;
 
 namespace AI4E.Modularity.Integration
 {
@@ -8,7 +9,7 @@ namespace AI4E.Modularity.Integration
         Task RegisterForwardingAsync(Type eventType);
         Task UnregisterForwardingAsync(Type eventType);
 
-        Task DispatchAsync(Type eventType, object evt);
+        Task<IAggregateEventResult> DispatchAsync(Type eventType, object evt);
 
         ITypedHostEventDispatcher GetTypedDispatcher(Type eventType);
     }
@@ -18,7 +19,7 @@ namespace AI4E.Modularity.Integration
         Task RegisterForwardingAsync();
         Task UnregisterForwardingAsync();
 
-        Task DispatchAsync(object evt);
+        Task<IAggregateEventResult> DispatchAsync(object evt);
 
         Type EventType { get; }
     }

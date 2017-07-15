@@ -32,10 +32,9 @@
 using System;
 using System.Collections.Concurrent;
 using System.Diagnostics;
-using System.Threading;
 using System.Threading.Tasks;
-using AI4E.Async;
 using AI4E.Integration;
+using AI4E.Integration.QueryResults;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace AI4E.Modularity.Integration
@@ -45,12 +44,12 @@ namespace AI4E.Modularity.Integration
     /// </summary>
     public sealed class RemoteQueryDispatcher : IRemoteQueryDispatcher, INonGenericRemoteQueryDispatcher
     {
-        private static readonly Type _typedDispatcherType = typeof(RemoteQueryDispatcher<,>);
+        private static readonly Type _typedDispatcherType = typeof(RemoteQueryDispatcher<>);
 
         private readonly IQueryMessageTranslator _queryMessageTranslator;
         private readonly IServiceProvider _serviceProvider;
-        private readonly ConcurrentDictionary<(Type queryType, Type commandType), ITypedNonGenericRemoteQueryDispatcher> _typedDispatchers
-            = new ConcurrentDictionary<(Type queryType, Type commandType), ITypedNonGenericRemoteQueryDispatcher>();
+        private readonly ConcurrentDictionary<Type, ITypedNonGenericRemoteQueryDispatcher> _typedDispatchers
+            = new ConcurrentDictionary<Type, ITypedNonGenericRemoteQueryDispatcher>();
 
         /// <summary>
         /// Creates a new instance of the <see cref="RemoteQueryDispatcher"/> type.
@@ -71,12 +70,12 @@ namespace AI4E.Modularity.Integration
         }
 
         // TODO: Xml-comment
-        public Task<IHandlerRegistration<IQueryHandler<TQuery, TResult>>> RegisterAsync<TQuery, TResult>(IHandlerFactory<IQueryHandler<TQuery, TResult>> queryHandlerFactory)
+        public Task<IHandlerRegistration<IQueryHandler<TQuery>>> RegisterAsync<TQuery>(IHandlerFactory<IQueryHandler<TQuery>> queryHandlerFactory)
         {
             if (queryHandlerFactory == null)
                 throw new ArgumentNullException(nameof(queryHandlerFactory));
 
-            return GetTypedDispatcher<TQuery, TResult>().RegisterAsync(queryHandlerFactory);
+            return GetTypedDispatcher<TQuery>().RegisterAsync(queryHandlerFactory);
         }
 
         #region GetTypedDispatcher
@@ -85,35 +84,30 @@ namespace AI4E.Modularity.Integration
         /// Returns a typed query handler for the specified query and result type.
         /// </summary>
         /// <typeparam name="TQuery">The type of query.</typeparam>
-        /// <typeparam name="TResult">The type of result.</typeparam>
         /// <returns>A typed query dispatcher.</returns>
-        public IRemoteQueryDispatcher<TQuery, TResult> GetTypedDispatcher<TQuery, TResult>()
+        public IRemoteQueryDispatcher<TQuery> GetTypedDispatcher<TQuery>()
         {
-            return _typedDispatchers.GetOrAdd((typeof(TQuery), typeof(TResult)), p => new RemoteQueryDispatcher<TQuery, TResult>(_queryMessageTranslator, _serviceProvider)) as IRemoteQueryDispatcher<TQuery, TResult>;
+            return _typedDispatchers.GetOrAdd(typeof(TQuery), p => new RemoteQueryDispatcher<TQuery>(_queryMessageTranslator, _serviceProvider)) as IRemoteQueryDispatcher<TQuery>;
         }
 
-        IQueryDispatcher<TQuery, TResult> IQueryDispatcher.GetTypedDispatcher<TQuery, TResult>()
+        IQueryDispatcher<TQuery> IQueryDispatcher.GetTypedDispatcher<TQuery>()
         {
-            return GetTypedDispatcher<TQuery, TResult>();
+            return GetTypedDispatcher<TQuery>();
         }
 
         /// <summary>
         /// Returns a non-generic typed remote query handler for the specified type of query and result.
         /// </summary>
         /// <param name="queryType">The type of query.</param>
-        /// <param name="resultType">The type of result.</param>
         /// <returns>A non-generic typed remote query dispatcher.</returns>
-        public ITypedNonGenericRemoteQueryDispatcher GetTypedDispatcher(Type queryType, Type resultType)
+        public ITypedNonGenericRemoteQueryDispatcher GetTypedDispatcher(Type queryType)
         {
             if (queryType == null)
                 throw new ArgumentNullException(nameof(queryType));
 
-            if (resultType == null)
-                throw new ArgumentNullException(nameof(resultType));
-
-            return _typedDispatchers.GetOrAdd((queryType, resultType), p =>
+            return _typedDispatchers.GetOrAdd(queryType, p =>
             {
-                var result = Activator.CreateInstance(_typedDispatcherType.MakeGenericType(queryType, resultType), _queryMessageTranslator, _serviceProvider);
+                var result = Activator.CreateInstance(_typedDispatcherType.MakeGenericType(queryType), _queryMessageTranslator, _serviceProvider);
 
                 Debug.Assert(result != null);
 
@@ -121,9 +115,9 @@ namespace AI4E.Modularity.Integration
             });
         }
 
-        ITypedNonGenericQueryDispatcher INonGenericQueryDispatcher.GetTypedDispatcher(Type queryType, Type resultType)
+        ITypedNonGenericQueryDispatcher INonGenericQueryDispatcher.GetTypedDispatcher(Type queryType)
         {
-            return GetTypedDispatcher(queryType, resultType);
+            return GetTypedDispatcher(queryType);
         }
 
         #endregion
@@ -134,129 +128,107 @@ namespace AI4E.Modularity.Integration
         /// Asynchronously dispatches a query.
         /// </summary>
         /// <typeparam name="TQuery">The type of query.</typeparam>
-        /// <typeparam name="TResult">The type of result.</typeparam>
         /// <param name="query">The query to dispatch.</param>
         /// <returns>
         /// A task representing the asynchronous operation.
-        /// The <see cref="Task{TResult}.Result"/> contains the query result 
-        /// or the default value of <typeparamref name="TResult"/> if nothing was found.
         /// </returns>
         /// <exception cref="ArgumentNullException">Thrown if <paramref name="query"/> is null.</exception>
-        public Task<TResult> QueryAsync<TQuery, TResult>(TQuery query)
+        public Task<IQueryResult> QueryAsync<TQuery>(TQuery query)
         {
             if (query == null)
                 throw new ArgumentNullException(nameof(query));
 
-            return GetTypedDispatcher<TQuery, TResult>().QueryAsync(query);
+            return GetTypedDispatcher<TQuery>().QueryAsync(query);
         }
 
         /// <summary>
         /// Asynchronously dispatches a query.
         /// </summary>
         /// <param name="queryType">The type of query.</param>
-        /// <param name="resultType">The type of result.</param>
         /// <param name="query">The query to dispatch.</param>
         /// <returns>
         /// A task representing the asynchronous operation.
         /// The <see cref="Taske{Object}.Result"/> contains the query result or null if nothing was found.
         /// </returns>
-        /// <exception cref="ArgumentNullException">Thrown if any of <paramref name="queryType"/>, <paramref name="resultType"/> or <paramref name="query"/> is null.</exception>
+        /// <exception cref="ArgumentNullException">Thrown if either <paramref name="queryType"/> or <paramref name="query"/> is null.</exception>
         /// <exception cref="ArgumentException">Throw is <paramref name="query"/> is not of type <paramref name="queryType"/> or a derived type.</exception>
-        public Task<object> QueryAsync(Type queryType, Type resultType, object query)
+        public Task<IQueryResult> QueryAsync(Type queryType, object query)
         {
             if (queryType == null)
                 throw new ArgumentNullException(nameof(queryType));
 
-            if (resultType == null)
-                throw new ArgumentNullException(nameof(resultType));
-
             if (query == null)
                 throw new ArgumentNullException(nameof(query));
 
-            return GetTypedDispatcher(queryType, resultType).QueryAsync(query);
+            return GetTypedDispatcher(queryType).QueryAsync(query);
         }
 
         /// <summary>
         /// Asynchronously dispatches a query locally only.
         /// </summary>
         /// <typeparam name="TQuery">The type of query.</typeparam>
-        /// <typeparam name="TResult">The type of result.</typeparam>
         /// <param name="query">The query to dispatch.</param>
         /// <returns>
         /// A task representing the asynchronous operation.
-        /// The <see cref="Task{TResult}.Result"/> contains the result of the query operation
-        /// or the default value of <typeparamref name="TResult"/> if the query could not be handled.
         /// </returns>
         /// <exception cref="ArgumentNullException">Thrown if <paramref name="query"/> is null.</exception>
-        public Task<TResult> LocalDispatchAsync<TQuery, TResult>(TQuery query)
+        public Task<IQueryResult> LocalDispatchAsync<TQuery>(TQuery query)
         {
             if (query == null)
                 throw new ArgumentNullException(nameof(query));
 
-            return GetTypedDispatcher<TQuery, TResult>().LocalDispatchAsync(query);
+            return GetTypedDispatcher<TQuery>().LocalDispatchAsync(query);
         }
 
         /// <summary>
         /// Asynchronously dispatched a query locally only.
         /// </summary>
         /// <param name="queryType">The type of query.</param>
-        /// <param name="resultType">The type of result.</param>
         /// <param name="query">The query to dispatch.</param>
         /// <returns>
         /// A task representing the asynchronous operation.
-        /// The <see cref="Task{TResult}.Result"/> contains the result of the query operation
-        /// or the default value of <paramref name="resultType"/> if the query could not be dispatched.
         /// </returns>
-        /// <exception cref="ArgumentNullException">Thrown if any of <paramref name="queryType"/>, <paramref name="resultType"/> or <paramref name="query"/> is null.</exception>
+        /// <exception cref="ArgumentNullException">Thrown if either <paramref name="queryType"/> or <paramref name="query"/> is null.</exception>
         /// <exception cref="ArgumentException">Thrown if <paramref name="query"/> is not of type <paramref name="queryType"/> or a derived type.</exception>
-        public Task<object> LocalDispatchAsync(Type queryType, Type resultType, object query)
+        public Task<IQueryResult> LocalDispatchAsync(Type queryType, object query)
         {
             if (queryType == null)
                 throw new ArgumentNullException(nameof(queryType));
 
-            if (resultType == null)
-                throw new ArgumentNullException(nameof(resultType));
-
             if (query == null)
                 throw new ArgumentNullException(nameof(query));
 
-            return GetTypedDispatcher(queryType, resultType).LocalDispatchAsync(query);
+            return GetTypedDispatcher(queryType).LocalDispatchAsync(query);
         }
 
         #endregion
 
         // TODO: Xml-comment
-        public void NotifyForwardingActive<TQuery, TResult>()
+        public void NotifyForwardingActive<TQuery>()
         {
-            GetTypedDispatcher<TQuery, TResult>().NotifyForwardingActive();
+            GetTypedDispatcher<TQuery>().NotifyForwardingActive();
         }
 
         // TODO: Xml-comment
-        public void NotifyForwardingInactive<TQuery, TResult>()
+        public void NotifyForwardingInactive<TQuery>()
         {
-            GetTypedDispatcher<TQuery, TResult>().NotifyForwardingInactive();
+            GetTypedDispatcher<TQuery>().NotifyForwardingInactive();
         }
 
-        void INonGenericRemoteQueryDispatcher.NotifyForwardingActive(Type queryType, Type resultType)
+        void INonGenericRemoteQueryDispatcher.NotifyForwardingActive(Type queryType)
         {
             if (queryType == null)
                 throw new ArgumentNullException(nameof(queryType));
 
-            if (resultType == null)
-                throw new ArgumentNullException(nameof(resultType));
-
-            GetTypedDispatcher(queryType, resultType).NotifyForwardingActive();
+            GetTypedDispatcher(queryType).NotifyForwardingActive();
         }
 
-        void INonGenericRemoteQueryDispatcher.NotifyForwardingInactive(Type queryType, Type resultType)
+        void INonGenericRemoteQueryDispatcher.NotifyForwardingInactive(Type queryType)
         {
             if (queryType == null)
                 throw new ArgumentNullException(nameof(queryType));
 
-            if (resultType == null)
-                throw new ArgumentNullException(nameof(resultType));
-
-            GetTypedDispatcher(queryType, resultType).NotifyForwardingInactive();
+            GetTypedDispatcher(queryType).NotifyForwardingInactive();
         }
     }
 
@@ -264,14 +236,11 @@ namespace AI4E.Modularity.Integration
     /// Represnts a typed remote query dispatcher that dispatched queries to query handler.
     /// </summary>
     /// <typeparam name="TQuery">The type of query.</typeparam>
-    /// <typeparam name="TResult">The type of result.</typeparam>
-    public sealed class RemoteQueryDispatcher<TQuery, TResult> : IRemoteQueryDispatcher<TQuery, TResult>, ITypedNonGenericRemoteQueryDispatcher
+    public sealed class RemoteQueryDispatcher<TQuery> : IRemoteQueryDispatcher<TQuery>, ITypedNonGenericRemoteQueryDispatcher
     {
-        private static volatile Task<TResult> _defaultResult;
-
         private readonly IQueryMessageTranslator _queryMessageTranslator;
         private readonly IServiceProvider _serviceProvider;
-        private readonly IAsyncSingleHandlerRegistry<IQueryHandler<TQuery, TResult>> _handlerRegistry;
+        private readonly IAsyncSingleHandlerRegistry<IQueryHandler<TQuery>> _handlerRegistry;
 
         private bool _isForwardingActive;
 
@@ -292,18 +261,16 @@ namespace AI4E.Modularity.Integration
             _queryMessageTranslator = queryMessageTranslator;
             _serviceProvider = serviceProvider;
 
-            _handlerRegistry = new AsyncSingleHandlerRegistry<IQueryHandler<TQuery, TResult>>(new DispatchForwarding(this));
+            _handlerRegistry = new AsyncSingleHandlerRegistry<IQueryHandler<TQuery>>(new DispatchForwarding(this));
         }
 
         Type ITypedNonGenericQueryDispatcher.QueryType => typeof(TQuery);
-
-        Type ITypedNonGenericQueryDispatcher.ResultType => typeof(TResult);
 
         // TODO: Xml-comment
         public bool IsForwardingActive => _isForwardingActive;
 
         // TODO: Xml-comment
-        public Task<IHandlerRegistration<IQueryHandler<TQuery, TResult>>> RegisterAsync(IHandlerFactory<IQueryHandler<TQuery, TResult>> queryHandlerFactory)
+        public Task<IHandlerRegistration<IQueryHandler<TQuery>>> RegisterAsync(IHandlerFactory<IQueryHandler<TQuery>> queryHandlerFactory)
         {
             if (queryHandlerFactory == null)
                 throw new ArgumentNullException(nameof(queryHandlerFactory));
@@ -321,7 +288,7 @@ namespace AI4E.Modularity.Integration
         /// or the default value of <typeparamref name="TResult"/> if nothing was found.
         /// </returns>
         /// <exception cref="ArgumentNullException">Thrown if <paramref name="query"/> is null.</exception>
-        public Task<TResult> QueryAsync(TQuery query)
+        public Task<IQueryResult> QueryAsync(TQuery query)
         {
             if (query == null)
                 throw new ArgumentNullException(nameof(query));
@@ -332,9 +299,10 @@ namespace AI4E.Modularity.Integration
                 {
                     return handler.GetHandler(scope.ServiceProvider).HandleAsync(query);
                 }
+
             }
 
-            return _queryMessageTranslator.DispatchAsync<TQuery, TResult>(query);
+            return _queryMessageTranslator.DispatchAsync(query);
         }
 
         /// <summary>
@@ -346,7 +314,7 @@ namespace AI4E.Modularity.Integration
         /// The <see cref="Task{Object}.Result"/> contains the query result or null if nothing was found.
         /// </returns>
         /// <exception cref="ArgumentNullException">Thrown if <paramref name="query"/> is null.</exception>
-        public async Task<object> QueryAsync(object query)
+        public async Task<IQueryResult> QueryAsync(object query)
         {
             if (query == null)
                 throw new ArgumentNullException(nameof(query));
@@ -369,35 +337,27 @@ namespace AI4E.Modularity.Integration
         /// or the default value of <typeparamref name="TResult"/> if the query could not be dispatched.
         /// </returns>
         /// <exception cref="ArgumentNullException">Thrown if <paramref name="query"/> is null.</exception>
-        public Task<TResult> LocalDispatchAsync(TQuery query)
+        public Task<IQueryResult> LocalDispatchAsync(TQuery query)
         {
             if (query == null)
                 throw new ArgumentNullException(nameof(query));
 
             if (_handlerRegistry.TryGetHandler(out var handler))
             {
-                using (var scope = _serviceProvider.CreateScope())
+                try
                 {
-                    return handler.GetHandler(scope.ServiceProvider).HandleAsync(query); // TODO: Use Task in QueryDispatcher.QueryAsync and IQueryHandler.HandleAsync
+                    using (var scope = _serviceProvider.CreateScope())
+                    {
+                        return handler.GetHandler(scope.ServiceProvider).HandleAsync(query);
+                    }
+                }
+                catch (Exception exc)
+                {
+                    return Task.FromResult<IQueryResult>(new FailureQueryResult(exc.ToString()));
                 }
             }
 
-            return GetTaskOfDefaultResult();
-        }
-
-        private static Task<TResult> GetTaskOfDefaultResult()
-        {
-            var defaultResult = _defaultResult;
-
-            if (defaultResult == null)
-            {
-                defaultResult = Task.FromResult(default(TResult));
-
-                // We may override a value that was set concurrently but this is ok.
-                _defaultResult = defaultResult; 
-            }
-
-            return defaultResult;
+            return Task.FromResult<IQueryResult>(FailureQueryResult.UnkownFailure); // TODO
         }
 
         /// <summary>
@@ -413,7 +373,7 @@ namespace AI4E.Modularity.Integration
         /// </returns>
         /// <exception cref="ArgumentNullException">Thrown if <paramref name="query"/> is null.</exception>
         /// <exception cref="ArgumentException">Thrown if <paramref name="query"/> is not of type <see cref="ITypedNonGenericQueryDispatcher.QueryType"/> or a derived type.</exception>
-        public async Task<object> LocalDispatchAsync(object query)
+        public async Task<IQueryResult> LocalDispatchAsync(object query)
         {
             if (query == null)
                 throw new ArgumentNullException(nameof(query));
@@ -440,9 +400,9 @@ namespace AI4E.Modularity.Integration
 
         private sealed class DispatchForwarding : IDispatchForwarding
         {
-            private readonly RemoteQueryDispatcher<TQuery, TResult> _queryDispatcher;
+            private readonly RemoteQueryDispatcher<TQuery> _queryDispatcher;
 
-            public DispatchForwarding(RemoteQueryDispatcher<TQuery, TResult> queryDispatcher)
+            public DispatchForwarding(RemoteQueryDispatcher<TQuery> queryDispatcher)
             {
                 Debug.Assert(queryDispatcher != null);
 
@@ -456,12 +416,12 @@ namespace AI4E.Modularity.Integration
                     return Task.CompletedTask;
                 }
 
-                return _queryDispatcher._queryMessageTranslator.RegisterForwardingAsync<TQuery, TResult>();
+                return _queryDispatcher._queryMessageTranslator.RegisterForwardingAsync<TQuery>();
             }
 
             public Task UnregisterForwardingAsync()
             {
-                return _queryDispatcher._queryMessageTranslator.UnregisterForwardingAsync<TQuery, TResult>();
+                return _queryDispatcher._queryMessageTranslator.UnregisterForwardingAsync<TQuery>();
             }
         }
     }

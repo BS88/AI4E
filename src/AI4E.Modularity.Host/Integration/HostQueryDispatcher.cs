@@ -10,10 +10,10 @@ namespace AI4E.Modularity.Integration
 {
     public sealed class HostQueryDispatcher : IHostQueryDispatcher
     {
-        private static readonly Type _typedDispatcherType = typeof(HostQueryDispatcher<,>);
+        private static readonly Type _typedDispatcherType = typeof(HostQueryDispatcher<>);
 
-        private readonly ConcurrentDictionary<(Type queryType, Type resultType), ITypedHostQueryDispatcher> _typedDispatcher
-            = new ConcurrentDictionary<(Type queryType, Type resultType), ITypedHostQueryDispatcher>();
+        private readonly ConcurrentDictionary<Type, ITypedHostQueryDispatcher> _typedDispatcher
+            = new ConcurrentDictionary<Type, ITypedHostQueryDispatcher>();
         private readonly IQueryDispatcher _queryDispatcher;
         private readonly IMessageEndPoint _messageEndPoint;
 
@@ -29,53 +29,41 @@ namespace AI4E.Modularity.Integration
             _messageEndPoint = messageEndPoint;
         }
 
-        public Task RegisterForwardingAsync(Type queryType, Type resultType)
+        public Task RegisterForwardingAsync(Type queryType)
         {
             if (queryType == null)
                 throw new ArgumentNullException(nameof(queryType));
 
-            if (resultType == null)
-                throw new ArgumentNullException(nameof(resultType));
-
-            return GetTypedDispatcher(queryType, resultType).RegisterForwardingAsync();
+            return GetTypedDispatcher(queryType).RegisterForwardingAsync();
         }
 
-        public Task UnregisterForwardingAsync(Type queryType, Type resultType)
+        public Task UnregisterForwardingAsync(Type queryType)
         {
             if (queryType == null)
                 throw new ArgumentNullException(nameof(queryType));
 
-            if (resultType == null)
-                throw new ArgumentNullException(nameof(resultType));
-
-            return GetTypedDispatcher(queryType, resultType).UnregisterForwardingAsync();
+            return GetTypedDispatcher(queryType).UnregisterForwardingAsync();
         }
 
-        public Task<object> DispatchAsync(Type queryType, Type resultType, object query)
+        public Task<IQueryResult> DispatchAsync(Type queryType, object query)
         {
             if (queryType == null)
                 throw new ArgumentNullException(nameof(queryType));
-
-            if (resultType == null)
-                throw new ArgumentNullException(nameof(resultType));
 
             if (query == null)
                 throw new ArgumentNullException(nameof(query));
 
-            return GetTypedDispatcher(queryType, resultType).DispatchAsync(query);
+            return GetTypedDispatcher(queryType).DispatchAsync(query);
         }
 
-        public ITypedHostQueryDispatcher GetTypedDispatcher(Type queryType, Type resultType)
+        public ITypedHostQueryDispatcher GetTypedDispatcher(Type queryType)
         {
             if (queryType == null)
                 throw new ArgumentNullException(nameof(queryType));
 
-            if (resultType == null)
-                throw new ArgumentNullException(nameof(resultType));
-
-            return _typedDispatcher.GetOrAdd((queryType, resultType), p =>
+            return _typedDispatcher.GetOrAdd(queryType, p =>
             {
-                var dispatcher = Activator.CreateInstance(_typedDispatcherType.MakeGenericType(queryType, resultType), _queryDispatcher, _messageEndPoint);
+                var dispatcher = Activator.CreateInstance(_typedDispatcherType.MakeGenericType(queryType), _queryDispatcher, _messageEndPoint);
 
                 Debug.Assert(dispatcher != null);
 
@@ -84,12 +72,12 @@ namespace AI4E.Modularity.Integration
         }
     }
 
-    public sealed class HostQueryDispatcher<TQuery, TResult> : ITypedHostQueryDispatcher
+    public sealed class HostQueryDispatcher<TQuery> : ITypedHostQueryDispatcher
     {
-        private readonly IQueryDispatcher<TQuery, TResult> _queryDispatcher;
+        private readonly IQueryDispatcher<TQuery> _queryDispatcher;
         private readonly AsyncLock _lock = new AsyncLock();
         private readonly IMessageEndPoint _messageEndPoint;
-        private  IHandlerRegistration<IQueryHandler<TQuery, TResult>> _proxyRegistration;
+        private IHandlerRegistration<IQueryHandler<TQuery>> _proxyRegistration;
 
         public HostQueryDispatcher(IQueryDispatcher queryDispatcher, IMessageEndPoint messageEndPoint)
         {
@@ -99,11 +87,11 @@ namespace AI4E.Modularity.Integration
             if (messageEndPoint == null)
                 throw new ArgumentNullException(nameof(messageEndPoint));
 
-            _queryDispatcher = queryDispatcher.GetTypedDispatcher<TQuery, TResult>();
+            _queryDispatcher = queryDispatcher.GetTypedDispatcher<TQuery>();
             _messageEndPoint = messageEndPoint;
         }
 
-        public HostQueryDispatcher(IQueryDispatcher<TQuery, TResult> queryDispatcher, IMessageEndPoint messageEndPoint)
+        public HostQueryDispatcher(IQueryDispatcher<TQuery> queryDispatcher, IMessageEndPoint messageEndPoint)
         {
             if (queryDispatcher == null)
                 throw new ArgumentNullException(nameof(queryDispatcher));
@@ -119,7 +107,7 @@ namespace AI4E.Modularity.Integration
         {
             using (await _lock.LockAsync())
             {
-                IHandlerFactory<IQueryHandler<TQuery, TResult>> proxy;
+                IHandlerFactory<IQueryHandler<TQuery>> proxy;
 
                 if (_proxyRegistration != null)
                 {
@@ -127,7 +115,7 @@ namespace AI4E.Modularity.Integration
                 }
                 else
                 {
-                    proxy = new QueryHandlerProxy<TQuery, TResult>(_messageEndPoint);
+                    proxy = new QueryHandlerProxy<TQuery>(_messageEndPoint);
                 }
 
                 _proxyRegistration = await _queryDispatcher.RegisterAsync(proxy);
@@ -147,7 +135,7 @@ namespace AI4E.Modularity.Integration
             }
         }
 
-        public async Task<object> DispatchAsync(object query)
+        public async Task<IQueryResult> DispatchAsync(object query)
         {
             if (query == null)
                 throw new ArgumentNullException(nameof(query));
@@ -161,7 +149,5 @@ namespace AI4E.Modularity.Integration
         }
 
         Type ITypedHostQueryDispatcher.QueryType => typeof(TQuery);
-
-        Type ITypedHostQueryDispatcher.ResultType => typeof(TResult);
     }
 }

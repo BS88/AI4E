@@ -4,8 +4,7 @@
  * Types:           AI4E.Integration.IEventHandler'1
  * Version:         1.0
  * Author:          Andreas Trütschel
- * Last modified:   29.04.2017 
- * Status:          Ready
+ * Last modified:   15.07.2017 
  * --------------------------------------------------------------------------------------------------------------------
  */
 
@@ -43,8 +42,10 @@ namespace AI4E.Integration
         /// Asynchronously handles an event.
         /// </summary>
         /// <param name="evt">The event that shall be handled.</param>
-        /// <returns>A task representing the asynchronous operation.</returns>
+        /// <returns>
+        /// A task representing the asynchronous operation.
+        /// </returns>
         /// <exception cref="System.ArgumentNullException">Thrown if <paramref name="evt"/> is null.</exception>
-        Task HandleAsync(TEvent evt);
+        Task<IEventResult> HandleAsync(TEvent evt);
     }
 }

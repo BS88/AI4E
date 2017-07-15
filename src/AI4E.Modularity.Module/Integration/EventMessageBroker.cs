@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Threading.Tasks;
+using AI4E.Async;
 
 namespace AI4E.Modularity.Integration
 {
     public sealed class EventMessageBroker :
-        IMessageHandler<DispatchEvent>,
+        IMessageHandler<DispatchEvent, EventDispatchResult>,
         IMessageHandler<ActivateEventForwarding>,
         IMessageHandler<DeactivateEventForwarding>
     {
@@ -18,14 +19,14 @@ namespace AI4E.Modularity.Integration
             _remoteEventDispatcher = remoteEventDispatcher;
         }
 
-        public Task HandleAsync(DispatchEvent message)
+        public async ICovariantAwaitable<EventDispatchResult> HandleAsync(DispatchEvent message)
         {
             if (message == null)
                 throw new ArgumentNullException(nameof(message));
 
             Console.WriteLine($"Receiving 'DispatchEvent' for event type '{message.EventType.FullName}' with event '{message.Event}'.");
 
-            return _remoteEventDispatcher.LocalDispatchAsync(message.EventType, message.Event);
+            return new EventDispatchResult(await _remoteEventDispatcher.LocalDispatchAsync(message.EventType, message.Event));
         }
 
         public Task HandleAsync(ActivateEventForwarding message)
@@ -51,5 +52,7 @@ namespace AI4E.Modularity.Integration
 
             return Task.CompletedTask;
         }
+
+
     }
 }

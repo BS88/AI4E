@@ -6,8 +6,7 @@
  *                  (3) AI4E.Integration.EventAuthorizationVerifyer
  * Version:         1.0
  * Author:          Andreas Trütschel
- * Last modified:   01.07.2017 
- * Status:          Ready
+ * Last modified:   15.07.2017 
  * --------------------------------------------------------------------------------------------------------------------
  */
 
@@ -39,6 +38,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
+using AI4E.Integration.EventResults;
 
 namespace AI4E.Integration
 {
@@ -144,7 +144,7 @@ namespace AI4E.Integration
         /// </returns>
         /// <exception cref="ArgumentNullException">Thrown if <paramref name="evt"/> is null.</exception>
         /// <exception cref="UnauthorizedAccessException">Thrown if the access is unauthorized.</exception>
-        public Task NotifyAsync<TEvent>(TEvent evt)
+        public Task<IAggregateEventResult> NotifyAsync<TEvent>(TEvent evt)
         {
             if (evt == null)
                 throw new ArgumentNullException(nameof(evt));
@@ -171,7 +171,7 @@ namespace AI4E.Integration
         /// </returns>
         /// <exception cref="ArgumentNullException">Thrown if either <paramref name="eventType"/> or <paramref name="evt"/> is null.</exception>
         /// <exception cref="ArgumentException">Thrown if <paramref name="evt"/> is not of the type <paramref name="eventType"/> or a derived type.</exception>
-        public Task NotifyAsync(Type eventType, object evt)
+        public async Task<IAggregateEventResult> NotifyAsync(Type eventType, object evt)
         {
             if (eventType == null)
                 throw new ArgumentNullException(nameof(eventType));
@@ -182,7 +182,7 @@ namespace AI4E.Integration
             // Note: The access check is done by the typed dispatcher.
 
             var currType = eventType;
-            var tasks = new List<Task>();
+            var tasks = new List<Task<IAggregateEventResult>>();
 
             do
             {
@@ -199,12 +199,7 @@ namespace AI4E.Integration
             while (!currType.GetTypeInfo().IsInterface &&
                    (currType = currType.GetTypeInfo().BaseType) != null);
 
-            if (tasks.Count > 0)
-            {
-                return Task.WhenAll(tasks);
-            }
-
-            return Task.CompletedTask;
+            return new AggregateEventResult(await Task.WhenAll(tasks));
         }
 
         /// <summary>
@@ -263,7 +258,7 @@ namespace AI4E.Integration
         /// <param name="authorizationVerifyer">An <see cref="IEventAuthorizationVerifyer"/> that controls authorization or <see cref="EventAuthorizationVerifyer.Default"/>.</param>
         /// <param name="serviceProvider">A <see cref="IServiceProvider"/> used to obtain services.</param>
         /// <exception cref="ArgumentNullException">Thrown if either <paramref name="serviceProvider"/> or <paramref name="authorizationVerifyer"/> is null.</exception>
-        public EventDispatcher(IEventAuthorizationVerifyer authorizationVerifyer, IServiceProvider serviceProvider) 
+        public EventDispatcher(IEventAuthorizationVerifyer authorizationVerifyer, IServiceProvider serviceProvider)
         {
             // Remark: If you modify/delete this constructors arguments, remember to also change the non-generic GetTypedDispatcher() method above
 
@@ -307,7 +302,7 @@ namespace AI4E.Integration
         /// </returns>
         /// <exception cref="ArgumentNullException">Thrown if <paramref name="evt"/> is null.</exception>
         /// <exception cref="UnauthorizedAccessException">Thrown if the access is unauthorized.</exception>
-        public Task NotifyAsync(TEvent evt)
+        public async Task<IAggregateEventResult> NotifyAsync(TEvent evt)
         {
             if (evt == null)
                 throw new ArgumentNullException(nameof(evt));
@@ -315,27 +310,24 @@ namespace AI4E.Integration
             if (!_authorizationVerifyer.AuthorizeEventNotification(evt))
                 throw new UnauthorizedAccessException();
 
-            var handlers = _handlerRegistry.GetHandlerFactories();
+            return new AggregateEventResult(await Task.WhenAll(_handlerRegistry.GetHandlerFactories().Select(handler => NotifySingleHandlerAsync(handler, evt)).ToArray()));
+        }
 
-            async Task InternalInvokeSingleHandler(IHandlerFactory<IEventHandler<TEvent>> handlerFactory)
+        private async Task<IEventResult> NotifySingleHandlerAsync(IHandlerFactory<IEventHandler<TEvent>> handlerFactory, TEvent evt)
+        {
+            Debug.Assert(handlerFactory != null);
+
+            try
             {
-                Debug.Assert(handlerFactory != null);
-
                 using (var scope = _serviceProvider.CreateScope())
                 {
-                    var handler = handlerFactory.GetHandler(scope.ServiceProvider);
-
-                    await handler.HandleAsync(evt);
+                    return await handlerFactory.GetHandler(scope.ServiceProvider).HandleAsync(evt);
                 }
             }
-            var tasks = handlers.Select(p => InternalInvokeSingleHandler(p)).ToList();
-
-            if (tasks.Count > 0)
+            catch (Exception exc)
             {
-                return Task.WhenAll(tasks);
+                return new FailureEventResult(exc.ToString()); // TODO
             }
-
-            return Task.CompletedTask;
         }
 
         /// <summary>
@@ -347,7 +339,7 @@ namespace AI4E.Integration
         /// </returns>
         /// <exception cref="ArgumentNullException">Thrown if <paramref name="evt"/> is null.</exception>
         /// <exception cref="ArgumentException">Thrown if <paramref name="evt"/> is not of the type <see cref="EventType"/> or a derived type.</exception>
-        public Task NotifyAsync(object evt)
+        public Task<IAggregateEventResult> NotifyAsync(object evt)
         {
             if (evt == null)
                 throw new ArgumentNullException(nameof(evt));

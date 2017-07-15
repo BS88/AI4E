@@ -40,6 +40,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using AI4E.Async;
 using AI4E.Integration;
+using AI4E.Integration.EventResults;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace AI4E.Storage
@@ -265,13 +266,13 @@ namespace AI4E.Storage
                 return this;
             }
 
-            public Task HandleAsync(TEventBase evt)
+            public Task<IEventResult> HandleAsync(TEventBase evt)
             {
                 var eventStream = _entityCache._eventAccessor.GetEventStream(evt);
 
                 _entityCache._pool.TryRemove(eventStream, out _);
 
-                return Task.CompletedTask;
+                return Task.FromResult<IEventResult>(SuccessEventResult.Default);
             }
         }
 

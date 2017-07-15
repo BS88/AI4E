@@ -1,12 +1,14 @@
-﻿namespace AI4E.Modularity.Integration
+﻿using AI4E.Integration;
+
+namespace AI4E.Modularity.Integration
 {
     public sealed class QueryDispatchResult
     {
-        public QueryDispatchResult(object queryResult)
+        public QueryDispatchResult(IQueryResult queryResult)
         {
             QueryResult = queryResult;
         }
 
-        public object QueryResult { get; }
+        public IQueryResult QueryResult { get; }
     }
 }

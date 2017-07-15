@@ -4,9 +4,9 @@ using AI4E.Integration;
 
 namespace AI4E.Modularity.Integration
 {
-    public sealed class QueryHandlerProxy<TQuery, TResult> :
-        IQueryHandler<TQuery, TResult>,
-        IHandlerFactory<IQueryHandler<TQuery, TResult>>,
+    public sealed class QueryHandlerProxy<TQuery> :
+        IQueryHandler<TQuery>,
+        IHandlerFactory<IQueryHandler<TQuery>>,
         IActivationNotifyable,
         IDeactivationNotifyable
     {
@@ -20,39 +20,39 @@ namespace AI4E.Modularity.Integration
             _messageEndPoint = messageEndPoint;
         }
 
-        public async Task<TResult> HandleAsync(TQuery query)
+        public async Task<IQueryResult> HandleAsync(TQuery query)
         {
             if (query == null)
                 throw new ArgumentNullException(nameof(query));
 
-            var message = new DispatchQuery(typeof(TQuery), typeof(TResult), query);
+            var message = new DispatchQuery(typeof(TQuery), query);
 
-            Console.WriteLine($"Sending 'DispatchQuery' for query type '{message.QueryType.FullName}' and result '{message.ResultType.FullName}' with query '{message.Query}'.");
+            Console.WriteLine($"Sending 'DispatchQuery' for query type '{message.QueryType.FullName}' with query '{message.Query}'.");
 
             var answer = await _messageEndPoint.SendAsync<DispatchQuery, QueryDispatchResult>(message);
 
-            return (TResult)answer.QueryResult;
+            return answer.QueryResult;
         }
 
-        IQueryHandler<TQuery, TResult> IHandlerFactory<IQueryHandler<TQuery, TResult>>.GetHandler(IServiceProvider serviceProvider)
+        IQueryHandler<TQuery> IHandlerFactory<IQueryHandler<TQuery>>.GetHandler(IServiceProvider serviceProvider)
         {
             return this;
         }
 
         public Task NotifyActivationAsync()
         {
-            var message = new ActivateQueryForwarding(typeof(TQuery), typeof(TResult));
+            var message = new ActivateQueryForwarding(typeof(TQuery));
 
-            Console.WriteLine($"Sending 'ActivateQueryForwarding' for query type '{message.QueryType.FullName}' and result '{message.ResultType.FullName}'.");
+            Console.WriteLine($"Sending 'ActivateQueryForwarding' for query type '{message.QueryType.FullName}'.");
 
             return _messageEndPoint.SendAsync(message);
         }
 
         public Task NotifyDeactivationAsync()
         {
-            var message = new DeactivateQueryForwarding(typeof(TQuery), typeof(TResult));
+            var message = new DeactivateQueryForwarding(typeof(TQuery));
 
-            Console.WriteLine($"Sending 'DeactivateQueryForwarding' for query type '{message.QueryType.FullName}' and result '{message.ResultType.FullName}'.");
+            Console.WriteLine($"Sending 'DeactivateQueryForwarding' for query type '{message.QueryType.FullName}'.");
 
             return _messageEndPoint.SendAsync(message);
         }

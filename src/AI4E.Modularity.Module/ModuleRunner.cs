@@ -77,7 +77,7 @@ namespace AI4E.Modularity
                 endPoint.RegisterAsync<ActivateQueryForwarding>(new DefaultHandlerFactory<QueryMessageBroker>());
                 endPoint.RegisterAsync<DeactivateQueryForwarding>(new DefaultHandlerFactory<QueryMessageBroker>());
 
-                endPoint.RegisterAsync<DispatchEvent>(new DefaultHandlerFactory<EventMessageBroker>());
+                endPoint.RegisterAsync<DispatchEvent, EventDispatchResult>(new DefaultHandlerFactory<EventMessageBroker>());
                 endPoint.RegisterAsync<ActivateEventForwarding>(new DefaultHandlerFactory<EventMessageBroker>());
                 endPoint.RegisterAsync<DeactivateEventForwarding>(new DefaultHandlerFactory<EventMessageBroker>());
 

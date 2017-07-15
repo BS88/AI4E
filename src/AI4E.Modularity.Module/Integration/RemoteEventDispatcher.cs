@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using AI4E.Integration;
+using AI4E.Integration.EventResults;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace AI4E.Modularity.Integration
@@ -68,12 +69,12 @@ namespace AI4E.Modularity.Integration
             return GetTypedDispatcher(eventType);
         }
 
-        public Task NotifyAsync<TEvent>(TEvent evt)
+        public Task<IAggregateEventResult> NotifyAsync<TEvent>(TEvent evt)
         {
             return NotifyAsync(typeof(TEvent), evt);
         }
 
-        public Task NotifyAsync(Type eventType, object evt)
+        public async Task<IAggregateEventResult> NotifyAsync(Type eventType, object evt)
         {
             if (eventType == null)
                 throw new ArgumentNullException(nameof(eventType));
@@ -82,7 +83,7 @@ namespace AI4E.Modularity.Integration
                 throw new ArgumentNullException(nameof(evt));
 
             var currType = eventType;
-            var tasks = new List<Task>();
+            var tasks = new List<Task<IAggregateEventResult>>();
 
             do
             {
@@ -103,20 +104,15 @@ namespace AI4E.Modularity.Integration
             while (!currType.IsInterface &&
                    (currType = currType.BaseType) != null);
 
-            if (tasks.Count > 0)
-            {
-                return Task.WhenAll(tasks);
-            }
-
-            return Task.CompletedTask;
+            return new AggregateEventResult(await Task.WhenAll(tasks));
         }
 
-        public Task LocalDispatchAsync<TEvent>(TEvent evt)
+        public Task<IAggregateEventResult> LocalDispatchAsync<TEvent>(TEvent evt)
         {
             return GetTypedDispatcher<TEvent>().LocalDispatchAsync(evt);
         }
 
-        public Task LocalDispatchAsync(Type eventType, object evt)
+        public Task<IAggregateEventResult> LocalDispatchAsync(Type eventType, object evt)
         {
             if (eventType == null)
                 throw new ArgumentNullException(nameof(eventType));
@@ -188,7 +184,7 @@ namespace AI4E.Modularity.Integration
             return HandlerRegistration.CreateRegistrationAsync(_handlerRegistry, eventHandlerFactory);
         }
 
-        public Task NotifyAsync(TEvent evt)
+        public Task<IAggregateEventResult> NotifyAsync(TEvent evt)
         {
             if (evt == null)
                 throw new ArgumentNullException(nameof(evt));
@@ -201,7 +197,7 @@ namespace AI4E.Modularity.Integration
             return _eventMessageTranslator.DispatchAsync(evt);
         }
 
-        public Task NotifyAsync(object evt)
+        public Task<IAggregateEventResult> NotifyAsync(object evt)
         {
             if (evt == null)
                 throw new ArgumentNullException(nameof(evt));
@@ -214,26 +210,33 @@ namespace AI4E.Modularity.Integration
             return NotifyAsync(typedEvent);
         }
 
-        public Task LocalDispatchAsync(TEvent evt)
+        public async Task<IAggregateEventResult> LocalDispatchAsync(TEvent evt)
         {
             if (evt == null)
                 throw new ArgumentNullException(nameof(evt));
 
-            var tasks = _handlerRegistry.GetHandlerFactories().Select(handler =>
+            return new AggregateEventResult(await Task.WhenAll(_handlerRegistry.GetHandlerFactories().Select(handler => NotifySingleHandlerAsync(handler, evt)).ToArray()));
+        }
+
+        // TODO: This is a copy of the original in EventDispatcher.cs
+        private async Task<IEventResult> NotifySingleHandlerAsync(IHandlerFactory<IEventHandler<TEvent>> handlerFactory, TEvent evt)
+        {
+            Debug.Assert(handlerFactory != null);
+
+            try
             {
                 using (var scope = _serviceProvider.CreateScope())
                 {
-                    return handler.GetHandler(scope.ServiceProvider).HandleAsync(evt);
+                    return await handlerFactory.GetHandler(scope.ServiceProvider).HandleAsync(evt);
                 }
-            }).ToArray();
-
-            if (tasks.Length == 0)
-                return Task.CompletedTask;
-
-            return Task.WhenAll(tasks);
+            }
+            catch (Exception exc)
+            {
+                return new FailureEventResult(exc.ToString()); // TODO
+            }
         }
 
-        public Task LocalDispatchAsync(object evt)
+        public Task<IAggregateEventResult> LocalDispatchAsync(object evt)
         {
             if (evt == null)
                 throw new ArgumentNullException(nameof(evt));

@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
-using System.Threading.Tasks;
 using AI4E.Integration;
 using AI4E.Storage;
 using Microsoft.Extensions.DependencyInjection;
@@ -61,7 +59,7 @@ namespace AI4E
 
             foreach (var type in assembly.GetTypes().Where(p => p.GetTypeInfo().IsClass && !p.GetTypeInfo().IsAbstract || p.GetTypeInfo().IsValueType && !p.GetTypeInfo().IsEnum))
             {
-                var ifaces = type.GetTypeInfo().GetInterfaces().Where(p => p.GetTypeInfo().IsGenericType && p.GetGenericTypeDefinition() == typeof(IQueryHandler<,>));
+                var ifaces = type.GetTypeInfo().GetInterfaces().Where(p => p.GetTypeInfo().IsGenericType && p.GetGenericTypeDefinition() == typeof(IQueryHandler<>));
 
                 if (!ifaces.Any())
                 {

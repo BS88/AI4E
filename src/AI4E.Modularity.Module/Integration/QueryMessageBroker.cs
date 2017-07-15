@@ -24,9 +24,9 @@ namespace AI4E.Modularity.Integration
             if (message == null)
                 throw new ArgumentNullException(nameof(message));
 
-            Console.WriteLine($"Received 'DispatchQuery' for query type '{message.QueryType.FullName}' and result '{message.ResultType.FullName}' with query '{message.Query}'.");
+            Console.WriteLine($"Received 'DispatchQuery' for query type '{message.QueryType.FullName}' with query '{message.Query}'.");
 
-            var answer = new QueryDispatchResult(await _remoteQueryDispatcher.LocalDispatchAsync(message.QueryType, message.ResultType, message.Query));
+            var answer = new QueryDispatchResult(await _remoteQueryDispatcher.LocalDispatchAsync(message.QueryType, message.Query));
 
             return answer;
         }
@@ -36,9 +36,9 @@ namespace AI4E.Modularity.Integration
             if (message == null)
                 throw new ArgumentNullException(nameof(message));
 
-            Console.WriteLine($"Received 'ActivateQueryForwarding' for query type '{message.QueryType.FullName}' and result '{message.ResultType.FullName}'.");
+            Console.WriteLine($"Received 'ActivateQueryForwarding' for query type '{message.QueryType.FullName}'.");
 
-            _remoteQueryDispatcher.NotifyForwardingActive(message.QueryType, message.ResultType);
+            _remoteQueryDispatcher.NotifyForwardingActive(message.QueryType);
 
             return Task.CompletedTask;
         }
@@ -48,9 +48,9 @@ namespace AI4E.Modularity.Integration
             if (message == null)
                 throw new ArgumentNullException(nameof(message));
 
-            Console.WriteLine($"Received 'DeactivateQueryForwarding' for query type '{message.QueryType.FullName}' and result '{message.ResultType.FullName}'.");
+            Console.WriteLine($"Received 'DeactivateQueryForwarding' for query type '{message.QueryType.FullName}'.");
 
-            _remoteQueryDispatcher.NotifyForwardingInactive(message.QueryType, message.ResultType);
+            _remoteQueryDispatcher.NotifyForwardingInactive(message.QueryType);
 
             return Task.CompletedTask;
         }

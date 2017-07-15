@@ -25,7 +25,7 @@ namespace AI4E.Modularity.Integration
             return this;
         }
 
-        public Task HandleAsync(TEvent evt)
+        public async Task<IEventResult> HandleAsync(TEvent evt)
         {
             if (evt == null)
                 throw new ArgumentNullException(nameof(evt));
@@ -34,7 +34,9 @@ namespace AI4E.Modularity.Integration
 
             Console.WriteLine($"Sending 'DispatchEvent' for event type '{message.EventType.FullName}' with event '{message.Event}'.");
 
-            return _messageEndPoint.SendAsync(message);
+            var answer = await _messageEndPoint.SendAsync<DispatchEvent, EventDispatchResult>(message);
+
+            return answer.EventResult;
         }
 
         public Task NotifyActivationAsync()

@@ -4,14 +4,11 @@ namespace AI4E.Modularity.Integration
 {
     public sealed class ActivateQueryForwarding
     {
-        public ActivateQueryForwarding(Type queryType, Type resultType)
+        public ActivateQueryForwarding(Type queryType)
         {
             QueryType = queryType;
-            ResultType = resultType;
         }
 
         public Type QueryType { get; }
-
-        public Type ResultType { get; }
     }
 }

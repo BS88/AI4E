@@ -34,7 +34,7 @@ using System;
 
 namespace AI4E.Integration
 {
-    public interface IDispatchResult : IEquatable<IDispatchResult>
+    public interface IDispatchResult
     {
         /// <summary>
         /// Gets a boolean value indicating whether the dispatch and execution was successful.
@@ -47,7 +47,7 @@ namespace AI4E.Integration
         string Message { get; }
     }
 
-    public interface IDispatchResult<TResult> : IDispatchResult, IEquatable<IDispatchResult<TResult>>
+    public interface IDispatchResult<TResult> : IDispatchResult
     {
         TResult Result { get; }
     }

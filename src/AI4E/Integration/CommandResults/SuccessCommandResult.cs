@@ -83,15 +83,6 @@ namespace AI4E.Integration.CommandResults
             return Message == ((SuccessCommandResult)obj).Message;
         }
 
-        bool IEquatable<ICommandResult>.Equals(ICommandResult other)
-        {
-            return Equals(other);
-        }
-        bool IEquatable<IDispatchResult>.Equals(IDispatchResult other)
-        {
-            return Equals(other);
-        }
-
         public override int GetHashCode()
         {
             return GetType().GetHashCode() ^ Message.GetHashCode();
@@ -141,8 +132,6 @@ namespace AI4E.Integration.CommandResults
 
         public TResult Result { get; }
 
-        #region Equality
-
         protected override bool IsEqualByValue(object obj)
         {
             var other = (SuccessCommandResult<TResult>)obj;
@@ -150,21 +139,9 @@ namespace AI4E.Integration.CommandResults
             return Message == other.Message && Result.Equals(other.Result);
         }
 
-        bool IEquatable<IDispatchResult<TResult>>.Equals(IDispatchResult<TResult> other)
-        {
-            return Equals(other);
-        }
-
-        bool IEquatable<ICommandResult<TResult>>.Equals(ICommandResult<TResult> other)
-        {
-            return Equals(other);
-        }
-
         public override int GetHashCode()
         {
             return GetType().GetHashCode() ^ Message?.GetHashCode()??0 ^ Result?.GetHashCode()??0;
         }
-
-        #endregion
     }
 }

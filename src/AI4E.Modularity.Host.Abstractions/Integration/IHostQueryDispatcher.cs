@@ -1,16 +1,17 @@
 ﻿using System;
 using System.Threading.Tasks;
+using AI4E.Integration;
 
 namespace AI4E.Modularity.Integration
 {
     public interface IHostQueryDispatcher
     {
-        Task RegisterForwardingAsync(Type queryType, Type resultType);
-        Task UnregisterForwardingAsync(Type queryType, Type resultType);
+        Task RegisterForwardingAsync(Type queryType);
+        Task UnregisterForwardingAsync(Type queryType);
 
-        Task<object> DispatchAsync(Type queryType, Type resultType, object query);
+        Task<IQueryResult> DispatchAsync(Type queryType, object query);
 
-        ITypedHostQueryDispatcher GetTypedDispatcher(Type queryType, Type resultType);
+        ITypedHostQueryDispatcher GetTypedDispatcher(Type queryType);
     }
 
     public interface ITypedHostQueryDispatcher
@@ -18,9 +19,8 @@ namespace AI4E.Modularity.Integration
         Task RegisterForwardingAsync();
         Task UnregisterForwardingAsync();
 
-        Task<object> DispatchAsync(object query);
+        Task<IQueryResult> DispatchAsync(object query);
 
         Type QueryType { get; }
-        Type ResultType { get; }
     }
 }

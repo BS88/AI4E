@@ -1,16 +1,15 @@
-﻿using System;
-using System.Collections.Immutable;
+﻿using System.Collections.Immutable;
 
 namespace AI4E.Integration
 {
-    public interface IEventResult : IEquatable<IEventResult>
+    public interface IEventResult
     {
         bool IsSuccess { get; }
 
         string Message { get; }
     }
 
-    public interface IEventAggregateResult : IDispatchResult, IEquatable<IEventAggregateResult>
+    public interface IAggregateEventResult : IEventResult, IDispatchResult
     {
         ImmutableArray<IEventResult> EventResults { get; }
     }

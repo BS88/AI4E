@@ -29,7 +29,6 @@
  */
 
 using System;
-using System.Diagnostics;
 
 namespace AI4E.Integration.CommandResults
 {
@@ -42,17 +41,5 @@ namespace AI4E.Integration.CommandResults
         }
 
         public Type CommandType { get; }
-
-        protected override bool IsEqualByValue(object obj)
-        {
-            Debug.Assert(obj is CommandDispatchFailureCommandResult);
-
-            return CommandType == ((CommandDispatchFailureCommandResult)obj).CommandType;
-        }
-
-        public override int GetHashCode()
-        {
-            return GetType().GetHashCode() ^ CommandType?.GetHashCode() ?? 0;
-        }
     }
 }

@@ -29,7 +29,6 @@
  */
 
 using System;
-using System.Diagnostics;
 
 namespace AI4E.Integration.CommandResults
 {
@@ -45,19 +44,5 @@ namespace AI4E.Integration.CommandResults
         public Type EntityType { get; }
 
         public Guid Id { get; }
-
-        protected override bool IsEqualByValue(object obj)
-        {
-            Debug.Assert(obj is EntityNotFoundCommandResult);
-
-            var other = (EntityNotFoundCommandResult)obj;
-
-            return EntityType == other.EntityType && Id == other.Id;
-        }
-
-        public override int GetHashCode()
-        {
-            return GetType().GetHashCode() ^ EntityType?.GetHashCode() ?? 0 ^ Id.GetHashCode();
-        }
     }
 }

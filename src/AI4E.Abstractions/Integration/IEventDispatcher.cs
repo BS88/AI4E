@@ -9,8 +9,7 @@
  *                  (6) AI4E.Integration.ITypedNonGenericEventDispatcher
  * Version:         1.0
  * Author:          Andreas Trütschel
- * Last modified:   01.07.2017 
- * Status:          Ready
+ * Last modified:   17.07.2017 
  * --------------------------------------------------------------------------------------------------------------------
  */
 
@@ -72,7 +71,7 @@ namespace AI4E.Integration
         /// A task representing the asynchronous operation.
         /// </returns>
         /// <exception cref="ArgumentNullException">Thrown if <paramref name="evt"/> is null.</exception>
-        Task NotifyAsync<TEvent>(TEvent evt);
+        Task<IAggregateEventResult> NotifyAsync<TEvent>(TEvent evt);
     }
 
     /// <summary>
@@ -100,7 +99,7 @@ namespace AI4E.Integration
         /// A task representing the asynchronous operation.
         /// </returns>
         /// <exception cref="ArgumentNullException">Thrown if <paramref name="evt"/> is null.</exception>
-        Task NotifyAsync(TEvent evt);
+        Task<IAggregateEventResult> NotifyAsync(TEvent evt);
     }
 
     /// <summary>
@@ -172,7 +171,7 @@ namespace AI4E.Integration
         /// </returns>
         /// <exception cref="ArgumentNullException">Thrown if either <paramref name="eventType"/> or <paramref name="evt"/> is null.</exception>
         /// <exception cref="ArgumentException">Thrown if <paramref name="evt"/> is not of the type <paramref name="eventType"/> or a derived type.</exception>
-        Task NotifyAsync(Type eventType, object evt);
+        Task<IAggregateEventResult> NotifyAsync(Type eventType, object evt);
     }
 
     /// <summary>
@@ -189,7 +188,7 @@ namespace AI4E.Integration
         /// </returns>
         /// <exception cref="ArgumentNullException">Thrown if <paramref name="evt"/> is null.</exception>
         /// <exception cref="ArgumentException">Thrown if <paramref name="evt"/> is not of the type <see cref="EventType"/> or a derived type.</exception>
-        Task NotifyAsync(object evt);
+        Task<IAggregateEventResult> NotifyAsync(object evt);
 
         /// <summary>
         /// Gets the type of events the dispatcher can handle.
