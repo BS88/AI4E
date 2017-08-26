@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Threading.Tasks;
 using AI4E.Integration;
+using AI4E.Integration.CommandResults;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace AI4E.Modularity.Integration
@@ -206,16 +207,16 @@ namespace AI4E.Modularity.Integration
                     }
                     catch (ConsistencyException)
                     {
-                        return Task.FromResult<ICommandResult>(CommandResult.ConcurrencyIssue());
+                        return Task.FromResult<ICommandResult>(new ConcurrencyIssueCommandResult());
                     }
                     catch (Exception exc)
                     {
-                        return Task.FromResult<ICommandResult>(CommandResult.Failure(exc.ToString()));
+                        return Task.FromResult<ICommandResult>(new FailureCommandResult(exc.ToString()));
                     }
                 }
             }
 
-            return Task.FromResult<ICommandResult>(CommandResult.DispatchFailure<TCommand>());
+            return Task.FromResult<ICommandResult>(new CommandDispatchFailureCommandResult(typeof(TCommand)));
         }
 
         public Task<ICommandResult> LocalDispatchAsync(object command)
@@ -267,7 +268,5 @@ namespace AI4E.Modularity.Integration
                 return _commandDispatcher._commandMessageTranslator.UnregisterForwardingAsync<TCommand>();
             }
         }
-
-
     }
 }

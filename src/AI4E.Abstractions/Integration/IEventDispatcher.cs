@@ -41,7 +41,7 @@ namespace AI4E.Integration
     /// <summary>
     /// Represents an event dispatcher that dispatches events to event handlers.
     /// </summary>
-    public interface IEventDispatcher
+    public interface IEventDispatcher : INonGenericEventDispatcher
     {
         /// <summary>
         /// Asynchronously registers an event handler.
@@ -78,7 +78,7 @@ namespace AI4E.Integration
     /// Represents a typed event dispatcher that dispatches events to event handlers.
     /// </summary>
     /// <typeparam name="TEvent">The type of event.</typeparam>
-    public interface IEventDispatcher<TEvent>
+    public interface IEventDispatcher<TEvent> : ITypedNonGenericEventDispatcher
     {
         /// <summary>
         /// Asynchronously registers an event handler.

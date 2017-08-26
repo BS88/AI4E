@@ -9,7 +9,7 @@
  *                  (6) AI4E.Integration.ITypedNonGenericQueryDispatcher
  * Version:         1.0
  * Author:          Andreas Trütschel
- * Last modified:   17.07.2017 
+ * Last modified:   26.08.2017 
  * --------------------------------------------------------------------------------------------------------------------
  */
 
@@ -41,7 +41,7 @@ namespace AI4E.Integration
     /// <summary>
     /// Represents a query dispatcher that dispatches queries to query handlers.
     /// </summary>
-    public interface IQueryDispatcher
+    public interface IQueryDispatcher : INonGenericQueryDispatcher
     {
         /// <summary>
         /// Asynchronously registers a query handler.
@@ -79,7 +79,7 @@ namespace AI4E.Integration
     /// Represents a typed query dispatcher that dispatches queries to query handlers.
     /// </summary>
     /// <typeparam name="TQuery">The type of query.</typeparam>
-    public interface IQueryDispatcher<TQuery>
+    public interface IQueryDispatcher<TQuery> : ITypedNonGenericQueryDispatcher
     {
         /// <summary>
         /// Asynchronously registers a query handler.
