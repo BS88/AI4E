@@ -41,7 +41,7 @@ namespace AI4E.Integration
     /// <summary>
     /// Represents a command dispatcher that dispatches commands to command handlers.
     /// </summary>
-    public interface ICommandDispatcher
+    public interface ICommandDispatcher : INonGenericCommandDispatcher
     {
         /// <summary>
         /// Asynchronously registers a command handler.
@@ -79,7 +79,7 @@ namespace AI4E.Integration
     /// Represents a typed command dispatcher that dispatches commands to command handlers.
     /// </summary>
     /// <typeparam name="TCommand">The type of command.</typeparam>
-    public interface ICommandDispatcher<TCommand>
+    public interface ICommandDispatcher<TCommand> : ITypedNonGenericCommandDispatcher
     {
         /// <summary>
         /// Asynchronously registeres a command handler.

@@ -123,12 +123,12 @@ namespace AI4E.Integration.CommandResults
     /// </summary>
     public class SuccessCommandResult<TResult> : SuccessCommandResult, ICommandResult<TResult>
     {
-        public SuccessCommandResult(string message, TResult result) : base(message)
+        public SuccessCommandResult(TResult result, string message) : base(message)
         {
             Result = result;
         }
 
-        public SuccessCommandResult(TResult result) : this("Success", result) { }
+        public SuccessCommandResult(TResult result) : this(result, "Success") { }
 
         public TResult Result { get; }
 
@@ -141,7 +141,12 @@ namespace AI4E.Integration.CommandResults
 
         public override int GetHashCode()
         {
-            return GetType().GetHashCode() ^ Message?.GetHashCode()??0 ^ Result?.GetHashCode()??0;
+            return GetType().GetHashCode() ^ Message?.GetHashCode() ?? 0 ^ Result?.GetHashCode() ?? 0;
+        }
+
+        public override string ToString()
+        {
+            return $"{Message} [Result: {Result}]";
         }
     }
 }

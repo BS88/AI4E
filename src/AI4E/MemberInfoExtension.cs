@@ -1,10 +1,10 @@
 ﻿/* Summary
  * --------------------------------------------------------------------------------------------------------------------
- * Filename:        FailureCommandResult.cs 
- * Types:           AI4E.Integration.CommandResults.FailureCommandResult
+ * Filename:        MemberInfoExtension.cs 
+ * Types:           AI4E.MemberInfoExtension
  * Version:         1.0
  * Author:          Andreas Trütschel
- * Last modified:   15.07.2017 
+ * Last modified:   26.08.2017 
  * --------------------------------------------------------------------------------------------------------------------
  */
 
@@ -28,37 +28,27 @@
  * --------------------------------------------------------------------------------------------------------------------
  */
 
-namespace AI4E.Integration.CommandResults
-{
-    /// <summary>
-    /// Represents a failed command execution.
-    /// </summary>
-    public class FailureCommandResult : ICommandResult
-    {
-        /// <summary>
-        /// Gets a <see cref="FailureCommandResult"/> that represents unkown failures.
-        /// </summary>
-        public static FailureCommandResult UnknownFailure { get; } = new FailureCommandResult("Unknown failure.");
+using System;
+using System.Reflection;
 
-        /// <summary>
-        /// Creates a new instance of the <see cref="FailureCommandResult"/> type with the specified message.
-        /// </summary>
-        /// <param name="message">The failure message.</param>
-        public FailureCommandResult(string message)
+namespace AI4E
+{
+    internal static class MemberInfoExtension
+    {
+        public static bool IsDefined<TCustomAttribute>(this MemberInfo member) where TCustomAttribute : Attribute
         {
-            Message = message;
+            if (member == null)
+                throw new ArgumentNullException(nameof(member));
+
+            return member.IsDefined(typeof(TCustomAttribute));
         }
 
-        bool IDispatchResult.IsSuccess => false;
-
-        /// <summary>
-        /// Gets a failure message of the command result.
-        /// </summary>
-        public string Message { get; }
-
-        public override string ToString()
+        public static bool IsDefined<TCustomAttribute>(this MemberInfo member, bool inherit) where TCustomAttribute : Attribute
         {
-            return Message;
+            if (member == null)
+                throw new ArgumentNullException(nameof(member));
+
+            return member.IsDefined(typeof(TCustomAttribute), inherit);
         }
     }
 }

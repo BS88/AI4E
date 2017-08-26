@@ -1,10 +1,10 @@
 ﻿/* Summary
  * --------------------------------------------------------------------------------------------------------------------
- * Filename:        FailureCommandResult.cs 
- * Types:           AI4E.Integration.CommandResults.FailureCommandResult
+ * Filename:        CommandHandlerMemberDescriptor.cs 
+ * Types:           AI4E.Integration.CommandHandlerMemberDescriptor
  * Version:         1.0
  * Author:          Andreas Trütschel
- * Last modified:   15.07.2017 
+ * Last modified:   26.08.2017 
  * --------------------------------------------------------------------------------------------------------------------
  */
 
@@ -28,37 +28,20 @@
  * --------------------------------------------------------------------------------------------------------------------
  */
 
-namespace AI4E.Integration.CommandResults
+using System;
+using System.Reflection;
+
+namespace AI4E.Integration
 {
-    /// <summary>
-    /// Represents a failed command execution.
-    /// </summary>
-    public class FailureCommandResult : ICommandResult
+    public struct CommandHandlerMemberDescriptor
     {
-        /// <summary>
-        /// Gets a <see cref="FailureCommandResult"/> that represents unkown failures.
-        /// </summary>
-        public static FailureCommandResult UnknownFailure { get; } = new FailureCommandResult("Unknown failure.");
-
-        /// <summary>
-        /// Creates a new instance of the <see cref="FailureCommandResult"/> type with the specified message.
-        /// </summary>
-        /// <param name="message">The failure message.</param>
-        public FailureCommandResult(string message)
+        public CommandHandlerMemberDescriptor(Type commandType, MethodInfo member)
         {
-            Message = message;
+            CommandType = commandType;
+            Member = member;
         }
 
-        bool IDispatchResult.IsSuccess => false;
-
-        /// <summary>
-        /// Gets a failure message of the command result.
-        /// </summary>
-        public string Message { get; }
-
-        public override string ToString()
-        {
-            return Message;
-        }
+        public Type CommandType { get; }
+        public MethodInfo Member { get; }
     }
 }

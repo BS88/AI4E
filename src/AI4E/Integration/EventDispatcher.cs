@@ -49,9 +49,10 @@ namespace AI4E.Integration
     {
         private static readonly Type _typedDispatcherType = typeof(EventDispatcher<>);
 
-        private readonly ConcurrentDictionary<Type, ITypedNonGenericEventDispatcher> _typedDispatchers = new ConcurrentDictionary<Type, ITypedNonGenericEventDispatcher>();
         private readonly IServiceProvider _serviceProvider;
         private readonly IEventAuthorizationVerifyer _authorizationVerifyer;
+        private readonly ConcurrentDictionary<Type, ITypedNonGenericEventDispatcher> _typedDispatchers 
+            = new ConcurrentDictionary<Type, ITypedNonGenericEventDispatcher>();
 
         /// <summary>
         /// Creates a new instance of the <see cref="EventDispatcher"/> type.

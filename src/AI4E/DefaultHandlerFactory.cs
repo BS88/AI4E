@@ -8,6 +8,7 @@ namespace AI4E
         private readonly THandler _singletonHandler;
         private readonly bool _useSingletonHandler;
 
+        [Obsolete] // TODO: Create a separate type 
         public DefaultHandlerFactory(THandler singletonHandler)
         {
             _singletonHandler = singletonHandler;

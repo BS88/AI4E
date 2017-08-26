@@ -8,44 +8,9 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace AI4E
 {
+    [Obsolete]
     public static class ServiceProviderExtension
     {
-        [Obsolete("Use 'UseMessaging()'")]
-        public static void/*IEnumerable<IHandlerRegistration>*/ UseCommandHandlers(this IServiceProvider serviceProvider)
-        {
-            if (serviceProvider == null)
-                throw new ArgumentNullException(nameof(serviceProvider));
-
-            //var result = new List<IHandlerRegistration>();
-            var assembly = Assembly.GetCallingAssembly();
-            var commandDispatcher = serviceProvider.GetRequiredService<ICommandDispatcher>();
-
-            foreach (var type in assembly.GetTypes().Where(p => p.GetTypeInfo().IsClass && !p.GetTypeInfo().IsAbstract || p.GetTypeInfo().IsValueType && !p.GetTypeInfo().IsEnum))
-            {
-                var ifaces = type.GetTypeInfo().GetInterfaces().Where(p => p.GetTypeInfo().IsGenericType && p.GetGenericTypeDefinition() == typeof(ICommandHandler<>));
-
-                if (!ifaces.Any())
-                {
-                    continue;
-                }
-
-                var factory = Activator.CreateInstance(typeof(DefaultHandlerFactory<>).MakeGenericType(type));
-                foreach (var iface in ifaces)
-                {
-                    var commandType = iface.GetTypeInfo().GetGenericArguments().First();
-
-                    var registerMethodDefintion = typeof(ICommandDispatcher).GetTypeInfo().GetMethods().First(p => p.Name == nameof(ICommandDispatcher.RegisterAsync));
-                    var registerMethod = registerMethodDefintion.MakeGenericMethod(commandType);
-                    Debug.Assert(registerMethod != null);
-
-                    //result.Add(((dynamic)
-                    registerMethod.Invoke(commandDispatcher, new[] { factory });
-                    //).Result); // TODO
-                }
-            }
-            //return result;
-        }
-
         [Obsolete("Use 'UseMessaging()'")]
         public static /*IEnumerable<IHandlerRegistration>*/void UseQueryHandlers(this IServiceProvider serviceProvider)
         {
@@ -162,11 +127,6 @@ namespace AI4E
             }
 
             //return result;
-        }
-
-        public static void UseMessaging(this IServiceProvider serviceProvider)
-        {
-
         }
     }
 }

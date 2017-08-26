@@ -6,7 +6,7 @@
  *                  (3) AI4E.Integration.CommandAuthorizationVerifyer
  * Version:         1.0
  * Author:          Andreas Trütschel
- * Last modified:   01.07.2017 
+ * Last modified:   26.08.2017 
  * --------------------------------------------------------------------------------------------------------------------
  */
 
@@ -35,6 +35,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Threading.Tasks;
 using System.Diagnostics;
+using AI4E.Integration.CommandResults;
 
 namespace AI4E.Integration
 {
@@ -285,16 +286,16 @@ namespace AI4E.Integration
                     }
                     catch (ConsistencyException)
                     {
-                        return Task.FromResult<ICommandResult>(CommandResult.ConcurrencyIssue());
+                        return Task.FromResult<ICommandResult>(new ConcurrencyIssueCommandResult());
                     }
                     catch (Exception exc)
                     {
-                        return Task.FromResult<ICommandResult>(CommandResult.Failure(exc.ToString()));
+                        return Task.FromResult<ICommandResult>(new FailureCommandResult(exc.ToString()));
                     }
                 }
             }
 
-            return Task.FromResult<ICommandResult>(CommandResult.DispatchFailure<TCommand>());
+            return Task.FromResult<ICommandResult>(new CommandDispatchFailureCommandResult(typeof(TCommand)));
         }
 
         /// <summary>

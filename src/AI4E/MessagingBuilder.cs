@@ -1,10 +1,11 @@
 ﻿/* Summary
  * --------------------------------------------------------------------------------------------------------------------
- * Filename:        FailureCommandResult.cs 
- * Types:           AI4E.Integration.CommandResults.FailureCommandResult
+ * Filename:        MessagingBuilder.cs 
+ * Types:           (1) AI4E.MessagingBuilder
+ *                  (2) AI4E.IMessagingBuilder
  * Version:         1.0
  * Author:          Andreas Trütschel
- * Last modified:   15.07.2017 
+ * Last modified:   26.08.2017 
  * --------------------------------------------------------------------------------------------------------------------
  */
 
@@ -28,37 +29,27 @@
  * --------------------------------------------------------------------------------------------------------------------
  */
 
-namespace AI4E.Integration.CommandResults
+using System.Diagnostics;
+using Microsoft.Extensions.DependencyInjection;
+
+namespace AI4E
 {
-    /// <summary>
-    /// Represents a failed command execution.
-    /// </summary>
-    public class FailureCommandResult : ICommandResult
+    internal class MessagingBuilder : IMessagingBuilder
     {
-        /// <summary>
-        /// Gets a <see cref="FailureCommandResult"/> that represents unkown failures.
-        /// </summary>
-        public static FailureCommandResult UnknownFailure { get; } = new FailureCommandResult("Unknown failure.");
+        private readonly IServiceCollection _services;
 
-        /// <summary>
-        /// Creates a new instance of the <see cref="FailureCommandResult"/> type with the specified message.
-        /// </summary>
-        /// <param name="message">The failure message.</param>
-        public FailureCommandResult(string message)
+        public MessagingBuilder(IServiceCollection services)
         {
-            Message = message;
+            Debug.Assert(services != null);
+
+            _services = services;
         }
 
-        bool IDispatchResult.IsSuccess => false;
+        public IServiceCollection Services => _services;
+    }
 
-        /// <summary>
-        /// Gets a failure message of the command result.
-        /// </summary>
-        public string Message { get; }
-
-        public override string ToString()
-        {
-            return Message;
-        }
+    public interface IMessagingBuilder
+    {
+        IServiceCollection Services { get; }
     }
 }

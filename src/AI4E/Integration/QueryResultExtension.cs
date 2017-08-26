@@ -1,10 +1,10 @@
 ﻿/* Summary
  * --------------------------------------------------------------------------------------------------------------------
- * Filename:        FailureCommandResult.cs 
- * Types:           AI4E.Integration.CommandResults.FailureCommandResult
+ * Filename:        QueryResultExtension.cs 
+ * Types:           AI4E.Integration.QueryResultExtension
  * Version:         1.0
  * Author:          Andreas Trütschel
- * Last modified:   15.07.2017 
+ * Last modified:   26.08.2017 
  * --------------------------------------------------------------------------------------------------------------------
  */
 
@@ -28,37 +28,33 @@
  * --------------------------------------------------------------------------------------------------------------------
  */
 
-namespace AI4E.Integration.CommandResults
-{
-    /// <summary>
-    /// Represents a failed command execution.
-    /// </summary>
-    public class FailureCommandResult : ICommandResult
-    {
-        /// <summary>
-        /// Gets a <see cref="FailureCommandResult"/> that represents unkown failures.
-        /// </summary>
-        public static FailureCommandResult UnknownFailure { get; } = new FailureCommandResult("Unknown failure.");
+using System;
+using AI4E.Integration.QueryResults;
 
-        /// <summary>
-        /// Creates a new instance of the <see cref="FailureCommandResult"/> type with the specified message.
-        /// </summary>
-        /// <param name="message">The failure message.</param>
-        public FailureCommandResult(string message)
+namespace AI4E.Integration
+{
+    public static class QueryResultExtension
+    {
+        public static bool IsTimeout(this IQueryResult queryResult)
         {
-            Message = message;
+            return queryResult is TimeoutQueryResult;
         }
 
-        bool IDispatchResult.IsSuccess => false;
-
-        /// <summary>
-        /// Gets a failure message of the command result.
-        /// </summary>
-        public string Message { get; }
-
-        public override string ToString()
+        public static bool IsTimeout(this IQueryResult queryResult, out DateTime dueTime)
         {
-            return Message;
+            if (queryResult is TimeoutQueryResult timoutQueryResult)
+            {
+                dueTime = timoutQueryResult.DueTime;
+                return true;
+            }
+
+            dueTime = default;
+            return false;
+        }
+
+        public static bool IsNotFound(this IQueryResult queryResult)
+        {
+            return queryResult is NotFoundQueryResult;
         }
     }
 }

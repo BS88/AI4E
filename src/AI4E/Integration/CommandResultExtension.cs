@@ -4,7 +4,7 @@
  * Types:           AI4E.Integration.CommandResultExtension
  * Version:         1.0
  * Author:          Andreas Trütschel
- * Last modified:   15.07.2017 
+ * Last modified:   26.08.2017 
  * Status:          Ready
  * --------------------------------------------------------------------------------------------------------------------
  */
@@ -87,8 +87,8 @@ namespace AI4E.Integration
                 return true;
             }
 
-            entityType = default(Type);
-            id = default(Guid);
+            entityType = default;
+            id = default;
 
             return false;
         }
@@ -106,7 +106,7 @@ namespace AI4E.Integration
                 return true;
             }
 
-            dueTime = default(DateTime);
+            dueTime = default;
             return false;
         }
     }
