@@ -4,14 +4,14 @@ namespace AI4E.Integration.EventResults
 {
     public class FailureEventResult : IEventResult
     {
-        public static FailureEventResult Unknown { get; } = new FailureEventResult("Unkown failure");
+        public static FailureEventResult UnknownFailure { get; } = new FailureEventResult("Unkown failure");
 
         public FailureEventResult(string message)
         {
             Message = message;
         }
 
-        bool IEventResult.IsSuccess => throw new NotImplementedException();
+        bool IEventResult.IsSuccess => false;
 
         public string Message { get; }
 

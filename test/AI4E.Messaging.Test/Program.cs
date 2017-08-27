@@ -27,6 +27,11 @@ namespace AI4E.Messaging.Test
 
             Console.WriteLine("Query-handler returned: " + queryResult.ToString());
 
+            var eventDispatcher = serviceProvider.GetRequiredService<IEventDispatcher>();
+            var eventResult = await eventDispatcher.NotifyAsync(new TestEvent { Value = "Hello" });
+
+            Console.WriteLine("Event-handler returned: " + eventResult.ToString());
+
             Console.ReadLine();
         }
 
@@ -92,6 +97,38 @@ namespace AI4E.Messaging.Test
             await emailSender.SendAsync("D: " + d);
 
             return query.Id;
+        }
+    }
+
+    public class TestEvent
+    {
+        public string Value { get; set; }
+    }
+
+    public class TestEventHandler : Integration.EventHandler
+    {
+        public void Handle(TestEvent evt)
+        {
+            Console.WriteLine(evt.Value);
+        }
+    }
+
+    public class TestEventHandler2 : Integration.EventHandler
+    {
+        [NoEventHandlerAction]
+        public IEventResult Handle(TestEvent evt)
+        {
+            Console.WriteLine("Failed");
+
+            return Failure();
+        }
+
+        [EventHandlerAction(EventType = typeof(TestEvent))]
+        public async Task<IEventResult> HandleAsync(object evt)
+        {
+            Console.WriteLine("OK");
+
+            return Success();
         }
     }
 

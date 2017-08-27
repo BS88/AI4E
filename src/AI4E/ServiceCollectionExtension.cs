@@ -163,8 +163,23 @@ namespace AI4E
             }
 
             var partManager = serviceProvider.GetRequiredService<ApplicationPartManager>();
+            var eventHandlerFeature = new EventHandlerFeature();
 
-            // TODO
+            partManager.PopulateFeature(eventHandlerFeature);
+
+            foreach (var type in eventHandlerFeature.EventHandlers)
+            {
+                var eventHandlerInspector = new EventHandlerInspector(type);
+                var eventHandlerDescriptors = eventHandlerInspector.GetEventHandlerDescriptors();
+
+                foreach (var eventHandlerDescriptor in eventHandlerDescriptors)
+                {
+                    var eventType = eventHandlerDescriptor.EventType;
+                    var eventHandlerProvider = Activator.CreateInstance(typeof(EventHandlerProvider<>).MakeGenericType(eventType), type, eventHandlerDescriptor);
+
+                    Task taskRegistration = eventDispatcher.RegisterAsync((dynamic)eventHandlerProvider); // TODO: The task is neither awaited nor stored.
+                }
+            }
 
             return eventDispatcher;
         }
@@ -179,6 +194,11 @@ namespace AI4E
             if (!manager.FeatureProviders.OfType<QueryHandlerFeatureProvider>().Any())
             {
                 manager.FeatureProviders.Add(new QueryHandlerFeatureProvider());
+            }
+
+            if (!manager.FeatureProviders.OfType<EventHandlerFeatureProvider>().Any())
+            {
+                manager.FeatureProviders.Add(new EventHandlerFeatureProvider());
             }
         }
 

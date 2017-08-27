@@ -1,8 +1,8 @@
 ﻿/* Summary
  * --------------------------------------------------------------------------------------------------------------------
- * Filename:        QueryHandlerFeature.cs 
- * Types:           (1) AI4E.Integration.QueryHandlerFeature
- *                  (2) AI4E.Integration.QueryHandlerFeatureProvider
+ * Filename:        EventHandlerFeature.cs 
+ * Types:           (1) AI4E.Integration.EventHandlerFeature
+ *                  (2) AI4E.Integration.EventHandlerFeatureProvider
  * Version:         1.0
  * Author:          Andreas Trütschel
  * Last modified:   27.08.2017 
@@ -14,7 +14,7 @@
  * This file is part of the AI4E distribution.
  *   (https://gitlab.com/EnterpriseApplicationEquipment/AI4E)
  * Copyright (c) 2017 Andreas Trütschel.
- *  
+ * 
  * AI4E is free software: you can redistribute it and/or modify  
  * it under the terms of the GNU Lesser General Public License as   
  * published by the Free Software Foundation, version 3.
@@ -36,35 +36,35 @@ using Microsoft.AspNetCore.Mvc.ApplicationParts;
 
 namespace AI4E.Integration
 {
-    public class QueryHandlerFeature
+    public class EventHandlerFeature
     {
-        public IList<Type> QueryHandlers { get; } = new List<Type>();
+        public IList<Type> EventHandlers { get; } = new List<Type>();
     }
 
-    public class QueryHandlerFeatureProvider : IApplicationFeatureProvider<QueryHandlerFeature>
+    public class EventHandlerFeatureProvider : IApplicationFeatureProvider<EventHandlerFeature>
     {
-        public void PopulateFeature(IEnumerable<ApplicationPart> parts, QueryHandlerFeature feature)
+        public void PopulateFeature(IEnumerable<ApplicationPart> parts, EventHandlerFeature feature)
         {
             foreach (var part in parts.OfType<IApplicationPartTypeProvider>())
             {
                 foreach (var type in part.Types)
                 {
-                    if (IsQueryHandler(type) && !feature.QueryHandlers.Contains(type))
+                    if (IsEventHandler(type) && !feature.EventHandlers.Contains(type))
                     {
-                        feature.QueryHandlers.Add(type);
+                        feature.EventHandlers.Add(type);
                     }
                 }
             }
         }
 
-        protected virtual bool IsQueryHandler(Type type)
+        protected virtual bool IsEventHandler(Type type)
         {
             return (type.IsClass || type.IsValueType && !type.IsEnum) &&
                    !type.IsAbstract &&
                    type.IsPublic &&
                    !type.ContainsGenericParameters &&
-                   !type.IsDefined<NoQueryHandlerAttribute>() &&
-                   (type.Name.EndsWith("QueryHandler", StringComparison.OrdinalIgnoreCase) || type.IsDefined<QueryHandlerAttribute>());
+                   !type.IsDefined<NoEventHandlerAttribute>() &&
+                   (type.Name.EndsWith("EventHandler", StringComparison.OrdinalIgnoreCase) || type.IsDefined<EventHandlerAttribute>());
         }
     }
 }
