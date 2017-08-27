@@ -291,7 +291,7 @@ namespace AI4E.Integration
                 }
             }
 
-            return Task.FromResult<IQueryResult>(FailureQueryResult.UnkownFailure); // TODO
+            return Task.FromResult<IQueryResult>(FailureQueryResult.UnknownFailure); // TODO
         }
 
         /// <summary>

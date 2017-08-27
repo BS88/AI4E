@@ -1,12 +1,10 @@
-﻿using System;
-using System.Diagnostics;
-
-namespace AI4E.Integration.QueryResults
+﻿namespace AI4E.Integration.QueryResults
 {
-    // TODO: Allow SuccessQueryResult instances without result value?
-    public abstract class SuccessQueryResult : IQueryResult
+    public class SuccessQueryResult : IQueryResult
     {
-        protected SuccessQueryResult(string message)
+        public static SuccessQueryResult Default => new SuccessQueryResult("Success");
+
+        public SuccessQueryResult(string message)
         {
             Message = message;
         }
@@ -23,13 +21,18 @@ namespace AI4E.Integration.QueryResults
 
     public class SuccessQueryResult<TResult> : SuccessQueryResult, IQueryResult<TResult>
     {
-        public SuccessQueryResult(string message, TResult result) : base(message)
+        public SuccessQueryResult(TResult result, string message) : base(message)
         {
             Result = result;
         }
 
-        public SuccessQueryResult(TResult result) : this("Success", result) { }
+        public SuccessQueryResult(TResult result) : this(result, "Success") { }
 
         public TResult Result { get; }
+
+        public override string ToString()
+        {
+            return $"{Message} [Result: {Result}]";
+        }
     }
 }

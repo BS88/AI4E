@@ -22,6 +22,11 @@ namespace AI4E.Messaging.Test
 
             Console.WriteLine("Command-handler returned: " + commandResult.ToString());
 
+            var queryDispatcher = serviceProvider.GetRequiredService<IQueryDispatcher>();
+            var queryResult = await queryDispatcher.QueryAsync(new TestQuery(Guid.NewGuid()));
+
+            Console.WriteLine("Query-handler returned: " + queryResult.ToString());
+
             Console.ReadLine();
         }
 
@@ -61,6 +66,32 @@ namespace AI4E.Messaging.Test
             await Task.Delay(2000);
 
             return Success(123, "This is a success");
+        }
+    }
+
+    public class TestQuery
+    {
+        public TestQuery(Guid id)
+        {
+            Id = id;
+        }
+
+        public Guid Id { get; }
+    }
+
+    public class TestQueryHandler : QueryHandler
+    {
+        private readonly IEventDispatcher _eventDispatcher;
+
+        public TestQueryHandler(IEventDispatcher eventDispatcher)
+        {
+            _eventDispatcher = eventDispatcher;
+        }
+        public async Task<Guid> HandleAsync(TestQuery query, [FromServices]IEmailSender emailSender, double d)
+        {
+            await emailSender.SendAsync("D: " + d);
+
+            return query.Id;
         }
     }
 

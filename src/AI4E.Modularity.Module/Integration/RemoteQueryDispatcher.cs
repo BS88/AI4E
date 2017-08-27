@@ -357,7 +357,7 @@ namespace AI4E.Modularity.Integration
                 }
             }
 
-            return Task.FromResult<IQueryResult>(FailureQueryResult.UnkownFailure); // TODO
+            return Task.FromResult<IQueryResult>(FailureQueryResult.UnknownFailure); // TODO
         }
 
         /// <summary>

@@ -1,11 +1,10 @@
 ﻿/* Summary
  * --------------------------------------------------------------------------------------------------------------------
- * Filename:        IHandlerFactory.cs
- * Types:           AI4E.IHandlerFactory'1
+ * Filename:        QueryHandlerActionDescriptor.cs 
+ * Types:           AI4E.Integration.QueryHandlerActionDescriptor
  * Version:         1.0
  * Author:          Andreas Trütschel
- * Last modified:   11.05.2017 
- * Status:          Ready
+ * Last modified:   27.08.2017 
  * --------------------------------------------------------------------------------------------------------------------
  */
 
@@ -30,11 +29,19 @@
  */
 
 using System;
+using System.Reflection;
 
-namespace AI4E
+namespace AI4E.Integration
 {
-    public interface IHandlerFactory<out THandler> // TODO: Rename to IHandlerProvider
+    public struct QueryHandlerActionDescriptor
     {
-        THandler GetHandler(IServiceProvider serviceProvider);
+        public QueryHandlerActionDescriptor(Type queryType, MethodInfo member)
+        {
+            QueryType = queryType;
+            Member = member;
+        }
+
+        public Type QueryType { get; }
+        public MethodInfo Member { get; }
     }
 }

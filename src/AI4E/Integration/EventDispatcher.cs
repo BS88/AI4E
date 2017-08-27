@@ -156,7 +156,7 @@ namespace AI4E.Integration
             // We cannot just call the typed dispatcher for TEvent here, like the other dispatchers do.
             // The reason is the different semantic. An event can be dispatched to multiple receivers.
             // A receiver can be registered for an event type that is lower in the inheritence hierarchy than TEvent.
-            // So we have to dispatch the event to all typed dispatchers that are available!! the whole type hierarchy
+            // So we have to dispatch the event to all typed dispatchers that are available!! the whole type hierarchy down,
             // till we reach System.Object.
 
             return NotifyAsync(typeof(TEvent), evt);

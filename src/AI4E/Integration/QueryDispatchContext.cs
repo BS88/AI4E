@@ -1,11 +1,11 @@
 ﻿/* Summary
  * --------------------------------------------------------------------------------------------------------------------
- * Filename:        IHandlerFactory.cs
- * Types:           AI4E.IHandlerFactory'1
+ * Filename:        QueryDispatchContext.cs 
+ * Types:           (1) AI4E.Integration.QueryDispatchContext
+ *                  (2) AI4E.Integration.QueryDispatchContextAttribute
  * Version:         1.0
  * Author:          Andreas Trütschel
- * Last modified:   11.05.2017 
- * Status:          Ready
+ * Last modified:   27.08.2017 
  * --------------------------------------------------------------------------------------------------------------------
  */
 
@@ -31,10 +31,13 @@
 
 using System;
 
-namespace AI4E
+namespace AI4E.Integration
 {
-    public interface IHandlerFactory<out THandler> // TODO: Rename to IHandlerProvider
+    public sealed class QueryDispatchContext
     {
-        THandler GetHandler(IServiceProvider serviceProvider);
+        public IServiceProvider DispatchServices { get; set; }
     }
+
+    [AttributeUsage(AttributeTargets.Property)]
+    public sealed class QueryDispatchContextAttribute : Attribute { }
 }

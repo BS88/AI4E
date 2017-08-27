@@ -2,7 +2,7 @@
 {
     public class FailureQueryResult : IQueryResult
     {
-        public static FailureQueryResult UnkownFailure { get; } = new FailureQueryResult("Unknown failure");
+        public static FailureQueryResult UnknownFailure { get; } = new FailureQueryResult("Unknown failure");
 
         public FailureQueryResult(string message)
         {

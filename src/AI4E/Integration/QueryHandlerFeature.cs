@@ -1,11 +1,11 @@
 ﻿/* Summary
  * --------------------------------------------------------------------------------------------------------------------
- * Filename:        CommandHandlerFeature.cs 
- * Types:           (1) AI4E.Integration.CommandHandlerFeature
- *                  (2) AI4E.Integration.CommandHandlerFeatureProvider
+ * Filename:        QueryHandlerFeature.cs 
+ * Types:           (1) AI4E.Integration.QueryHandlerFeature
+ *                  (2) AI4E.Integration.QueryHandlerFeatureProvider
  * Version:         1.0
  * Author:          Andreas Trütschel
- * Last modified:   26.08.2017 
+ * Last modified:   27.08.2017 
  * --------------------------------------------------------------------------------------------------------------------
  */
 
@@ -14,7 +14,7 @@
  * This file is part of the AI4E distribution.
  *   (https://gitlab.com/EnterpriseApplicationEquipment/AI4E)
  * Copyright (c) 2017 Andreas Trütschel.
- * 
+ *  
  * AI4E is free software: you can redistribute it and/or modify  
  * it under the terms of the GNU Lesser General Public License as   
  * published by the Free Software Foundation, version 3.
@@ -36,22 +36,22 @@ using Microsoft.AspNetCore.Mvc.ApplicationParts;
 
 namespace AI4E.Integration
 {
-    public class CommandHandlerFeature
+    public class QueryHandlerFeature
     {
-        public IList<Type> CommandHandlers { get; } = new List<Type>();
+        public IList<Type> QueryHandlers { get; } = new List<Type>();
     }
 
-    public class CommandHandlerFeatureProvider : IApplicationFeatureProvider<CommandHandlerFeature>
+    public class QueryHandlerFeatureProvider : IApplicationFeatureProvider<QueryHandlerFeature>
     {
-        public void PopulateFeature(IEnumerable<ApplicationPart> parts, CommandHandlerFeature feature)
+        public void PopulateFeature(IEnumerable<ApplicationPart> parts, QueryHandlerFeature feature)
         {
             foreach (var part in parts.OfType<IApplicationPartTypeProvider>())
             {
                 foreach (var type in part.Types)
                 {
-                    if (IsCommandHandler(type) && !feature.CommandHandlers.Contains(type))
+                    if (IsCommandHandler(type) && !feature.QueryHandlers.Contains(type))
                     {
-                        feature.CommandHandlers.Add(type);
+                        feature.QueryHandlers.Add(type);
                     }
                 }
             }
@@ -63,8 +63,8 @@ namespace AI4E.Integration
                    !type.IsAbstract &&
                    type.IsPublic &&
                    !type.ContainsGenericParameters &&
-                   !type.IsDefined<NoCommandHandlerAttribute>() &&
-                   (type.Name.EndsWith("CommandHandler", StringComparison.OrdinalIgnoreCase) || type.IsDefined<CommandHandlerAttribute>());
+                   !type.IsDefined<NoQueryHandlerAttribute>() &&
+                   (type.Name.EndsWith("QueryHandler", StringComparison.OrdinalIgnoreCase) || type.IsDefined<QueryHandlerAttribute>());
         }
     }
 }

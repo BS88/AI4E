@@ -1,10 +1,10 @@
 ﻿/* Summary
  * --------------------------------------------------------------------------------------------------------------------
- * Filename:        AI4EServiceCollectionExtension.cs 
- * Types:           AI4E.AI4EServiceCollectionExtension
+ * Filename:        ServiceCollectionExtension.cs 
+ * Types:           AI4E.ServiceCollectionExtension
  * Version:         1.0
  * Author:          Andreas Trütschel
- * Last modified:   26.08.2017 
+ * Last modified:   27.08.2017 
  * --------------------------------------------------------------------------------------------------------------------
  */
 
@@ -50,6 +50,7 @@ using System;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
+using System.Threading.Tasks;
 using AI4E.Integration;
 using Microsoft.AspNetCore.Mvc.ApplicationParts;
 using Microsoft.AspNetCore.Mvc.Internal;
@@ -58,7 +59,7 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace AI4E
 {
-    public static class AI4EServiceCollectionExtension
+    public static class ServiceCollectionExtension
     {
         public static IMessagingBuilder AddMessaging(this IServiceCollection services)
         {
@@ -72,16 +73,13 @@ namespace AI4E
 
             services.TryAddSingleton(partManager);
 
-            services.AddSingleton(BuildCommandDispatcher);
-            services.AddSingleton<QueryDispatcher>();
-            services.AddSingleton<EventDispatcher>();
-
-            services.AddSingleton<IQueryDispatcher, QueryDispatcher>(provider => provider.GetRequiredService<QueryDispatcher>());
-            services.AddSingleton<IEventDispatcher, EventDispatcher>(provider => provider.GetRequiredService<EventDispatcher>());
+            services.AddSingleton(provider => BuildCommandDispatcher(provider, GetServiceFromCollection<ICommandDispatcher>(services)));
+            services.AddSingleton(provider => BuildQueryDispatcher(provider, GetServiceFromCollection<IQueryDispatcher>(services)));
+            services.AddSingleton(provider => BuildEventDispatcher(provider, GetServiceFromCollection<IEventDispatcher>(services)));
 
             services.AddSingleton<INonGenericCommandDispatcher, ICommandDispatcher>(provider => provider.GetRequiredService<ICommandDispatcher>());
-            services.AddSingleton<INonGenericQueryDispatcher, QueryDispatcher>(provider => provider.GetRequiredService<QueryDispatcher>());
-            services.AddSingleton<INonGenericEventDispatcher, EventDispatcher>(provider => provider.GetRequiredService<EventDispatcher>());
+            services.AddSingleton<INonGenericQueryDispatcher, IQueryDispatcher>(provider => provider.GetRequiredService<IQueryDispatcher>());
+            services.AddSingleton<INonGenericEventDispatcher, IEventDispatcher>(provider => provider.GetRequiredService<IEventDispatcher>());
 
             return new MessagingBuilder(services);
         }
@@ -99,14 +97,17 @@ namespace AI4E
             return builder;
         }
 
-        private static ICommandDispatcher BuildCommandDispatcher(IServiceProvider serviceProvider)
+        private static ICommandDispatcher BuildCommandDispatcher(IServiceProvider serviceProvider, ICommandDispatcher commandDispatcher)
         {
-            var result = new CommandDispatcher(serviceProvider);
+            if (commandDispatcher == null)
+            {
+                commandDispatcher = new CommandDispatcher(serviceProvider);
+            }
 
-            var applicationPartManager = serviceProvider.GetRequiredService<ApplicationPartManager>();
+            var partManager = serviceProvider.GetRequiredService<ApplicationPartManager>();
             var commandHandlerFeature = new CommandHandlerFeature();
 
-            applicationPartManager.PopulateFeature(commandHandlerFeature);
+            partManager.PopulateFeature(commandHandlerFeature);
 
             foreach (var type in commandHandlerFeature.CommandHandlers)
             {
@@ -118,11 +119,54 @@ namespace AI4E
                     var commandType = commandHandlerDescriptor.CommandType;
                     var commandHandlerProvider = Activator.CreateInstance(typeof(CommandHandlerProvider<>).MakeGenericType(commandType), type, commandHandlerDescriptor);
 
-                    result.RegisterAsync((dynamic)commandHandlerProvider);
+                    Task taskRegistration = commandDispatcher.RegisterAsync((dynamic)commandHandlerProvider); // TODO: The task is neither awaited nor stored.
                 }
             }
 
-            return result;
+            return commandDispatcher;
+        }
+
+        private static IQueryDispatcher BuildQueryDispatcher(IServiceProvider serviceProvider, IQueryDispatcher queryDispatcher)
+        {
+            if (queryDispatcher == null)
+            {
+                queryDispatcher = new QueryDispatcher(serviceProvider);
+            }
+
+            var partManager = serviceProvider.GetRequiredService<ApplicationPartManager>();
+            var queryHandlerFeature = new QueryHandlerFeature();
+
+            partManager.PopulateFeature(queryHandlerFeature);
+
+            foreach (var type in queryHandlerFeature.QueryHandlers)
+            {
+                var queryHandlerInspector = new QueryHandlerInspector(type);
+                var queryHandlerDescriptors = queryHandlerInspector.GetQueryHandlerDescriptors();
+
+                foreach (var queryHandlerDescriptor in queryHandlerDescriptors)
+                {
+                    var queryType = queryHandlerDescriptor.QueryType;
+                    var queryHandlerProvider = Activator.CreateInstance(typeof(QueryHandlerProvider<>).MakeGenericType(queryType), type, queryHandlerDescriptor);
+
+                    Task taskRegistration = queryDispatcher.RegisterAsync((dynamic)queryHandlerProvider); // TODO: The task is neither awaited nor stored.
+                }
+            }
+
+            return queryDispatcher;
+        }
+
+        private static IEventDispatcher BuildEventDispatcher(IServiceProvider serviceProvider, IEventDispatcher eventDispatcher)
+        {
+            if (eventDispatcher == null)
+            {
+                eventDispatcher = new EventDispatcher(serviceProvider);
+            }
+
+            var partManager = serviceProvider.GetRequiredService<ApplicationPartManager>();
+
+            // TODO
+
+            return eventDispatcher;
         }
 
         private static void ConfigureDefaultFeatureProviders(ApplicationPartManager manager)
@@ -130,6 +174,11 @@ namespace AI4E
             if (!manager.FeatureProviders.OfType<CommandHandlerFeatureProvider>().Any())
             {
                 manager.FeatureProviders.Add(new CommandHandlerFeatureProvider());
+            }
+
+            if (!manager.FeatureProviders.OfType<QueryHandlerFeatureProvider>().Any())
+            {
+                manager.FeatureProviders.Add(new QueryHandlerFeatureProvider());
             }
         }
 
