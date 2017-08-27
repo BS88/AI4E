@@ -33,7 +33,7 @@ using System;
 
 namespace AI4E.Integration
 {
-    public sealed class EventDispatchContext
+    public class EventDispatchContext
     {
         public EventDispatchContext() { }
 

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using AI4E.Integration;
+using AI4E.Integration.EventResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -113,14 +114,15 @@ namespace AI4E.Messaging.Test
         }
     }
 
-    public class TestEventHandler2 : Integration.EventHandler
+    [EventHandler]
+    public class TestEvtHdl_FancyName /*: Integration.EventHandler*/
     {
         [NoEventHandlerAction]
         public IEventResult Handle(TestEvent evt)
         {
             Console.WriteLine("Failed");
 
-            return Failure();
+            return FailureEventResult.UnknownFailure;
         }
 
         [EventHandlerAction(EventType = typeof(TestEvent))]
@@ -128,9 +130,63 @@ namespace AI4E.Messaging.Test
         {
             Console.WriteLine("OK");
 
-            return Success();
+            return SuccessEventResult.Default;
         }
     }
+
+    public class AnotherTestEvent
+    {
+        public AnotherTestEvent(Guid id)
+        {
+            Id = id;
+        }
+
+        public Guid Id { get; }
+    }
+
+    public class TestProcessManager : ProcessManager<TestProcessManagerState>
+    {
+        public TestProcessManager()
+        {
+
+        }
+
+        protected override void AttachProcessManager(IProcessManagerAttachments<TestProcessManagerState> attachments)
+        {
+            attachments
+                .Attach<TestEvent>((e, s) => e.Value == s.Id.ToString())
+                .Attach<AnotherTestEvent>((e, s) => e.Id == s.Id);
+        }
+
+        public void Handle(TestEvent evt)
+        {
+            State.Count++;
+        }
+
+        public void Handle(AnotherTestEvent evt)
+        {
+            if (State.Count > 3)
+            {
+                Console.WriteLine("Shutting down...");
+                TerminateProcess();
+            }
+        }
+    }
+
+    public class TestProcessManagerState
+    {
+        public TestProcessManagerState(Guid id)
+        {
+            Id = id;
+            Count = 0;
+        }
+
+        public Guid Id { get; }
+
+        public int Count { get; set; }
+    }
+
+
 
     public interface IEmailSender
     {

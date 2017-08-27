@@ -19,7 +19,7 @@ namespace AI4E.Integration
                 return true;
             }
 
-            dueTime = default(DateTime);
+            dueTime = default;
             return false;
         }
 

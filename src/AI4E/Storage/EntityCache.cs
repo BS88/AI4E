@@ -100,7 +100,7 @@ namespace AI4E.Storage
             _handlerRegistration = _eventDispatcher.RegisterAsync(new EventHandler(this));
         }
 
-        public async Task<(TEntity entity, bool found)> TryGetByIdAsync<TEntity>(TId id, CancellationToken cancellation = default(CancellationToken))
+        public async Task<(TEntity entity, bool found)> TryGetByIdAsync<TEntity>(TId id, CancellationToken cancellation = default)
             where TEntity : TEntityBase
         {
             await _handlerRegistration;
@@ -171,17 +171,17 @@ namespace AI4E.Storage
             }
         }
 
-        public async Task<TEntity> GetByIdAsync<TEntity>(TId id, CancellationToken cancellation = default(CancellationToken)) where TEntity : TEntityBase
+        public async Task<TEntity> GetByIdAsync<TEntity>(TId id, CancellationToken cancellation = default) where TEntity : TEntityBase
         {
             var result = await TryGetByIdAsync<TEntity>(id, cancellation);
 
             if (result.found)
                 return result.entity;
 
-            return default(TEntity);
+            return default;
         }
 
-        public async Task PutAsync(TEntityBase entity, TId commit, CancellationToken cancellation = default(CancellationToken))
+        public async Task PutAsync(TEntityBase entity, TId commit, CancellationToken cancellation = default)
         {
             await _handlerRegistration;
 

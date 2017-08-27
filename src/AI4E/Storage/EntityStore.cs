@@ -114,7 +114,7 @@ namespace AI4E.Storage
         /// <param name="cancellation">A <see cref="CancellationToken"/> used to cancel the asynchronous operation or <see cref="CancellationToken.None"/>.</param>
         /// <returns>A task representing the asynchronous operation.</returns>
         /// <exception cref="ObjectDisposedException">Thrown if the object is disposed.</exception>
-        public async Task SaveChangesAsync(TId expectedCommit = default(TId), CancellationToken cancellation = default(CancellationToken))
+        public async Task SaveChangesAsync(TId expectedCommit = default, CancellationToken cancellation = default)
         {
             ThrowIfDisposed();
 
@@ -144,7 +144,7 @@ namespace AI4E.Storage
             Debug.Assert(!_eventProcessor.UpdatedEntities.Any());
         }
 
-        public async Task<(TEntity entity, bool found)> TryGetByIdAsync<TEntity>(TId id, CancellationToken cancellation = default(CancellationToken))
+        public async Task<(TEntity entity, bool found)> TryGetByIdAsync<TEntity>(TId id, CancellationToken cancellation = default)
             where TEntity : TEntityBase
         {
             ThrowIfDisposed();
@@ -189,7 +189,7 @@ namespace AI4E.Storage
         /// The <see cref="Task{TResult}.Result"/> contains the found entity or the default value of <typeparamref name="TEntity"/> if no entity was found. 
         /// </returns>
         /// <exception cref="ObjectDisposedException">Thrown if the object is disposed.</exception>
-        public async Task<TEntity> GetByIdAsync<TEntity>(TId id, CancellationToken cancellation = default(CancellationToken))
+        public async Task<TEntity> GetByIdAsync<TEntity>(TId id, CancellationToken cancellation = default)
             where TEntity : TEntityBase
         {
             var result = await TryGetByIdAsync<TEntity>(id, cancellation);
@@ -197,7 +197,7 @@ namespace AI4E.Storage
             if (result.found)
                 return result.entity;
 
-            return default(TEntity);
+            return default;
         }
 
         /// <summary>
@@ -215,7 +215,7 @@ namespace AI4E.Storage
             _isDisposed = true;
             foreach (var entry in _identityMap.Values)
             {
-                if (entry.commit.Equals(default(TId)))
+                if (entry.commit.Equals(default))
                     continue;
 
                 _entityCache.PutAsync(entry.obj, entry.commit);

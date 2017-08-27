@@ -1,10 +1,10 @@
 ﻿/* Summary
  * --------------------------------------------------------------------------------------------------------------------
- * Filename:        CommandHandlerMemberDescriptor.cs 
- * Types:           AI4E.Integration.CommandHandlerMemberDescriptor
+ * Filename:        CommandHandlerActionDescriptor.cs 
+ * Types:           AI4E.Integration.CommandHandlerActionDescriptor
  * Version:         1.0
  * Author:          Andreas Trütschel
- * Last modified:   26.08.2017 
+ * Last modified:   27.08.2017 
  * --------------------------------------------------------------------------------------------------------------------
  */
 

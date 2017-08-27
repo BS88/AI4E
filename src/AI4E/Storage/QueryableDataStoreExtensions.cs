@@ -44,7 +44,7 @@ namespace AI4E.Storage
     public static class QueryableDataStoreExtensions
     {
         public static IAsyncEnumerable<TData> GetAllAsync<TData>(this IQueryableDataStore dataStore, 
-                                                                 CancellationToken cancellation = default(CancellationToken))
+                                                                 CancellationToken cancellation = default)
         {
             if (dataStore == null)
                 throw new ArgumentNullException(nameof(dataStore));
@@ -54,7 +54,7 @@ namespace AI4E.Storage
 
         public static IAsyncEnumerable<TResult> GetAllAsync<TData, TResult>(this IQueryableDataStore dataStore,
                                                                             Expression<Func<TData, TResult>> projection,
-                                                                            CancellationToken cancellation = default(CancellationToken))
+                                                                            CancellationToken cancellation = default)
         {
             if (dataStore == null)
                 throw new ArgumentNullException(nameof(dataStore));
@@ -67,7 +67,7 @@ namespace AI4E.Storage
 
         public static IAsyncEnumerable<TData> GetByAsync<TData>(this IQueryableDataStore dataStore,
                                                                 Expression<Func<TData, bool>> predicate,
-                                                                CancellationToken cancellation = default(CancellationToken))
+                                                                CancellationToken cancellation = default)
         {
             if (dataStore == null)
                 throw new ArgumentNullException(nameof(dataStore));
@@ -81,7 +81,7 @@ namespace AI4E.Storage
         public static IAsyncEnumerable<TResult> GetByAsync<TData, TResult>(this IQueryableDataStore dataStore,
                                                                            Expression<Func<TData, bool>> predicate,
                                                                            Expression<Func<TData, TResult>> projection,
-                                                                           CancellationToken cancellation = default(CancellationToken))
+                                                                           CancellationToken cancellation = default)
         {
             if (dataStore == null)
                 throw new ArgumentNullException(nameof(dataStore));
@@ -97,7 +97,7 @@ namespace AI4E.Storage
 
         public static Task<TData> GetSingleAsync<TData>(this IQueryableDataStore dataStore,
                                                         Expression<Func<TData, bool>> predicate,
-                                                        CancellationToken cancellation = default(CancellationToken))
+                                                        CancellationToken cancellation = default)
         {
             if (dataStore == null)
                 throw new ArgumentNullException(nameof(dataStore));
@@ -111,7 +111,7 @@ namespace AI4E.Storage
         public static Task<TResult> GetSingleAsync<TData, TResult>(this IQueryableDataStore dataStore,
                                                                    Expression<Func<TData, bool>> predicate,
                                                                    Expression<Func<TData, TResult>> projection,
-                                                                   CancellationToken cancellation = default(CancellationToken))
+                                                                   CancellationToken cancellation = default)
         {
             if (dataStore == null)
                 throw new ArgumentNullException(nameof(dataStore));

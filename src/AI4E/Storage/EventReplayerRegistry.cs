@@ -127,7 +127,7 @@ namespace AI4E.Storage
                     if (entity != null)
                         throw new ArgumentException("The specified entity is not of the specified type.");
 
-                    typedEntity = default(TEntity);
+                    typedEntity = default;
                 }
 
                 return await _eventReplayer.ReplayAsync(typedEvent, typedEntity);

@@ -69,7 +69,7 @@ namespace AI4E.Integration
     }
 
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct, AllowMultiple = false, Inherited = true)]
-    public sealed class EventHandlerAttribute : Attribute { }
+    public class EventHandlerAttribute : Attribute { }
 
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct, AllowMultiple = false, Inherited = true)]
     public sealed class NoEventHandlerAttribute : Attribute { }
