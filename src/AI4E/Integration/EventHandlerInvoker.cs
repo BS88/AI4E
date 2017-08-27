@@ -30,9 +30,12 @@
 
 using System;
 using System.Diagnostics;
+using System.Linq;
+using System.Reflection;
 using System.Runtime.Serialization;
 using System.Threading.Tasks;
 using AI4E.Integration.EventResults;
+using AI4E.Storage;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -57,7 +60,19 @@ namespace AI4E.Integration
             _serviceProvider = serviceProvider;
         }
 
-        public async Task<IEventResult> HandleAsync(TEvent evt)
+        private bool IsProcessManager()
+        {
+            var type = _handler.GetType();
+
+            return (type.IsClass || type.IsValueType && !type.IsEnum) &&
+                   !type.IsAbstract &&
+                   type.IsPublic &&
+                   !type.ContainsGenericParameters &&
+                   !type.IsDefined<NoProcessManagerAttribute>() &&
+                   (type.Name.EndsWith("ProcessManager", StringComparison.OrdinalIgnoreCase) || type.IsDefined<ProcessManagerAttribute>());
+        }
+
+        private async Task<IEventResult> InternalHandleAsync(TEvent evt)
         {
             var member = _actionDescriptor.Member;
 
@@ -141,6 +156,88 @@ namespace AI4E.Integration
 
             // TODO: Currently event-handlers are not allowed to return values.
             //return (ICommandResult)Activator.CreateInstance(typeof(SuccessCommandResult<>).MakeGenericType(result.GetType()), result); 
+        }
+
+        public async Task<IEventResult> HandleAsync(TEvent evt)
+        {
+            #region Process-manager support
+
+            var isProcessManager = IsProcessManager();
+            var type = _handler.GetType();
+            var dataStore = _serviceProvider.GetRequiredService<IDataStore>();
+            object state = null;
+            var created = false;
+
+            if (isProcessManager)
+            {
+                var processManagerStateProperty = type.GetProperties().SingleOrDefault(p => p.CanWrite && p.IsDefined<ProcessManagerStateAttribute>());
+
+                if (processManagerStateProperty != null)
+                {
+
+
+                    var stateType = processManagerStateProperty.PropertyType;
+                    {
+                        var customType = processManagerStateProperty.GetCustomAttribute<ProcessManagerStateAttribute>().StateType;
+
+                        if (customType != null)
+                        {
+                            if (!stateType.IsAssignableFrom(customType))
+                            {
+                                throw new InvalidOperationException(); // TODO
+                            }
+                            stateType = customType;
+                        }
+                    }
+
+                    var attachments = Activator.CreateInstance(typeof(ProcessManagerAttachment<>).MakeGenericType(stateType), dataStore);
+
+                    Debug.Assert(attachments != null);
+
+                    ((dynamic)_handler).AttachProcessManager(attachments);
+
+                    state = (object)(await ((dynamic)attachments).GetStateAsync(evt));
+
+                    if (state == null)
+                    {
+                        // Create state
+                        state = ActivatorUtilities.CreateInstance(_serviceProvider, stateType);
+                        created = true;
+                    }
+
+                    processManagerStateProperty.SetValue(_handler, state);
+                }
+            }
+
+            #endregion
+
+            var result = await InternalHandleAsync(evt);
+
+            #region Process-manager support
+
+            if (isProcessManager)
+            {
+                var terminated = (bool)((dynamic)_handler).IsTerminated;
+
+                if (created && !terminated)
+                {
+                    dataStore.Add((dynamic)state);
+                }
+                else if (!created && terminated)
+                {
+                    dataStore.Remove((dynamic)state);
+                }
+                else if (!created && !terminated)
+                {
+                    dataStore.Update((dynamic)state);
+                }
+
+                await dataStore.SaveChangesAsync();
+            }
+
+            #endregion
+
+            return result;
         }
     }
 }

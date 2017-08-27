@@ -13,12 +13,12 @@ namespace AI4E.Integration
         [ProcessManagerState]
         public virtual TState State { get; internal set; }
 
-        public bool IsTerminating { get; private set; }
+        public bool IsTerminated { get; private set; }
 
         [NoEventHandlerAction]
         protected virtual void TerminateProcess()
         {
-            IsTerminating = true;
+            IsTerminated = true;
         }
 
         [NoEventHandlerAction]
@@ -28,6 +28,9 @@ namespace AI4E.Integration
 
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct, AllowMultiple = false, Inherited = true)]
     public class ProcessManagerAttribute : EventHandlerAttribute { }
+
+    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct, AllowMultiple = false, Inherited = true)]
+    public class NoProcessManagerAttribute : Attribute { }
 
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
     public sealed class ProcessManagerStateAttribute : Attribute
