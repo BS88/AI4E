@@ -38,9 +38,9 @@ namespace AI4E.Integration
     public sealed class CommandHandlerProvider<TCommand> : IHandlerFactory<ICommandHandler<TCommand>>
     {
         private readonly Type _type;
-        private readonly CommandHandlerMemberDescriptor _memberDescriptor;
+        private readonly CommandHandlerActionDescriptor _memberDescriptor;
 
-        public CommandHandlerProvider(Type type, CommandHandlerMemberDescriptor memberDescriptor)
+        public CommandHandlerProvider(Type type, CommandHandlerActionDescriptor memberDescriptor)
         {
             if (type == null)
                 throw new ArgumentNullException(nameof(type));

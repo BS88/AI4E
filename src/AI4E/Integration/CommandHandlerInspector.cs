@@ -48,10 +48,10 @@ namespace AI4E.Integration
             _type = type;
         }
 
-        public IEnumerable<CommandHandlerMemberDescriptor> GetCommandHandlerDescriptors()
+        public IEnumerable<CommandHandlerActionDescriptor> GetCommandHandlerDescriptors()
         {
             var members = _type.GetMethods();
-            var descriptors = new List<CommandHandlerMemberDescriptor>();
+            var descriptors = new List<CommandHandlerActionDescriptor>();
 
             foreach (var member in members)
             {
@@ -64,7 +64,7 @@ namespace AI4E.Integration
             return descriptors;
         }
 
-        private bool TryGetHandlingMember(MethodInfo member, out CommandHandlerMemberDescriptor result)
+        private bool TryGetHandlingMember(MethodInfo member, out CommandHandlerActionDescriptor result)
         {
             var parameters = member.GetParameters();
 
@@ -110,7 +110,7 @@ namespace AI4E.Integration
             if ((member.Name == "Handle" || actionAttribute != null) &&
                 (member.ReturnType == typeof(void) || !typeof(Task).IsAssignableFrom(member.ReturnType)))
             {
-                result = new CommandHandlerMemberDescriptor(commandType, member);
+                result = new CommandHandlerActionDescriptor(commandType, member);
                 return true;
             }
 
@@ -118,7 +118,7 @@ namespace AI4E.Integration
             if ((member.Name == "HandleAsync" || actionAttribute != null) &&
                 (typeof(Task).IsAssignableFrom(member.ReturnType)))
             {
-                result = new CommandHandlerMemberDescriptor(commandType, member);
+                result = new CommandHandlerActionDescriptor(commandType, member);
                 return true;
             }
 

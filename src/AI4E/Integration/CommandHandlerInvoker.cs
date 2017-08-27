@@ -41,10 +41,10 @@ namespace AI4E.Integration
     public sealed class CommandHandlerInvoker<TCommand> : ICommandHandler<TCommand>
     {
         private readonly object _handler;
-        private readonly CommandHandlerMemberDescriptor _memberDescriptor;
+        private readonly CommandHandlerActionDescriptor _memberDescriptor;
         private readonly IServiceProvider _serviceProvider;
 
-        public CommandHandlerInvoker(object handler, CommandHandlerMemberDescriptor memberDescriptor, IServiceProvider serviceProvider)
+        public CommandHandlerInvoker(object handler, CommandHandlerActionDescriptor memberDescriptor, IServiceProvider serviceProvider)
         {
             if (handler == null)
                 throw new ArgumentNullException(nameof(handler));

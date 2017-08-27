@@ -33,9 +33,9 @@ using System.Reflection;
 
 namespace AI4E.Integration
 {
-    public struct CommandHandlerMemberDescriptor
+    public struct CommandHandlerActionDescriptor
     {
-        public CommandHandlerMemberDescriptor(Type commandType, MethodInfo member)
+        public CommandHandlerActionDescriptor(Type commandType, MethodInfo member)
         {
             CommandType = commandType;
             Member = member;
