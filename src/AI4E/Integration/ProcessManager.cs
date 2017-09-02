@@ -1,14 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 using AI4E.Storage;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace AI4E.Integration
 {
     [ProcessManager]
-    public abstract class ProcessManager<TState>
+    public abstract class ProcessManager<TState> : EventHandler where TState : class
     {
         [ProcessManagerState]
         public virtual TState State { get; internal set; }
@@ -24,6 +26,26 @@ namespace AI4E.Integration
         [NoEventHandlerAction]
         protected virtual void AttachProcessManager(IProcessManagerAttachments<TState> attachments) { }
 
+        [NoEventHandlerAction]
+        protected virtual bool CanInitiateProzess<TEvent>(TEvent evt) { return false; }
+
+        [NoEventHandlerAction]
+        protected virtual TState CreateInitialState<TEvent>(TEvent initiatingEvent, Type stateType)
+        {
+            Debug.Assert(initiatingEvent != null);
+            Debug.Assert(stateType != null);
+            Debug.Assert(typeof(TState).IsAssignableFrom(stateType));
+
+            var services = EventDispatchContext.DispatchServices;
+
+            Debug.Assert(services != null);
+
+            var state = ActivatorUtilities.CreateInstance(services, stateType);
+
+            Debug.Assert(state != null);
+
+            return (TState)state;
+        }
     }
 
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct, AllowMultiple = false, Inherited = true)]
@@ -38,7 +60,7 @@ namespace AI4E.Integration
         public Type StateType { get; set; }
     }
 
-    public interface IProcessManagerAttachments<TState>
+    public interface IProcessManagerAttachments<TState> where TState : class
     {
         IProcessManagerAttachments<TState> Attach<TEvent>(Expression<Func<TEvent, TState, bool>> predicate);
     }

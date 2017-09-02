@@ -128,7 +128,6 @@ namespace AI4E.Storage
         where TId : struct, IEquatable<TId>
     { }
 
-
     /// <summary>
     /// Represents a read-only view of an event-sourced entity store.
     /// </summary>

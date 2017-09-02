@@ -160,83 +160,77 @@ namespace AI4E.Integration
 
         public async Task<IEventResult> HandleAsync(TEvent evt)
         {
-            #region Process-manager support
-
             var isProcessManager = IsProcessManager();
+
+            if (!isProcessManager)
+            {
+                return await InternalHandleAsync(evt);
+            }
+
             var type = _handler.GetType();
             var dataStore = _serviceProvider.GetRequiredService<IDataStore>();
             object state = null;
             var created = false;
 
-            if (isProcessManager)
+            var processManagerStateProperty = type.GetProperties().SingleOrDefault(p => p.CanWrite && p.IsDefined<ProcessManagerStateAttribute>());
+
+            if (processManagerStateProperty != null)
             {
-                var processManagerStateProperty = type.GetProperties().SingleOrDefault(p => p.CanWrite && p.IsDefined<ProcessManagerStateAttribute>());
-
-                if (processManagerStateProperty != null)
+                var stateType = processManagerStateProperty.PropertyType;
                 {
+                    var customType = processManagerStateProperty.GetCustomAttribute<ProcessManagerStateAttribute>().StateType;
 
-
-                    var stateType = processManagerStateProperty.PropertyType;
+                    if (customType != null)
                     {
-                        var customType = processManagerStateProperty.GetCustomAttribute<ProcessManagerStateAttribute>().StateType;
-
-                        if (customType != null)
+                        if (!stateType.IsAssignableFrom(customType))
                         {
-                            if (!stateType.IsAssignableFrom(customType))
-                            {
-                                throw new InvalidOperationException(); // TODO
-                            }
-                            stateType = customType;
+                            throw new InvalidOperationException(); // TODO
                         }
+                        stateType = customType;
                     }
-
-                    var attachments = Activator.CreateInstance(typeof(ProcessManagerAttachment<>).MakeGenericType(stateType), dataStore);
-
-                    Debug.Assert(attachments != null);
-
-                    ((dynamic)_handler).AttachProcessManager(attachments);
-
-                    state = (object)(await ((dynamic)attachments).GetStateAsync(evt));
-
-                    if (state == null)
-                    {
-                        // Create state
-                        state = ActivatorUtilities.CreateInstance(_serviceProvider, stateType);
-                        created = true;
-                    }
-
-                    processManagerStateProperty.SetValue(_handler, state);
                 }
-            }
 
-            #endregion
+                var attachments = Activator.CreateInstance(typeof(ProcessManagerAttachment<>).MakeGenericType(stateType), dataStore);
+
+                Debug.Assert(attachments != null);
+
+                ((dynamic)_handler).AttachProcessManager(attachments);
+
+                state = (object)(await ((dynamic)attachments).GetStateAsync(evt));
+
+                // TODO: Not all events are allowed to start a process.
+                if (state == null)
+                {
+                    if (!(bool)(((dynamic)_handler).CanInitiateProzess(evt)))
+                    {
+                        return new FailureEventResult(""); // TODO: Maybe the events are out of order? What to do about that?
+                    }
+
+                    // Create state
+                    state = (object)(((dynamic)_handler).CreateInitialState(evt, stateType));
+                    created = true;
+                }
+
+                processManagerStateProperty.SetValue(_handler, state);
+            }
 
             var result = await InternalHandleAsync(evt);
+            var terminated = (bool)((dynamic)_handler).IsTerminated;
 
-            #region Process-manager support
-
-            if (isProcessManager)
+            if (created && !terminated)
             {
-                var terminated = (bool)((dynamic)_handler).IsTerminated;
-
-                if (created && !terminated)
-                {
-                    dataStore.Add((dynamic)state);
-                }
-                else if (!created && terminated)
-                {
-                    dataStore.Remove((dynamic)state);
-                }
-                else if (!created && !terminated)
-                {
-                    dataStore.Update((dynamic)state);
-                }
-
-                await dataStore.SaveChangesAsync();
+                dataStore.Add((dynamic)state);
+            }
+            else if (!created && terminated)
+            {
+                dataStore.Remove((dynamic)state);
+            }
+            else if (!created && !terminated)
+            {
+                dataStore.Update((dynamic)state);
             }
 
-            #endregion
-
+            await dataStore.SaveChangesAsync();
             return result;
         }
     }
