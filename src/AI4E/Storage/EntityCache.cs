@@ -55,7 +55,7 @@ namespace AI4E.Storage
         private readonly IEventStore<TId, TEventBase> _eventStore;
         private readonly EventProcessor _eventProcessor;
         private readonly ConcurrentDictionary<TId, (ConcurrentStack<TEntityBase> cache, TId commit)> _pool = new ConcurrentDictionary<TId, (ConcurrentStack<TEntityBase>, TId)>();
-        private readonly ISandboxedGenerator<IEventReplayerResolver<TId, TEventBase, TEntityBase>> _eventReplayerGenerator;
+        private readonly IContextualProvider<IEventReplayerResolver<TId, TEventBase, TEntityBase>> _eventReplayerGenerator;
         private readonly IEventDispatcher _eventDispatcher;
         private readonly Task<IHandlerRegistration<IEventHandler<TEventBase>>> _handlerRegistration;
         private readonly TaskCompletionSource<object> _completionSource = new TaskCompletionSource<object>();
@@ -65,7 +65,7 @@ namespace AI4E.Storage
 
         public EntityCache(IEventStore<TId, TEventBase> eventStore,
                            IEventDispatcher eventDispatcher,
-                           ISandboxedGenerator<IEventReplayerResolver<TId, TEventBase, TEntityBase>> eventReplayerGenerator,
+                           IContextualProvider<IEventReplayerResolver<TId, TEventBase, TEntityBase>> eventReplayerGenerator,
                            IEventProcessorBinder<TEventBase, TEventPublisher, TEntityBase> eventProcessorBinder,
                            IEntityAccessor<TId, TEventPublisher, TEntityBase> entityAccessor,
                            IEventAccessor<TId, TEventBase> eventAccessor)

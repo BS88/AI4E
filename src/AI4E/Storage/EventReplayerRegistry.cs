@@ -44,7 +44,7 @@ namespace AI4E.Storage
 {
     public sealed class EventReplayerRegistry<TId, TEventBase, TEntityBase> :
         IEventReplayerRegistry<TId, TEventBase, TEntityBase>,
-        ISandboxedGenerator<IEventReplayerResolver<TId, TEventBase, TEntityBase>>
+        IContextualProvider<IEventReplayerResolver<TId, TEventBase, TEntityBase>>
         where TId : struct, IEquatable<TId>
     {
         private volatile ImmutableDictionary<Type, ImmutableDictionary<Type, IAsyncSingleHandlerRegistry<IEventReplayer<TId, TEventBase, TEntityBase>>>> _replayer
@@ -95,7 +95,7 @@ namespace AI4E.Storage
             return new Resolver(this, serviceProvider);
         }
 
-        IEventReplayerResolver<TId, TEventBase, TEntityBase> ISandboxedGenerator<IEventReplayerResolver<TId, TEventBase, TEntityBase>>.Generate(IServiceProvider serviceProvider)
+        IEventReplayerResolver<TId, TEventBase, TEntityBase> IContextualProvider<IEventReplayerResolver<TId, TEventBase, TEntityBase>>.Generate(IServiceProvider serviceProvider)
         {
             return GetResolver(serviceProvider);
         }

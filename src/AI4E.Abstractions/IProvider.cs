@@ -1,10 +1,11 @@
 ﻿/* Summary
  * --------------------------------------------------------------------------------------------------------------------
- * Filename:        IGenerator.cs
- * Types:           AI4E.IGenerator'1
+ * Filename:        IProvider.cs
+ * Types:           (1) AI4E.IProvider'1
+ *                  (2) AI4E.IContextualProvider'1
  * Version:         1.0
  * Author:          Andreas Trütschel
- * Last modified:   16.05.2017 
+ * Last modified:   02.09.2017 
  * Status:          Ready
  * --------------------------------------------------------------------------------------------------------------------
  */
@@ -46,7 +47,7 @@ namespace AI4E
         T Generate();
     }
 
-    public interface ISandboxedGenerator<T> // TODO: This is conceptionally similar to IHandlerProvider (thats intent is more special T is a handler of something)
+    public interface IContextualProvider<T> // TODO: This is conceptionally similar to IHandlerProvider (thats intent is more special T is a handler of something)
     {
         T Generate(IServiceProvider serviceProvider);
     }
