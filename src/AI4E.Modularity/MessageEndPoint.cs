@@ -42,7 +42,7 @@ using static System.Diagnostics.Debug;
 namespace AI4E.Modularity
 {
     /// <summary>
-    /// A message endpoint that can send messages to remove endpoints and receive messages and deliver them to message handlers.
+    /// A message endpoint that can send messages to remote endpoints, receives messages and delivers them to message handlers.
     /// </summary>
     public sealed partial class MessageEndPoint : IMessageEndPoint
     {
