@@ -49,7 +49,7 @@ namespace AI4E.Integration
             _actionDescriptor = actionDescriptor;
         }
 
-        public IEventHandler<TEvent> GetHandler(IServiceProvider serviceProvider)
+        public IEventHandler<TEvent> GetInstance(IServiceProvider serviceProvider)
         {
             if (serviceProvider == null)
                 throw new ArgumentNullException(nameof(serviceProvider));

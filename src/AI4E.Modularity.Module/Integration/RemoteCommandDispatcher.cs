@@ -172,7 +172,7 @@ namespace AI4E.Modularity.Integration
             {
                 using (var scope = _serviceProvider.CreateScope())
                 {
-                    return handler.GetHandler(scope.ServiceProvider).HandleAsync(command);
+                    return handler.GetInstance(scope.ServiceProvider).HandleAsync(command);
                 }
             }
 
@@ -203,7 +203,7 @@ namespace AI4E.Modularity.Integration
                 {
                     try
                     {
-                        return handler.GetHandler(scope.ServiceProvider).HandleAsync(command);
+                        return handler.GetInstance(scope.ServiceProvider).HandleAsync(command);
                     }
                     catch (ConsistencyException)
                     {

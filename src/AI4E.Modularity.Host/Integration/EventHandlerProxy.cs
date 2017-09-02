@@ -20,7 +20,7 @@ namespace AI4E.Modularity.Integration
             _messageEndPoint = messageEndPoint;
         }
 
-        IEventHandler<TEvent> IContextualProvider<IEventHandler<TEvent>>.GetHandler(IServiceProvider serviceProvider)
+        IEventHandler<TEvent> IContextualProvider<IEventHandler<TEvent>>.GetInstance(IServiceProvider serviceProvider)
         {
             return this;
         }

@@ -261,7 +261,7 @@ namespace AI4E.Storage
                 _entityCache = entityCache;
             }
 
-            public IEventHandler<TEventBase> GetHandler(IServiceProvider serviceProvider)
+            public IEventHandler<TEventBase> GetInstance(IServiceProvider serviceProvider)
             {
                 return this;
             }

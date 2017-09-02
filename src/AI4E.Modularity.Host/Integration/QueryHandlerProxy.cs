@@ -34,7 +34,7 @@ namespace AI4E.Modularity.Integration
             return answer.QueryResult;
         }
 
-        IQueryHandler<TQuery> IContextualProvider<IQueryHandler<TQuery>>.GetHandler(IServiceProvider serviceProvider)
+        IQueryHandler<TQuery> IContextualProvider<IQueryHandler<TQuery>>.GetInstance(IServiceProvider serviceProvider)
         {
             return this;
         }

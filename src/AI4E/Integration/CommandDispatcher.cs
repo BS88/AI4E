@@ -282,7 +282,7 @@ namespace AI4E.Integration
                 {
                     try
                     {
-                        return handler.GetHandler(scope.ServiceProvider).HandleAsync(command);
+                        return handler.GetInstance(scope.ServiceProvider).HandleAsync(command);
                     }
                     catch (ConsistencyException)
                     {

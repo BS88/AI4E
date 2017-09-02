@@ -152,13 +152,13 @@ namespace AI4E.Storage
                 _eventReplayerFactory = eventReplayerFactory;
             }
 
-            public IEventReplayer<TId, TEventBase, TEntityBase> GetHandler(IServiceProvider serviceProvider)
+            public IEventReplayer<TId, TEventBase, TEntityBase> GetInstance(IServiceProvider serviceProvider)
             {
                 if (serviceProvider == null)
                     throw new ArgumentNullException(nameof(serviceProvider));
 
                 // The service-provider must be scoped already.
-                var actualReplayer = _eventReplayerFactory.GetHandler(serviceProvider);
+                var actualReplayer = _eventReplayerFactory.GetInstance(serviceProvider);
 
                 return new EventReplayerInvoker<TEvent, TEntity>(actualReplayer);
             }
@@ -188,7 +188,7 @@ namespace AI4E.Storage
                     {
                         Debug.Assert(replayer != null);
 
-                        return replayer.GetHandler(_serviceProvider);
+                        return replayer.GetInstance(_serviceProvider);
                     }
                 }
 
@@ -208,7 +208,7 @@ namespace AI4E.Storage
                         {
                             Debug.Assert(replayer != null);
 
-                            return replayer.GetHandler(_serviceProvider);
+                            return replayer.GetInstance(_serviceProvider);
                         }
                     }
                 }

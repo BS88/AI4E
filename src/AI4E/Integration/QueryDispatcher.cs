@@ -287,7 +287,7 @@ namespace AI4E.Integration
             {
                 using (var scope = _serviceProvider.CreateScope())
                 {
-                    return handler.GetHandler(scope.ServiceProvider).HandleAsync(query);
+                    return handler.GetInstance(scope.ServiceProvider).HandleAsync(query);
                 }
             }
 

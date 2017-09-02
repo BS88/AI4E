@@ -51,7 +51,7 @@ namespace AI4E.Integration
 
         private readonly IServiceProvider _serviceProvider;
         private readonly IEventAuthorizationVerifyer _authorizationVerifyer;
-        private readonly ConcurrentDictionary<Type, ITypedNonGenericEventDispatcher> _typedDispatchers 
+        private readonly ConcurrentDictionary<Type, ITypedNonGenericEventDispatcher> _typedDispatchers
             = new ConcurrentDictionary<Type, ITypedNonGenericEventDispatcher>();
 
         /// <summary>
@@ -322,7 +322,7 @@ namespace AI4E.Integration
             {
                 using (var scope = _serviceProvider.CreateScope())
                 {
-                    return await handlerFactory.GetHandler(scope.ServiceProvider).HandleAsync(evt);
+                    return await handlerFactory.GetInstance(scope.ServiceProvider).HandleAsync(evt);
                 }
             }
             catch (Exception exc)
