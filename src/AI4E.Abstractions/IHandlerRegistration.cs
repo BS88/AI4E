@@ -42,18 +42,18 @@ namespace AI4E
 
     public interface IHandlerRegistration<THandler> : IHandlerRegistration
     {
-        IHandlerProvider<THandler> Handler { get; }
+        IContextualProvider<THandler> Handler { get; }
     }
 
     internal sealed class HandlerRegistration<THandler> : IHandlerRegistration<THandler>
     {
         private readonly IAsyncHandlerRegistry<THandler> _handlerRegistry;
-        private readonly IHandlerProvider<THandler> _handlerFactory;
+        private readonly IContextualProvider<THandler> _handlerFactory;
         private readonly TaskCompletionSource<object> _completionSource = new TaskCompletionSource<object>();
         private int _isCompleting = 0;
 
         public HandlerRegistration(IAsyncHandlerRegistry<THandler> handlerRegistry,
-                                         IHandlerProvider<THandler> handlerFactory)
+                                         IContextualProvider<THandler> handlerFactory)
 
         {
             if (handlerRegistry == null)
@@ -72,7 +72,7 @@ namespace AI4E
 
         public Task Completion => _completionSource.Task;
 
-        public IHandlerProvider<THandler> Handler => _handlerFactory;
+        public IContextualProvider<THandler> Handler => _handlerFactory;
 
         public async void Complete()
         {
@@ -97,7 +97,7 @@ namespace AI4E
 
     public static class HandlerRegistration
     {
-        public static async Task<IHandlerRegistration<THandler>> CreateRegistrationAsync<THandler>(IAsyncHandlerRegistry<THandler> handlerRegistry, IHandlerProvider<THandler> handlerFactory)
+        public static async Task<IHandlerRegistration<THandler>> CreateRegistrationAsync<THandler>(IAsyncHandlerRegistry<THandler> handlerRegistry, IContextualProvider<THandler> handlerFactory)
         {
             var registration = new HandlerRegistration<THandler>(handlerRegistry, handlerFactory);
 

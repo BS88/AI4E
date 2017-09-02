@@ -38,7 +38,7 @@ namespace AI4E
     /// Represents a generator for the specified type.
     /// </summary>
     /// <typeparam name="T">The type that the provider can deliver an instance of.</typeparam>
-    public interface IProvider<T>
+    public interface IProvider<out T>
     {
         /// <summary>
         /// Provides an instance of type <typeparamref name="T"/>.
@@ -51,7 +51,7 @@ namespace AI4E
     /// Represents a contextual provider for the specified type.
     /// </summary>
     /// <typeparam name="T">The type that the provider can deliver an instance of.</typeparam>
-    public interface IContextualProvider<T> // TODO: This is conceptionally similar to IHandlerProvider (thats intent is more special T is a handler of something)
+    public interface IContextualProvider<out T>
     {
         /// <summary>
         /// Provides an instance of type <typeparamref name="T"/> within a context.

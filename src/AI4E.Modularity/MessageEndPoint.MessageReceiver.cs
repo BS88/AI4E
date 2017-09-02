@@ -18,12 +18,12 @@ namespace AI4E.Modularity
                 _messageEndPoint = messageEndPoint;
             }
 
-            public async Task<IHandlerRegistration> RegisterAsync<TResponse>(IHandlerProvider<IMessageHandler<TMessage, TResponse>> handlerFactory)
+            public async Task<IHandlerRegistration> RegisterAsync<TResponse>(IContextualProvider<IMessageHandler<TMessage, TResponse>> handlerFactory)
             {
                 return await HandlerRegistration.CreateRegistrationAsync(_handler, new MessageReplyerFactory<TMessage, TResponse>(_messageEndPoint, handlerFactory));
             }
 
-            public async Task<IHandlerRegistration> RegisterAsync(IHandlerProvider<IMessageHandler<TMessage>> handlerFactory)
+            public async Task<IHandlerRegistration> RegisterAsync(IContextualProvider<IMessageHandler<TMessage>> handlerFactory)
             {
                 return await HandlerRegistration.CreateRegistrationAsync(_handler, new MessageReplyerFactory<TMessage>(_messageEndPoint, handlerFactory));
             }

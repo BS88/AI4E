@@ -48,7 +48,7 @@ namespace AI4E
         private readonly IDispatchForwarding _dispatchForwarding;
 
         // Cannot use ImmutableStack here, because stack does not allow to remove elements that are not on top of stack.
-        private volatile ImmutableList<IHandlerProvider<THandler>> _handlerStack = ImmutableList<IHandlerProvider<THandler>>.Empty;
+        private volatile ImmutableList<IContextualProvider<THandler>> _handlerStack = ImmutableList<IContextualProvider<THandler>>.Empty;
 
         /// <summary>
         /// Creates a new instance of the <see cref="AsyncSingleHandlerRegistry{THandler}"/> type.
@@ -69,7 +69,7 @@ namespace AI4E
         /// <param name="handlerFactory">The handler to register.</param>
         /// <returns>A task representing the asynchronous operation.</returns>
         /// <exception cref="ArgumentNullException">Thrown if <paramref name="handlerFactory"/> is null.</exception>
-        public async Task RegisterAsync(IHandlerProvider<THandler> handlerFactory)
+        public async Task RegisterAsync(IContextualProvider<THandler> handlerFactory)
         {
             if (handlerFactory == null)
                 throw new ArgumentNullException(nameof(handlerFactory));
@@ -116,7 +116,7 @@ namespace AI4E
         /// indicating whether the handler was actually found and deregistered.
         /// </returns>
         /// <exception cref="ArgumentNullException">Thrown if <paramref name="handlerFactory"/> is null.</exception>
-        public async Task<bool> DeregisterAsync(IHandlerProvider<THandler> handlerFactory)
+        public async Task<bool> DeregisterAsync(IContextualProvider<THandler> handlerFactory)
         {
             if (handlerFactory == null)
                 throw new ArgumentNullException(nameof(handlerFactory));
@@ -170,7 +170,7 @@ namespace AI4E
         /// </summary>
         /// <param name="handlerFactory">Contains the handler if true is returned, otherwise the value is undefined.</param>
         /// <returns>True if a handler was found, false otherwise.</returns>
-        public bool TryGetHandler(out IHandlerProvider<THandler> handlerFactory)
+        public bool TryGetHandler(out IContextualProvider<THandler> handlerFactory)
         {
             var handlerStack = _handlerStack;
 
@@ -186,7 +186,7 @@ namespace AI4E
             return true;
         }
 
-        private Task PushHandler(IHandlerProvider<THandler> handlerFactory)
+        private Task PushHandler(IContextualProvider<THandler> handlerFactory)
         {
             _handlerStack = _handlerStack.Add(handlerFactory);
 

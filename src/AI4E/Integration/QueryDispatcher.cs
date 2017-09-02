@@ -87,7 +87,7 @@ namespace AI4E.Integration
         /// TODO
         /// </returns>
         /// <exception cref="ArgumentNullException">Thrown if <paramref name="queryHandlerFactory"/> is null.</exception>
-        public Task<IHandlerRegistration<IQueryHandler<TQuery>>> RegisterAsync<TQuery>(IHandlerProvider<IQueryHandler<TQuery>> queryHandlerFactory) // TODO: Correct xml-comments
+        public Task<IHandlerRegistration<IQueryHandler<TQuery>>> RegisterAsync<TQuery>(IContextualProvider<IQueryHandler<TQuery>> queryHandlerFactory) // TODO: Correct xml-comments
         {
             if (queryHandlerFactory == null)
                 throw new ArgumentNullException(nameof(queryHandlerFactory));
@@ -181,7 +181,7 @@ namespace AI4E.Integration
         /// <param name="queryHandlerFactory">The query handler that shall be registered.</param>
         /// <returns>True if registering <paramref name="queryHandlerFactory"/> is authorized, false otherwise.</returns>
         /// <exception cref="ArgumentNullException">Thrown if <paramref name="queryHandlerFactory"/> is null.</exception>
-        public bool IsRegistrationAuthorized<TQuery>(IHandlerProvider<IQueryHandler<TQuery>> queryHandlerFactory)
+        public bool IsRegistrationAuthorized<TQuery>(IContextualProvider<IQueryHandler<TQuery>> queryHandlerFactory)
         {
             if (queryHandlerFactory == null)
                 throw new ArgumentNullException(nameof(queryHandlerFactory));
@@ -255,7 +255,7 @@ namespace AI4E.Integration
         /// </returns>
         /// <exception cref="ArgumentNullException">Thrown if <paramref name="queryHandlerFactory"/> is null.</exception>
         /// <exception cref="UnauthorizedAccessException">Thrown if the access is unauthorized.</exception>
-        public Task<IHandlerRegistration<IQueryHandler<TQuery>>> RegisterAsync(IHandlerProvider<IQueryHandler<TQuery>> queryHandlerFactory) // TODO: Correct xml-comments
+        public Task<IHandlerRegistration<IQueryHandler<TQuery>>> RegisterAsync(IContextualProvider<IQueryHandler<TQuery>> queryHandlerFactory) // TODO: Correct xml-comments
         {
             if (queryHandlerFactory == null)
                 throw new ArgumentNullException(nameof(queryHandlerFactory));
@@ -322,7 +322,7 @@ namespace AI4E.Integration
         /// <param name="queryHandler">The query handler that shall be registered.</param>
         /// <returns>True if registering <paramref name="queryHandler"/> is authorized, false otherwise.</returns>
         /// <exception cref="ArgumentNullException">Thrown if <paramref name="queryHandler"/> is null.</exception>
-        public bool IsRegistrationAuthorized(IHandlerProvider<IQueryHandler<TQuery>> queryHandler)
+        public bool IsRegistrationAuthorized(IContextualProvider<IQueryHandler<TQuery>> queryHandler)
         {
             if (queryHandler == null)
                 throw new ArgumentNullException(nameof(queryHandler));

@@ -52,7 +52,7 @@ namespace AI4E.Storage
 
         public EventReplayerRegistry() { }
 
-        public async Task<IHandlerRegistration> RegisterAsync<TEvent, TEntity>(IHandlerProvider<IEventReplayer<TId, TEventBase, TEntityBase, TEvent, TEntity>> eventReplayerFactory)
+        public async Task<IHandlerRegistration> RegisterAsync<TEvent, TEntity>(IContextualProvider<IEventReplayer<TId, TEventBase, TEntityBase, TEvent, TEntity>> eventReplayerFactory)
             where TEvent : TEventBase
             where TEntity : TEntityBase
         {
@@ -138,13 +138,13 @@ namespace AI4E.Storage
             public Type EventType => typeof(TEvent);
         }
 
-        private sealed class EventReplayerFactory<TEvent, TEntity> : IHandlerProvider<IEventReplayer<TId, TEventBase, TEntityBase>>
+        private sealed class EventReplayerFactory<TEvent, TEntity> : IContextualProvider<IEventReplayer<TId, TEventBase, TEntityBase>>
             where TEvent : TEventBase
             where TEntity : TEntityBase
         {
-            private readonly IHandlerProvider<IEventReplayer<TId, TEventBase, TEntityBase, TEvent, TEntity>> _eventReplayerFactory;
+            private readonly IContextualProvider<IEventReplayer<TId, TEventBase, TEntityBase, TEvent, TEntity>> _eventReplayerFactory;
 
-            public EventReplayerFactory(IHandlerProvider<IEventReplayer<TId, TEventBase, TEntityBase, TEvent, TEntity>> eventReplayerFactory)
+            public EventReplayerFactory(IContextualProvider<IEventReplayer<TId, TEventBase, TEntityBase, TEvent, TEntity>> eventReplayerFactory)
             {
                 if (eventReplayerFactory == null)
                     throw new ArgumentNullException(nameof(eventReplayerFactory));

@@ -48,7 +48,7 @@ namespace AI4E
         private readonly AsyncLock _lock = new AsyncLock();
         private readonly IDispatchForwarding _dispatchForwarding;
 
-        private volatile ImmutableHashSet<IHandlerProvider<THandler>> _handlers = ImmutableHashSet<IHandlerProvider<THandler>>.Empty;
+        private volatile ImmutableHashSet<IContextualProvider<THandler>> _handlers = ImmutableHashSet<IContextualProvider<THandler>>.Empty;
 
         /// <summary>
         /// Creates a new instance of the <see cref="AsyncMultipleHandlerRegistry{THandler}"/> type.
@@ -69,7 +69,7 @@ namespace AI4E
         /// <param name="handlerFactory">The handler to register.</param>
         /// <returns>A task representing the asynchronous operation.</returns>
         /// <exception cref="ArgumentNullException">Thrown if <paramref name="handlerFactory"/> is null.</exception>
-        public async Task RegisterAsync(IHandlerProvider<THandler> handlerFactory)
+        public async Task RegisterAsync(IContextualProvider<THandler> handlerFactory)
         {
             if (handlerFactory == null)
                 throw new ArgumentNullException(nameof(handlerFactory));
@@ -113,7 +113,7 @@ namespace AI4E
         /// indicating whether the handler was actually found and deregistered.
         /// </returns>
         /// <exception cref="ArgumentNullException">Thrown if <paramref name="handlerFactory"/> is null.</exception>
-        public async Task<bool> DeregisterAsync(IHandlerProvider<THandler> handlerFactory)
+        public async Task<bool> DeregisterAsync(IContextualProvider<THandler> handlerFactory)
         {
             if (handlerFactory == null)
                 throw new ArgumentNullException(nameof(handlerFactory));
@@ -152,7 +152,7 @@ namespace AI4E
         /// Returns a collection if activated handlers.
         /// </summary>
         /// <returns>The collection of activated handlers.</returns>
-        public IEnumerable<IHandlerProvider<THandler>> GetHandlerFactories()
+        public IEnumerable<IContextualProvider<THandler>> GetHandlerFactories()
         {
             return _handlers; // Volatile read op
         }

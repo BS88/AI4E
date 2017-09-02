@@ -90,7 +90,7 @@ namespace AI4E.Integration
         /// </returns>
         /// <exception cref="ArgumentNullException">Thrown if <paramref name="eventHandlerFactory"/> is null.</exception>
         /// <exception cref="UnauthorizedAccessException">Thrown if the access is unauthorized.</exception>
-        public Task<IHandlerRegistration<IEventHandler<TEvent>>> RegisterAsync<TEvent>(IHandlerProvider<IEventHandler<TEvent>> eventHandlerFactory) // TODO: Correct xml-comments
+        public Task<IHandlerRegistration<IEventHandler<TEvent>>> RegisterAsync<TEvent>(IContextualProvider<IEventHandler<TEvent>> eventHandlerFactory) // TODO: Correct xml-comments
         {
             if (eventHandlerFactory == null)
                 throw new ArgumentNullException(nameof(eventHandlerFactory));
@@ -210,7 +210,7 @@ namespace AI4E.Integration
         /// <param name="eventHandlerFactory">The event handler that shall be registered.</param>
         /// <returns>True if registering <paramref name="eventHandlerFactory"/> is authorized, false otherwise.</returns>
         /// <exception cref="ArgumentNullException">Thrown if <paramref name="eventHandlerFactory"/> is null.</exception>
-        public bool IsRegistrationAuthorized<TEvent>(IHandlerProvider<IEventHandler<TEvent>> eventHandlerFactory)
+        public bool IsRegistrationAuthorized<TEvent>(IContextualProvider<IEventHandler<TEvent>> eventHandlerFactory)
         {
             if (eventHandlerFactory == null)
                 throw new ArgumentNullException(nameof(eventHandlerFactory));
@@ -283,7 +283,7 @@ namespace AI4E.Integration
         /// </returns>
         /// <exception cref="ArgumentNullException">Thrown if <paramref name="eventHandlerFactory"/> is null.</exception>
         /// <exception cref="UnauthorizedAccessException">Thrown if the access is unauthorized.</exception>
-        public Task<IHandlerRegistration<IEventHandler<TEvent>>> RegisterAsync(IHandlerProvider<IEventHandler<TEvent>> eventHandlerFactory) // TODO: Correct xml-comments
+        public Task<IHandlerRegistration<IEventHandler<TEvent>>> RegisterAsync(IContextualProvider<IEventHandler<TEvent>> eventHandlerFactory) // TODO: Correct xml-comments
         {
             if (eventHandlerFactory == null)
                 throw new ArgumentNullException(nameof(eventHandlerFactory));
@@ -314,7 +314,7 @@ namespace AI4E.Integration
             return new AggregateEventResult(await Task.WhenAll(_handlerRegistry.GetHandlerFactories().Select(handler => NotifySingleHandlerAsync(handler, evt)).ToArray()));
         }
 
-        private async Task<IEventResult> NotifySingleHandlerAsync(IHandlerProvider<IEventHandler<TEvent>> handlerFactory, TEvent evt)
+        private async Task<IEventResult> NotifySingleHandlerAsync(IContextualProvider<IEventHandler<TEvent>> handlerFactory, TEvent evt)
         {
             Debug.Assert(handlerFactory != null);
 
@@ -359,7 +359,7 @@ namespace AI4E.Integration
         /// <param name="eventHandlerFactory">The event handler that shall be registered.</param>
         /// <returns>True if registering <paramref name="eventHandlerFactory"/> is authorized, false otherwise.</returns>
         /// <exception cref="ArgumentNullException">Thrown if <paramref name="eventHandlerFactory"/> is null.</exception>
-        public bool IsRegistrationAuthorized(IHandlerProvider<IEventHandler<TEvent>> eventHandlerFactory)
+        public bool IsRegistrationAuthorized(IContextualProvider<IEventHandler<TEvent>> eventHandlerFactory)
         {
             if (eventHandlerFactory == null)
                 throw new ArgumentNullException(nameof(eventHandlerFactory));

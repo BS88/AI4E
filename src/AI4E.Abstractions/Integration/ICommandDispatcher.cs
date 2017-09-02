@@ -53,7 +53,7 @@ namespace AI4E.Integration
         /// The <see cref="IHandlerRegistration"/> cancels the handler registration if completed.
         /// </returns>
         /// <exception cref="ArgumentNullException">Thrown if <paramref name="commandHandlerFactory"/> is null.</exception>
-        Task<IHandlerRegistration<ICommandHandler<TCommand>>> RegisterAsync<TCommand>(IHandlerProvider<ICommandHandler<TCommand>> commandHandlerFactory); // TODO: Correct xml-comments
+        Task<IHandlerRegistration<ICommandHandler<TCommand>>> RegisterAsync<TCommand>(IContextualProvider<ICommandHandler<TCommand>> commandHandlerFactory); // TODO: Correct xml-comments
 
         /// <summary>
         /// Returns a typed command dispatcher for the specified command type.
@@ -90,7 +90,7 @@ namespace AI4E.Integration
         /// The <see cref="IHandlerRegistration"/> cancels the handler registration if completed.
         /// </returns>
         /// <exception cref="ArgumentNullException">Thrown if <paramref name="commandHandlerFactory"/> is null.</exception>
-        Task<IHandlerRegistration<ICommandHandler<TCommand>>> RegisterAsync(IHandlerProvider<ICommandHandler<TCommand>> commandHandlerFactory); // TODO: Correct xml-comments
+        Task<IHandlerRegistration<ICommandHandler<TCommand>>> RegisterAsync(IContextualProvider<ICommandHandler<TCommand>> commandHandlerFactory); // TODO: Correct xml-comments
 
         /// <summary>
         /// Asynchronously dispatches a command.
@@ -116,7 +116,7 @@ namespace AI4E.Integration
         /// <param name="commandHandlerFactory">The command handler that shall be registered.</param>
         /// <returns>True if registering <paramref name="commandHandlerFactory"/> is authorized, false otherwise.</returns>
         /// <exception cref="ArgumentNullException">Thrown if <paramref name="commandHandlerFactory"/> is null.</exception>
-        bool IsRegistrationAuthorized<TCommand>(IHandlerProvider<ICommandHandler<TCommand>> commandHandlerFactory);
+        bool IsRegistrationAuthorized<TCommand>(IContextualProvider<ICommandHandler<TCommand>> commandHandlerFactory);
 
         /// <summary>
         /// Returns a boolean value indicating whether dispatching the specified command handler is authorized.
@@ -139,7 +139,7 @@ namespace AI4E.Integration
         /// <param name="commandHandler">The command handler that shall be registered.</param>
         /// <returns>True if registering <paramref name="commandHandler"/> is authorized, false otherwise.</returns>
         /// <exception cref="ArgumentNullException">Thrown if <paramref name="commandHandler"/> is null.</exception>
-        bool IsRegistrationAuthorized(IHandlerProvider<ICommandHandler<TCommand>> commandHandler);
+        bool IsRegistrationAuthorized(IContextualProvider<ICommandHandler<TCommand>> commandHandler);
 
         /// <summary>
         /// Returns a boolean value indicating whether dispatching the specified command handler is authorized.

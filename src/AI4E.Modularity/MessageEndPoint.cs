@@ -123,7 +123,7 @@ namespace AI4E.Modularity
         /// The <see cref="IHandlerRegistration"/> cancels the handler registration if completed.
         /// </returns>
         ///  <exception cref="ArgumentNullException">Thrown if <paramref name="handlerFactory"/> is null.</exception>
-        public async Task<IHandlerRegistration> RegisterAsync<TMessage>(IHandlerProvider<IMessageHandler<TMessage>> handlerFactory) // TODO: Correct xml-comments
+        public async Task<IHandlerRegistration> RegisterAsync<TMessage>(IContextualProvider<IMessageHandler<TMessage>> handlerFactory) // TODO: Correct xml-comments
         {
             if (handlerFactory == null)
                 throw new ArgumentNullException(nameof(handlerFactory));
@@ -151,7 +151,7 @@ namespace AI4E.Modularity
         /// The <see cref="IHandlerRegistration"/> cancels the handler registration if completed.
         /// </returns>
         ///  <exception cref="ArgumentNullException">Thrown if <paramref name="handlerFactory"/> is null.</exception>
-        public async Task<IHandlerRegistration> RegisterAsync<TMessage, TResponse>(IHandlerProvider<IMessageHandler<TMessage, TResponse>> handlerFactory) // TODO: Correct xml-comments
+        public async Task<IHandlerRegistration> RegisterAsync<TMessage, TResponse>(IContextualProvider<IMessageHandler<TMessage, TResponse>> handlerFactory) // TODO: Correct xml-comments
         {
             if (handlerFactory == null)
                 throw new ArgumentNullException(nameof(handlerFactory));

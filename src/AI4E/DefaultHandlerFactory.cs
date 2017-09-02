@@ -3,7 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace AI4E
 {
-    public sealed class DefaultHandlerFactory<THandler> : IHandlerProvider<THandler>
+    public sealed class DefaultHandlerFactory<THandler> : IContextualProvider<THandler>
     {
         private readonly THandler _singletonHandler;
         private readonly bool _useSingletonHandler;

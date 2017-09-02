@@ -35,7 +35,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace AI4E.Integration
 {
-    public sealed class QueryHandlerProvider<TQuery> : IHandlerProvider<IQueryHandler<TQuery>>
+    public sealed class QueryHandlerProvider<TQuery> : IContextualProvider<IQueryHandler<TQuery>>
     {
         private readonly Type _type;
         private readonly QueryHandlerActionDescriptor _actionDescriptor;

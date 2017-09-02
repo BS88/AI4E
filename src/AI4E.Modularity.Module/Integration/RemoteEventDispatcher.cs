@@ -31,7 +31,7 @@ namespace AI4E.Modularity.Integration
             _serviceProvider = serviceProvider;
         }
 
-        public Task<IHandlerRegistration<IEventHandler<TEvent>>> RegisterAsync<TEvent>(IHandlerProvider<IEventHandler<TEvent>> eventHandlerFactory)
+        public Task<IHandlerRegistration<IEventHandler<TEvent>>> RegisterAsync<TEvent>(IContextualProvider<IEventHandler<TEvent>> eventHandlerFactory)
         {
             if (eventHandlerFactory == null)
                 throw new ArgumentNullException(nameof(eventHandlerFactory));
@@ -176,7 +176,7 @@ namespace AI4E.Modularity.Integration
 
         Type ITypedNonGenericEventDispatcher.EventType => typeof(TEvent);
 
-        public Task<IHandlerRegistration<IEventHandler<TEvent>>> RegisterAsync(IHandlerProvider<IEventHandler<TEvent>> eventHandlerFactory)
+        public Task<IHandlerRegistration<IEventHandler<TEvent>>> RegisterAsync(IContextualProvider<IEventHandler<TEvent>> eventHandlerFactory)
         {
             if (eventHandlerFactory == null)
                 throw new ArgumentNullException(nameof(eventHandlerFactory));
@@ -219,7 +219,7 @@ namespace AI4E.Modularity.Integration
         }
 
         // TODO: This is a copy of the original in EventDispatcher.cs
-        private async Task<IEventResult> NotifySingleHandlerAsync(IHandlerProvider<IEventHandler<TEvent>> handlerFactory, TEvent evt)
+        private async Task<IEventResult> NotifySingleHandlerAsync(IContextualProvider<IEventHandler<TEvent>> handlerFactory, TEvent evt)
         {
             Debug.Assert(handlerFactory != null);
 

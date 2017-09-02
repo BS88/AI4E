@@ -107,7 +107,7 @@ namespace AI4E.Modularity.Integration
         {
             using (await _lock.LockAsync())
             {
-                IHandlerProvider<IQueryHandler<TQuery>> proxy;
+                IContextualProvider<IQueryHandler<TQuery>> proxy;
 
                 if (_proxyRegistration != null)
                 {

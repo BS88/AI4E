@@ -87,7 +87,7 @@ namespace AI4E.Integration
         /// </returns>
         /// <exception cref="ArgumentNullException">Thrown if <paramref name="commandHandlerFactory"/> is null.</exception>
         /// <exception cref="UnauthorizedAccessException">Thrown if the access is unauthorized.</exception>
-        public Task<IHandlerRegistration<ICommandHandler<TCommand>>> RegisterAsync<TCommand>(IHandlerProvider<ICommandHandler<TCommand>> commandHandlerFactory) // TODO: Correct xml-comments
+        public Task<IHandlerRegistration<ICommandHandler<TCommand>>> RegisterAsync<TCommand>(IContextualProvider<ICommandHandler<TCommand>> commandHandlerFactory) // TODO: Correct xml-comments
         {
             if (commandHandlerFactory == null)
                 throw new ArgumentNullException(nameof(commandHandlerFactory));
@@ -174,7 +174,7 @@ namespace AI4E.Integration
         /// <param name="commandHandlerFactory">The command handler that shall be registered.</param>
         /// <returns>True if registering <paramref name="commandHandlerFactory"/> is authorized, false otherwise.</returns>
         /// <exception cref="ArgumentNullException">Thrown if <paramref name="commandHandlerFactory"/> is null.</exception>
-        public bool IsRegistrationAuthorized<TCommand>(IHandlerProvider<ICommandHandler<TCommand>> commandHandlerFactory)
+        public bool IsRegistrationAuthorized<TCommand>(IContextualProvider<ICommandHandler<TCommand>> commandHandlerFactory)
         {
             if (commandHandlerFactory == null)
                 throw new ArgumentNullException(nameof(commandHandlerFactory));
@@ -248,7 +248,7 @@ namespace AI4E.Integration
         /// </returns>
         /// <exception cref="ArgumentNullException">Thrown if <paramref name="commandHandlerFactory"/> is null.</exception>
         /// <exception cref="UnauthorizedAccessException">Thrown if the access is unauthorized.</exception>
-        public Task<IHandlerRegistration<ICommandHandler<TCommand>>> RegisterAsync(IHandlerProvider<ICommandHandler<TCommand>> commandHandlerFactory) // TODO: Correct xml-comments
+        public Task<IHandlerRegistration<ICommandHandler<TCommand>>> RegisterAsync(IContextualProvider<ICommandHandler<TCommand>> commandHandlerFactory) // TODO: Correct xml-comments
         {
             if (commandHandlerFactory == null)
                 throw new ArgumentNullException(nameof(commandHandlerFactory));
@@ -327,7 +327,7 @@ namespace AI4E.Integration
         /// <param name="commandHandlerFactory">The command handler that shall be registered.</param>
         /// <returns>True if registering <paramref name="commandHandlerFactory"/> is authorized, false otherwise.</returns>
         /// <exception cref="ArgumentNullException">Thrown if <paramref name="commandHandlerFactory"/> is null.</exception>
-        public bool IsRegistrationAuthorized(IHandlerProvider<ICommandHandler<TCommand>> commandHandlerFactory)
+        public bool IsRegistrationAuthorized(IContextualProvider<ICommandHandler<TCommand>> commandHandlerFactory)
         {
             if (commandHandlerFactory == null)
                 throw new ArgumentNullException(nameof(commandHandlerFactory));

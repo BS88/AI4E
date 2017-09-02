@@ -5,12 +5,12 @@ namespace AI4E.Modularity
 {
     public sealed partial class MessageEndPoint
     {
-        private sealed class MessageReplyerFactory<TMessage, TResponse> : IHandlerProvider<IMessageReplyer<TMessage>>
+        private sealed class MessageReplyerFactory<TMessage, TResponse> : IContextualProvider<IMessageReplyer<TMessage>>
         {
             private readonly MessageEndPoint _endPoint;
-            private readonly IHandlerProvider<IMessageHandler<TMessage, TResponse>> _handlerFactory;
+            private readonly IContextualProvider<IMessageHandler<TMessage, TResponse>> _handlerFactory;
 
-            internal MessageReplyerFactory(MessageEndPoint endPoint, IHandlerProvider<IMessageHandler<TMessage, TResponse>> handlerFactory)
+            internal MessageReplyerFactory(MessageEndPoint endPoint, IContextualProvider<IMessageHandler<TMessage, TResponse>> handlerFactory)
             {
                 Debug.Assert(endPoint != null);
                 Debug.Assert(handlerFactory != null);
@@ -24,12 +24,12 @@ namespace AI4E.Modularity
             }
         }
 
-        private sealed class MessageReplyerFactory<TMessage> : IHandlerProvider<IMessageReplyer<TMessage>>
+        private sealed class MessageReplyerFactory<TMessage> : IContextualProvider<IMessageReplyer<TMessage>>
         {
             private readonly MessageEndPoint _endPoint;
-            private readonly IHandlerProvider<IMessageHandler<TMessage>> _handlerFactory;
+            private readonly IContextualProvider<IMessageHandler<TMessage>> _handlerFactory;
 
-            internal MessageReplyerFactory(MessageEndPoint endPoint, IHandlerProvider<IMessageHandler<TMessage>> handlerFactory)
+            internal MessageReplyerFactory(MessageEndPoint endPoint, IContextualProvider<IMessageHandler<TMessage>> handlerFactory)
             {
                 Debug.Assert(endPoint != null);
                 Debug.Assert(handlerFactory != null);

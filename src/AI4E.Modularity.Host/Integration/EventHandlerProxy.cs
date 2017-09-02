@@ -6,7 +6,7 @@ namespace AI4E.Modularity.Integration
 {
     public sealed class EventHandlerProxy<TEvent> :
         IEventHandler<TEvent>,
-        IHandlerProvider<IEventHandler<TEvent>>,
+        IContextualProvider<IEventHandler<TEvent>>,
         IActivationNotifyable,
         IDeactivationNotifyable
     {
@@ -20,7 +20,7 @@ namespace AI4E.Modularity.Integration
             _messageEndPoint = messageEndPoint;
         }
 
-        IEventHandler<TEvent> IHandlerProvider<IEventHandler<TEvent>>.GetHandler(IServiceProvider serviceProvider)
+        IEventHandler<TEvent> IContextualProvider<IEventHandler<TEvent>>.GetHandler(IServiceProvider serviceProvider)
         {
             return this;
         }

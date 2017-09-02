@@ -29,7 +29,7 @@ namespace AI4E.Modularity.Integration
             _serviceProvider = serviceProvider;
         }
 
-        public Task<IHandlerRegistration<ICommandHandler<TCommand>>> RegisterAsync<TCommand>(IHandlerProvider<ICommandHandler<TCommand>> commandHandlerFactory)
+        public Task<IHandlerRegistration<ICommandHandler<TCommand>>> RegisterAsync<TCommand>(IContextualProvider<ICommandHandler<TCommand>> commandHandlerFactory)
         {
             if (commandHandlerFactory == null)
                 throw new ArgumentNullException(nameof(commandHandlerFactory));
@@ -155,7 +155,7 @@ namespace AI4E.Modularity.Integration
 
         public bool IsForwardingActive => _isForwardingActive;
 
-        public Task<IHandlerRegistration<ICommandHandler<TCommand>>> RegisterAsync(IHandlerProvider<ICommandHandler<TCommand>> commandHandlerFactory)
+        public Task<IHandlerRegistration<ICommandHandler<TCommand>>> RegisterAsync(IContextualProvider<ICommandHandler<TCommand>> commandHandlerFactory)
         {
             if (commandHandlerFactory == null)
                 throw new ArgumentNullException(nameof(commandHandlerFactory));

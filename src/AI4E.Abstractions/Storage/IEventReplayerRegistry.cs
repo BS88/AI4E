@@ -55,7 +55,7 @@ namespace AI4E.Storage
         /// The <see cref="IHandlerRegistration"/> cancels the handler registration if completed.
         /// </returns>
         /// <exception cref="ArgumentNullException">Thrown if <paramref name="eventReplayerFactory"/> is null.</exception>
-        Task<IHandlerRegistration> RegisterAsync<TEvent, TEntity>(IHandlerProvider<IEventReplayer<TId, TEventBase, TEntityBase, TEvent, TEntity>> eventReplayerFactory)
+        Task<IHandlerRegistration> RegisterAsync<TEvent, TEntity>(IContextualProvider<IEventReplayer<TId, TEventBase, TEntityBase, TEvent, TEntity>> eventReplayerFactory)
             where TEvent : TEventBase
             where TEntity : TEntityBase; // TODO: Correct xml-comments
 
@@ -68,7 +68,7 @@ namespace AI4E.Storage
         where TEvent : TEventBase
         where TEntity : TEntityBase
     {
-        Task<IHandlerRegistration> RegisterAsync(IHandlerProvider<IEventReplayer<TId, TEventBase, TEntityBase, TEvent, TEntity>> eventReplayerFactory);
+        Task<IHandlerRegistration> RegisterAsync(IContextualProvider<IEventReplayer<TId, TEventBase, TEntityBase, TEvent, TEntity>> eventReplayerFactory);
 
         ValueTask<TEntity> ReplayAsync(TEvent evt, TEntity entity, IServiceProvider serviceProvider);
     }

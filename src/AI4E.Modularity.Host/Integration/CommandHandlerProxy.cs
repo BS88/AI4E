@@ -6,7 +6,7 @@ namespace AI4E.Modularity.Integration
 {
     public sealed class CommandHandlerProxy<TCommand> :
         ICommandHandler<TCommand>,
-        IHandlerProvider<ICommandHandler<TCommand>>,
+        IContextualProvider<ICommandHandler<TCommand>>,
         IActivationNotifyable,
         IDeactivationNotifyable
     {
@@ -34,7 +34,7 @@ namespace AI4E.Modularity.Integration
             return answer.CommandResult;
         }
 
-        ICommandHandler<TCommand> IHandlerProvider<ICommandHandler<TCommand>>.GetHandler(IServiceProvider serviceProvider) { return this; }
+        ICommandHandler<TCommand> IContextualProvider<ICommandHandler<TCommand>>.GetHandler(IServiceProvider serviceProvider) { return this; }
 
         public Task NotifyActivationAsync()
         {

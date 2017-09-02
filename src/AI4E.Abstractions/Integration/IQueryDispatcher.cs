@@ -52,7 +52,7 @@ namespace AI4E.Integration
         /// TODO
         /// </returns>
         /// <exception cref="ArgumentNullException">Thrown if <paramref name="queryHandlerFactory"/> is null.</exception>
-        Task<IHandlerRegistration<IQueryHandler<TQuery>>> RegisterAsync<TQuery>(IHandlerProvider<IQueryHandler<TQuery>> queryHandlerFactory); // TODO: Correct xml-comments
+        Task<IHandlerRegistration<IQueryHandler<TQuery>>> RegisterAsync<TQuery>(IContextualProvider<IQueryHandler<TQuery>> queryHandlerFactory); // TODO: Correct xml-comments
 
         /// <summary>
         /// Returns a typed query dispatcher for the specified query and result types.
@@ -89,7 +89,7 @@ namespace AI4E.Integration
         /// TODO
         /// </returns>
         /// <exception cref="ArgumentNullException">Thrown if <paramref name="queryHandlerFactory"/> is null.</exception>
-        Task<IHandlerRegistration<IQueryHandler<TQuery>>> RegisterAsync(IHandlerProvider<IQueryHandler<TQuery>> queryHandlerFactory); // TODO: Correct xml-comments
+        Task<IHandlerRegistration<IQueryHandler<TQuery>>> RegisterAsync(IContextualProvider<IQueryHandler<TQuery>> queryHandlerFactory); // TODO: Correct xml-comments
 
         /// <summary>
         /// Asynchronously dispatches a query.
@@ -115,7 +115,7 @@ namespace AI4E.Integration
         /// <param name="queryHandlerFactory">The query handler that shall be registered.</param>
         /// <returns>True if registering <paramref name="queryHandlerFactory"/> is authorized, false otherwise.</returns>
         /// <exception cref="ArgumentNullException">Thrown if <paramref name="queryHandlerFactory"/> is null.</exception>
-        bool IsRegistrationAuthorized<TQuery>(IHandlerProvider<IQueryHandler<TQuery>> queryHandlerFactory);
+        bool IsRegistrationAuthorized<TQuery>(IContextualProvider<IQueryHandler<TQuery>> queryHandlerFactory);
 
         /// <summary>
         /// Returns a boolean value indicating whether dispatching the specified query handler is authorized.
@@ -140,7 +140,7 @@ namespace AI4E.Integration
         /// <param name="queryHandlerFactory">The query handler that shall be registered.</param>
         /// <returns>True if registering <paramref name="queryHandlerFactory"/> is authorized, false otherwise.</returns>
         /// <exception cref="ArgumentNullException">Thrown if <paramref name="queryHandlerFactory"/> is null.</exception>
-        bool IsRegistrationAuthorized(IHandlerProvider<IQueryHandler<TQuery>> queryHandlerFactory);
+        bool IsRegistrationAuthorized(IContextualProvider<IQueryHandler<TQuery>> queryHandlerFactory);
 
         /// <summary>
         /// Returns a boolean value indicating whether dispatching the specified query handler is authorized.

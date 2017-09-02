@@ -54,7 +54,7 @@ namespace AI4E.Modularity
         /// The <see cref="IHandlerRegistration"/> cancels the handler registration if completed.
         /// </returns>
         ///  <exception cref="ArgumentNullException">Thrown if <paramref name="handlerFactory"/> is null.</exception>
-        Task<IHandlerRegistration> RegisterAsync<TMessage>(IHandlerProvider<IMessageHandler<TMessage>> handlerFactory); // TODO: Correct xml-comments
+        Task<IHandlerRegistration> RegisterAsync<TMessage>(IContextualProvider<IMessageHandler<TMessage>> handlerFactory); // TODO: Correct xml-comments
 
         /// <summary>
         /// Asynchronously registers a message handler.
@@ -67,7 +67,7 @@ namespace AI4E.Modularity
         /// The <see cref="IHandlerRegistration"/> cancels the handler registration if completed.
         /// </returns>
         ///  <exception cref="ArgumentNullException">Thrown if <paramref name="handlerFactory"/> is null.</exception>
-        Task<IHandlerRegistration> RegisterAsync<TMessage, TResponse>(IHandlerProvider<IMessageHandler<TMessage, TResponse>> handlerFactory); // TODO: Correct xml-comments
+        Task<IHandlerRegistration> RegisterAsync<TMessage, TResponse>(IContextualProvider<IMessageHandler<TMessage, TResponse>> handlerFactory); // TODO: Correct xml-comments
 
         /// <summary>
         /// Asynchronously send the specified message to the remote endpoint and awaits its answer.

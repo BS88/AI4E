@@ -70,7 +70,7 @@ namespace AI4E.Modularity.Integration
         }
 
         // TODO: Xml-comment
-        public Task<IHandlerRegistration<IQueryHandler<TQuery>>> RegisterAsync<TQuery>(IHandlerProvider<IQueryHandler<TQuery>> queryHandlerFactory)
+        public Task<IHandlerRegistration<IQueryHandler<TQuery>>> RegisterAsync<TQuery>(IContextualProvider<IQueryHandler<TQuery>> queryHandlerFactory)
         {
             if (queryHandlerFactory == null)
                 throw new ArgumentNullException(nameof(queryHandlerFactory));
@@ -270,7 +270,7 @@ namespace AI4E.Modularity.Integration
         public bool IsForwardingActive => _isForwardingActive;
 
         // TODO: Xml-comment
-        public Task<IHandlerRegistration<IQueryHandler<TQuery>>> RegisterAsync(IHandlerProvider<IQueryHandler<TQuery>> queryHandlerFactory)
+        public Task<IHandlerRegistration<IQueryHandler<TQuery>>> RegisterAsync(IContextualProvider<IQueryHandler<TQuery>> queryHandlerFactory)
         {
             if (queryHandlerFactory == null)
                 throw new ArgumentNullException(nameof(queryHandlerFactory));
