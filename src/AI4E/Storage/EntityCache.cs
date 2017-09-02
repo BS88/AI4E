@@ -139,7 +139,7 @@ namespace AI4E.Storage
                 var serviceCollection = new ServiceCollection();
                 serviceCollection.AddSingleton<IReadOnlyEntityStore<TId, TEventBase, TEventPublisher, TEntityBase>>(this);
                 var provider = serviceCollection.BuildServiceProvider();
-                var eventReplayerResolver = _eventReplayerGenerator.Generate(provider);
+                var eventReplayerResolver = _eventReplayerGenerator.GetInstance(provider);
 
                 var ok = true;
                 var entity = default(TEntity);

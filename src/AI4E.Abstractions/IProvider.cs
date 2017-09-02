@@ -44,7 +44,7 @@ namespace AI4E
         /// Provides an instance of type <typeparamref name="T"/>.
         /// </summary>
         /// <returns>An object of type <typeparamref name="T"/>.</returns>
-        T Generate();
+        T GetInstance();
     }
 
     /// <summary>
@@ -58,6 +58,6 @@ namespace AI4E
         /// </summary>
         /// <param name="serviceProvider">The service provider that can be used to get services from the context.</param>
         /// <returns>An object of type <typeparamref name="T"/>.</returns>
-        T Generate(IServiceProvider serviceProvider);
+        T GetInstance(IServiceProvider serviceProvider);
     }
 }

@@ -95,7 +95,7 @@ namespace AI4E.Storage
             return new Resolver(this, serviceProvider);
         }
 
-        IEventReplayerResolver<TId, TEventBase, TEntityBase> IContextualProvider<IEventReplayerResolver<TId, TEventBase, TEntityBase>>.Generate(IServiceProvider serviceProvider)
+        IEventReplayerResolver<TId, TEventBase, TEntityBase> IContextualProvider<IEventReplayerResolver<TId, TEventBase, TEntityBase>>.GetInstance(IServiceProvider serviceProvider)
         {
             return GetResolver(serviceProvider);
         }
