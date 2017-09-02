@@ -37,7 +37,7 @@ namespace AI4E
     /// Represents a generator for the specified type of data.
     /// </summary>
     /// <typeparam name="T">The type of data that can be generated.</typeparam>
-    public interface IGenerator<T>
+    public interface IProvider<T>
     {
         /// <summary>
         /// Generates a new instance of the specified type of data.
@@ -46,7 +46,7 @@ namespace AI4E
         T Generate();
     }
 
-    public interface ISandboxedGenerator<T>
+    public interface ISandboxedGenerator<T> // TODO: This is conceptionally similar to IHandlerProvider (thats intent is more special T is a handler of something)
     {
         T Generate(IServiceProvider serviceProvider);
     }
