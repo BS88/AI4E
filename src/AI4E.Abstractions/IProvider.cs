@@ -35,20 +35,29 @@ using System;
 namespace AI4E
 {
     /// <summary>
-    /// Represents a generator for the specified type of data.
+    /// Represents a generator for the specified type.
     /// </summary>
-    /// <typeparam name="T">The type of data that can be generated.</typeparam>
+    /// <typeparam name="T">The type that the provider can deliver an instance of.</typeparam>
     public interface IProvider<T>
     {
         /// <summary>
-        /// Generates a new instance of the specified type of data.
+        /// Provides an instance of type <typeparamref name="T"/>.
         /// </summary>
-        /// <returns>A new instance with data-type <typeparamref name="T"/>.</returns>
+        /// <returns>An object of type <typeparamref name="T"/>.</returns>
         T Generate();
     }
 
+    /// <summary>
+    /// Represents a contextual provider for the specified type.
+    /// </summary>
+    /// <typeparam name="T">The type that the provider can deliver an instance of.</typeparam>
     public interface IContextualProvider<T> // TODO: This is conceptionally similar to IHandlerProvider (thats intent is more special T is a handler of something)
     {
+        /// <summary>
+        /// Provides an instance of type <typeparamref name="T"/> within a context.
+        /// </summary>
+        /// <param name="serviceProvider">The service provider that can be used to get services from the context.</param>
+        /// <returns>An object of type <typeparamref name="T"/>.</returns>
         T Generate(IServiceProvider serviceProvider);
     }
 }
