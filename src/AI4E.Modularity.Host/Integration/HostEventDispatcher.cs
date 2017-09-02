@@ -106,7 +106,7 @@ namespace AI4E.Modularity.Integration
         {
             using (await _lock.LockAsync())
             {
-                IHandlerFactory<IEventHandler<TEvent>> proxy;
+                IHandlerProvider<IEventHandler<TEvent>> proxy;
 
                 if (_proxyRegistration != null)
                 {

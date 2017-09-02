@@ -1,10 +1,10 @@
 ﻿/* Summary
  * --------------------------------------------------------------------------------------------------------------------
- * Filename:        IHandlerFactory.cs
- * Types:           AI4E.IHandlerFactory'1
+ * Filename:        IHandlerProvider.cs
+ * Types:           AI4E.IHandlerProvider'1
  * Version:         1.0
  * Author:          Andreas Trütschel
- * Last modified:   11.05.2017 
+ * Last modified:   02.09.2017 
  * Status:          Ready
  * --------------------------------------------------------------------------------------------------------------------
  */
@@ -33,7 +33,7 @@ using System;
 
 namespace AI4E
 {
-    public interface IHandlerFactory<out THandler> // TODO: Rename to IHandlerProvider
+    public interface IHandlerProvider<out THandler>
     {
         THandler GetHandler(IServiceProvider serviceProvider);
     }

@@ -80,7 +80,7 @@ namespace AI4E.Integration
             if (commandDispatcher == null)
                 throw new ArgumentNullException(nameof(commandDispatcher));
 
-            return commandDispatcher.RegisterAsync((IHandlerFactory<ICommandHandler<TCommand>>)(IHandlerFactory<TCommandHandler>)new DefaultHandlerFactory<TCommandHandler>());
+            return commandDispatcher.RegisterAsync((IHandlerProvider<ICommandHandler<TCommand>>)(IHandlerProvider<TCommandHandler>)new DefaultHandlerFactory<TCommandHandler>());
         }
 
         /// <summary>
@@ -104,7 +104,7 @@ namespace AI4E.Integration
             return commandDispatcher.DispatchAsync(command.GetType(), command);
         }
 
-        private class AnonymousCommandHandler<TCommand> : ICommandHandler<TCommand>, IHandlerFactory<ICommandHandler<TCommand>>
+        private class AnonymousCommandHandler<TCommand> : ICommandHandler<TCommand>, IHandlerProvider<ICommandHandler<TCommand>>
         {
             private readonly Func<TCommand, Task<ICommandResult>> _handler;
 

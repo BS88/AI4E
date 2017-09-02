@@ -35,7 +35,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace AI4E.Integration
 {
-    public sealed class CommandHandlerProvider<TCommand> : IHandlerFactory<ICommandHandler<TCommand>>
+    public sealed class CommandHandlerProvider<TCommand> : IHandlerProvider<ICommandHandler<TCommand>>
     {
         private readonly Type _type;
         private readonly CommandHandlerActionDescriptor _memberDescriptor;

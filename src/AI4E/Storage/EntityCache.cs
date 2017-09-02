@@ -251,7 +251,7 @@ namespace AI4E.Storage
             public void Commit(TEntityBase entity) { }
         }
 
-        private sealed class EventHandler : IEventHandler<TEventBase>, IHandlerFactory<IEventHandler<TEventBase>>
+        private sealed class EventHandler : IEventHandler<TEventBase>, IHandlerProvider<IEventHandler<TEventBase>>
         {
             private readonly EntityCache<TId, TEventBase, TEventPublisher, TEntityBase> _entityCache;
 

@@ -6,7 +6,7 @@ namespace AI4E.Modularity.Integration
 {
     public sealed class QueryHandlerProxy<TQuery> :
         IQueryHandler<TQuery>,
-        IHandlerFactory<IQueryHandler<TQuery>>,
+        IHandlerProvider<IQueryHandler<TQuery>>,
         IActivationNotifyable,
         IDeactivationNotifyable
     {
@@ -34,7 +34,7 @@ namespace AI4E.Modularity.Integration
             return answer.QueryResult;
         }
 
-        IQueryHandler<TQuery> IHandlerFactory<IQueryHandler<TQuery>>.GetHandler(IServiceProvider serviceProvider)
+        IQueryHandler<TQuery> IHandlerProvider<IQueryHandler<TQuery>>.GetHandler(IServiceProvider serviceProvider)
         {
             return this;
         }

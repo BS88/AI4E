@@ -35,7 +35,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace AI4E.Integration
 {
-    public sealed class EventHandlerProvider<TEvent> : IHandlerFactory<IEventHandler<TEvent>>
+    public sealed class EventHandlerProvider<TEvent> : IHandlerProvider<IEventHandler<TEvent>>
     {
         private readonly Type _type;
         private readonly EventHandlerActionDescriptor _actionDescriptor;

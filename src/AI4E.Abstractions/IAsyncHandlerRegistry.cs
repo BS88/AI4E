@@ -48,7 +48,7 @@ namespace AI4E
         /// <param name="handlerFactory">The handler to register.</param>
         /// <returns>A task representing the asynchronous operation.</returns>
         /// <exception cref="System.ArgumentNullException">Thrown if <paramref name="handlerFactory"/> is null.</exception>
-        Task RegisterAsync(IHandlerFactory<THandler> handlerFactory);
+        Task RegisterAsync(IHandlerProvider<THandler> handlerFactory);
 
         /// <summary>
         /// Asynchronously deregisters a handler.
@@ -60,7 +60,7 @@ namespace AI4E
         /// indicating whether the handler was actually found and deregistered.
         /// </returns>
         /// <exception cref="System.ArgumentNullException">Thrown if <paramref name="handlerFactory"/> is null.</exception>
-        Task<bool> DeregisterAsync(IHandlerFactory<THandler> handlerFactory);
+        Task<bool> DeregisterAsync(IHandlerProvider<THandler> handlerFactory);
     }
 
     /// <summary>
@@ -74,7 +74,7 @@ namespace AI4E
         /// </summary>
         /// <param name="handlerFactory">Contains the handler if true is returned, otherwise the value is undefined.</param>
         /// <returns>True if a handler was found, false otherwise.</returns>
-        bool TryGetHandler(out IHandlerFactory<THandler> handlerFactory);
+        bool TryGetHandler(out IHandlerProvider<THandler> handlerFactory);
     }
 
     /// <summary>
@@ -87,6 +87,6 @@ namespace AI4E
         /// Returns a collection if activated handlers.
         /// </summary>
         /// <returns>The collection of activated handlers.</returns>
-        IEnumerable<IHandlerFactory<THandler>> GetHandlerFactories(); // TODO: Replace with property?
+        IEnumerable<IHandlerProvider<THandler>> GetHandlerFactories(); // TODO: Replace with property?
     }
 }

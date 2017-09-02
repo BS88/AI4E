@@ -105,7 +105,7 @@ namespace AI4E.Modularity.Integration
         {
             using (await _lock.LockAsync())
             {
-                IHandlerFactory<ICommandHandler<TCommand>> proxy;
+                IHandlerProvider<ICommandHandler<TCommand>> proxy;
 
                 if (_proxyRegistration != null)
                 {

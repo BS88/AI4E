@@ -6,7 +6,7 @@ namespace AI4E.Modularity.Integration
 {
     public interface IViewExtensionDispatcher
     {
-        Task<IHandlerRegistration<IViewExtensionRenderer<TViewExtension>>> RegisterAsync<TViewExtension>(IHandlerFactory<IViewExtensionRenderer<TViewExtension>> handlerFactory);
+        Task<IHandlerRegistration<IViewExtensionRenderer<TViewExtension>>> RegisterAsync<TViewExtension>(IHandlerProvider<IViewExtensionRenderer<TViewExtension>> handlerFactory);
 
         Task<ImmutableArray<string>> RenderAsync<TViewExtension>(TViewExtension viewExtension);
 
@@ -15,7 +15,7 @@ namespace AI4E.Modularity.Integration
 
     public interface IViewExtensionDispatcher<TViewExtension>
     {
-        Task<IHandlerRegistration<IViewExtensionRenderer<TViewExtension>>> RegisterAsync(IHandlerFactory<IViewExtensionRenderer<TViewExtension>> handlerFactory);
+        Task<IHandlerRegistration<IViewExtensionRenderer<TViewExtension>>> RegisterAsync(IHandlerProvider<IViewExtensionRenderer<TViewExtension>> handlerFactory);
 
         Task<ImmutableArray<string>> RenderAsync(TViewExtension viewExtension);
     }

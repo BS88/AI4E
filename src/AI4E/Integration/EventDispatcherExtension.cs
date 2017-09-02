@@ -69,7 +69,7 @@ namespace AI4E.Integration
             if (eventDispatcher == null)
                 throw new ArgumentNullException(nameof(eventDispatcher));
 
-            return eventDispatcher.RegisterAsync((IHandlerFactory<IEventHandler<TEvent>>)(IHandlerFactory<TEventHandler>)new DefaultHandlerFactory<TEventHandler>());
+            return eventDispatcher.RegisterAsync((IHandlerProvider<IEventHandler<TEvent>>)(IHandlerProvider<TEventHandler>)new DefaultHandlerFactory<TEventHandler>());
         }
 
         public static Task<IHandlerRegistration<IEventHandler<TEvent>>> RegisterAsync<TEvent>(this IEventDispatcher eventDispatcher, IEventHandler<TEvent> singletonHandler)
@@ -91,7 +91,7 @@ namespace AI4E.Integration
             return eventDispatcher.NotifyAsync(evt.GetType(), evt);
         }
 
-        private class AnonymousEventHandler<TEvent> : IEventHandler<TEvent>, IHandlerFactory<IEventHandler<TEvent>>
+        private class AnonymousEventHandler<TEvent> : IEventHandler<TEvent>, IHandlerProvider<IEventHandler<TEvent>>
         {
             private readonly Func<TEvent, Task<IEventResult>> _handler;
 
