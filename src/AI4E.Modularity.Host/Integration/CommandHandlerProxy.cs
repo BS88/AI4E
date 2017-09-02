@@ -34,7 +34,7 @@ namespace AI4E.Modularity.Integration
             return answer.CommandResult;
         }
 
-        ICommandHandler<TCommand> IContextualProvider<ICommandHandler<TCommand>>.GetInstance(IServiceProvider serviceProvider) { return this; }
+        ICommandHandler<TCommand> IContextualProvider<ICommandHandler<TCommand>>.ProvideInstance(IServiceProvider serviceProvider) { return this; }
 
         public Task NotifyActivationAsync()
         {

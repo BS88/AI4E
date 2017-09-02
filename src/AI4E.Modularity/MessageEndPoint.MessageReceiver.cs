@@ -39,7 +39,7 @@ namespace AI4E.Modularity
 
                 using (var scope = _messageEndPoint._serviceProvider.CreateScope())
                 {
-                    await handlerFactory.GetInstance(scope.ServiceProvider).ReplyToAsync(typedMessage, seqNum);
+                    await handlerFactory.ProvideInstance(scope.ServiceProvider).ReplyToAsync(typedMessage, seqNum);
                 }
             }
         }

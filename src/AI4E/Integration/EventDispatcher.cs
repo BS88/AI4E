@@ -322,7 +322,7 @@ namespace AI4E.Integration
             {
                 using (var scope = _serviceProvider.CreateScope())
                 {
-                    return await handlerFactory.GetInstance(scope.ServiceProvider).HandleAsync(evt);
+                    return await handlerFactory.ProvideInstance(scope.ServiceProvider).HandleAsync(evt);
                 }
             }
             catch (Exception exc)

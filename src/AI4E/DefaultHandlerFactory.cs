@@ -20,7 +20,7 @@ namespace AI4E
             _useSingletonHandler = false;
         }
 
-        public THandler GetInstance(IServiceProvider serviceProvider)
+        public THandler ProvideInstance(IServiceProvider serviceProvider)
         {
             if (serviceProvider == null)
                 throw new ArgumentNullException(nameof(serviceProvider));

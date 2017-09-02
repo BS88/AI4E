@@ -49,7 +49,7 @@ namespace AI4E.Integration
             _actionDescriptor = actionDescriptor;
         }
 
-        public IQueryHandler<TQuery> GetInstance(IServiceProvider serviceProvider)
+        public IQueryHandler<TQuery> ProvideInstance(IServiceProvider serviceProvider)
         {
             if (serviceProvider == null)
                 throw new ArgumentNullException(nameof(serviceProvider));

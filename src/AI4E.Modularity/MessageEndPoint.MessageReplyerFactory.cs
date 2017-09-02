@@ -18,9 +18,9 @@ namespace AI4E.Modularity
                 _handlerFactory = handlerFactory;
             }
 
-            public IMessageReplyer<TMessage> GetInstance(IServiceProvider serviceProvider)
+            public IMessageReplyer<TMessage> ProvideInstance(IServiceProvider serviceProvider)
             {
-                return new MessageReplyer<TMessage, TResponse>(_endPoint, _handlerFactory.GetInstance(serviceProvider));
+                return new MessageReplyer<TMessage, TResponse>(_endPoint, _handlerFactory.ProvideInstance(serviceProvider));
             }
         }
 
@@ -37,9 +37,9 @@ namespace AI4E.Modularity
                 _handlerFactory = handlerFactory;
             }
 
-            public IMessageReplyer<TMessage> GetInstance(IServiceProvider serviceProvider)
+            public IMessageReplyer<TMessage> ProvideInstance(IServiceProvider serviceProvider)
             {
-                return new MessageReplyer<TMessage>(_endPoint, _handlerFactory.GetInstance(serviceProvider));
+                return new MessageReplyer<TMessage>(_endPoint, _handlerFactory.ProvideInstance(serviceProvider));
             }
         }
     }

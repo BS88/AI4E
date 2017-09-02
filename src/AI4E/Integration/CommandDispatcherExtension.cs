@@ -114,7 +114,7 @@ namespace AI4E.Integration
                 _handler = handler;
             }
 
-            public ICommandHandler<TCommand> GetInstance(IServiceProvider serviceProvider)
+            public ICommandHandler<TCommand> ProvideInstance(IServiceProvider serviceProvider)
             {
                 return this;
             }

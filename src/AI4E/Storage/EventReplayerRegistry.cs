@@ -95,7 +95,7 @@ namespace AI4E.Storage
             return new Resolver(this, serviceProvider);
         }
 
-        IEventReplayerResolver<TId, TEventBase, TEntityBase> IContextualProvider<IEventReplayerResolver<TId, TEventBase, TEntityBase>>.GetInstance(IServiceProvider serviceProvider)
+        IEventReplayerResolver<TId, TEventBase, TEntityBase> IContextualProvider<IEventReplayerResolver<TId, TEventBase, TEntityBase>>.ProvideInstance(IServiceProvider serviceProvider)
         {
             return GetResolver(serviceProvider);
         }
@@ -152,13 +152,13 @@ namespace AI4E.Storage
                 _eventReplayerFactory = eventReplayerFactory;
             }
 
-            public IEventReplayer<TId, TEventBase, TEntityBase> GetInstance(IServiceProvider serviceProvider)
+            public IEventReplayer<TId, TEventBase, TEntityBase> ProvideInstance(IServiceProvider serviceProvider)
             {
                 if (serviceProvider == null)
                     throw new ArgumentNullException(nameof(serviceProvider));
 
                 // The service-provider must be scoped already.
-                var actualReplayer = _eventReplayerFactory.GetInstance(serviceProvider);
+                var actualReplayer = _eventReplayerFactory.ProvideInstance(serviceProvider);
 
                 return new EventReplayerInvoker<TEvent, TEntity>(actualReplayer);
             }
@@ -188,7 +188,7 @@ namespace AI4E.Storage
                     {
                         Debug.Assert(replayer != null);
 
-                        return replayer.GetInstance(_serviceProvider);
+                        return replayer.ProvideInstance(_serviceProvider);
                     }
                 }
 
@@ -208,7 +208,7 @@ namespace AI4E.Storage
                         {
                             Debug.Assert(replayer != null);
 
-                            return replayer.GetInstance(_serviceProvider);
+                            return replayer.ProvideInstance(_serviceProvider);
                         }
                     }
                 }

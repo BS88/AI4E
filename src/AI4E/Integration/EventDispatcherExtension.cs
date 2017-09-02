@@ -110,7 +110,7 @@ namespace AI4E.Integration
                 return _handler(evt);
             }
 
-            public IEventHandler<TEvent> GetInstance(IServiceProvider serviceProvider)
+            public IEventHandler<TEvent> ProvideInstance(IServiceProvider serviceProvider)
             {
                 return this;
             }

@@ -49,7 +49,7 @@ namespace AI4E.Integration
             _memberDescriptor = memberDescriptor;
         }
 
-        public ICommandHandler<TCommand> GetInstance(IServiceProvider serviceProvider)
+        public ICommandHandler<TCommand> ProvideInstance(IServiceProvider serviceProvider)
         {
             if (serviceProvider == null)
                 throw new ArgumentNullException(nameof(serviceProvider));

@@ -297,7 +297,7 @@ namespace AI4E.Modularity.Integration
             {
                 using (var scope = _serviceProvider.CreateScope())
                 {
-                    return handler.GetInstance(scope.ServiceProvider).HandleAsync(query);
+                    return handler.ProvideInstance(scope.ServiceProvider).HandleAsync(query);
                 }
 
             }
@@ -348,7 +348,7 @@ namespace AI4E.Modularity.Integration
                 {
                     using (var scope = _serviceProvider.CreateScope())
                     {
-                        return handler.GetInstance(scope.ServiceProvider).HandleAsync(query);
+                        return handler.ProvideInstance(scope.ServiceProvider).HandleAsync(query);
                     }
                 }
                 catch (Exception exc)
