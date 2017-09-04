@@ -61,7 +61,7 @@ namespace AI4E.Storage
         public EntityStore(IEventStore<TId, TEventBase> eventStore, // Singleton
                            EntityCache<TId, TEventBase, TEventPublisher, TEntityBase> entityCache, // Singleton
                            IEntityAccessor<TId, TEventPublisher, TEntityBase> entityAccessor, // Singleton (or scoped or transient)
-                           IEventAccessor<TId, TEventBase> eventAccessor, // Singleton (or scoped or tranient)
+                           IEventAccessor<TId, TEventBase> eventAccessor, // Singleton (or scoped or transient)
                            IEventProcessor<TEventBase, TEntityBase> eventProcessor, // Scoped
                            IEventProcessorBinder<TEventBase, TEventPublisher, TEntityBase> eventProcessorBinder) // Singleton (or scoped or tranient)
         {

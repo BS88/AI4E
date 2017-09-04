@@ -4,7 +4,7 @@
  * Types:           AI4E.ServiceCollectionExtension
  * Version:         1.0
  * Author:          Andreas Trütschel
- * Last modified:   27.08.2017 
+ * Last modified:   04.09.2017 
  * --------------------------------------------------------------------------------------------------------------------
  */
 
@@ -47,11 +47,11 @@
  */
 
 using System;
-using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using AI4E.Integration;
+using AI4E.Storage;
 using Microsoft.AspNetCore.Mvc.ApplicationParts;
 using Microsoft.AspNetCore.Mvc.Internal;
 using Microsoft.Extensions.DependencyInjection;
@@ -61,21 +61,22 @@ namespace AI4E
 {
     public static class ServiceCollectionExtension
     {
+        #region Messaging
+
         public static IMessagingBuilder AddMessaging(this IServiceCollection services)
         {
             if (services == null)
                 throw new ArgumentNullException(nameof(services));
 
-            var partManager = GetApplicationPartManager(services);
-            Debug.Assert(partManager != null);
-
-            ConfigureDefaultFeatureProviders(partManager);
-
+            // Configure necessary application parts
+            var partManager = services.GetApplicationPartManager();
+            partManager.ConfigureMessagingFeatureProviders();
             services.TryAddSingleton(partManager);
 
-            services.AddSingleton(provider => BuildCommandDispatcher(provider, GetServiceFromCollection<ICommandDispatcher>(services)));
-            services.AddSingleton(provider => BuildQueryDispatcher(provider, GetServiceFromCollection<IQueryDispatcher>(services)));
-            services.AddSingleton(provider => BuildEventDispatcher(provider, GetServiceFromCollection<IEventDispatcher>(services)));
+            // Configure services
+            services.AddSingleton(provider => BuildCommandDispatcher(provider, services.GetService<ICommandDispatcher>()));
+            services.AddSingleton(provider => BuildQueryDispatcher(provider, services.GetService<IQueryDispatcher>()));
+            services.AddSingleton(provider => BuildEventDispatcher(provider, services.GetService<IEventDispatcher>()));
 
             services.AddSingleton<INonGenericCommandDispatcher, ICommandDispatcher>(provider => provider.GetRequiredService<ICommandDispatcher>());
             services.AddSingleton<INonGenericQueryDispatcher, IQueryDispatcher>(provider => provider.GetRequiredService<IQueryDispatcher>());
@@ -184,27 +185,70 @@ namespace AI4E
             return eventDispatcher;
         }
 
-        private static void ConfigureDefaultFeatureProviders(ApplicationPartManager manager)
+        private static void ConfigureMessagingFeatureProviders(this ApplicationPartManager partManager)
         {
-            if (!manager.FeatureProviders.OfType<CommandHandlerFeatureProvider>().Any())
+            if (!partManager.FeatureProviders.OfType<CommandHandlerFeatureProvider>().Any())
             {
-                manager.FeatureProviders.Add(new CommandHandlerFeatureProvider());
+                partManager.FeatureProviders.Add(new CommandHandlerFeatureProvider());
             }
 
-            if (!manager.FeatureProviders.OfType<QueryHandlerFeatureProvider>().Any())
+            if (!partManager.FeatureProviders.OfType<QueryHandlerFeatureProvider>().Any())
             {
-                manager.FeatureProviders.Add(new QueryHandlerFeatureProvider());
+                partManager.FeatureProviders.Add(new QueryHandlerFeatureProvider());
             }
 
-            if (!manager.FeatureProviders.OfType<EventHandlerFeatureProvider>().Any())
+            if (!partManager.FeatureProviders.OfType<EventHandlerFeatureProvider>().Any())
             {
-                manager.FeatureProviders.Add(new EventHandlerFeatureProvider());
+                partManager.FeatureProviders.Add(new EventHandlerFeatureProvider());
             }
         }
 
-        private static ApplicationPartManager GetApplicationPartManager(IServiceCollection services)
+        #endregion
+
+        #region EventSourcing
+
+        public static IEventSourcingBuilder AddEventSourcing(this IServiceCollection services)
         {
-            var manager = GetServiceFromCollection<ApplicationPartManager>(services);
+            if (services == null)
+                throw new ArgumentNullException(nameof(services));
+
+            // Configure necessary application parts
+            var partManager = services.GetApplicationPartManager();
+            partManager.ConfigureEventSourcingFeatureProvider();
+            services.TryAddSingleton(partManager);
+
+            // Configure services
+            // TODO
+
+            return new EventSourcingBuilder(services);
+        }
+
+        public static IEventSourcingBuilder AddEventSourcing(this IServiceCollection services, Action<EventSourcingOptions> configuration)
+        {
+            if (services == null)
+                throw new ArgumentNullException(nameof(services));
+
+            if (configuration == null)
+                throw new ArgumentNullException(nameof(configuration));
+
+            var builder = AddEventSourcing(services);
+            builder.Configure(configuration);
+            return builder;
+        }
+
+        private static void ConfigureEventSourcingFeatureProvider(this ApplicationPartManager partManager)
+        {
+            if (!partManager.FeatureProviders.OfType<EventReplayerFeatureProvider>().Any())
+            {
+                partManager.FeatureProviders.Add(new EventReplayerFeatureProvider());
+            }
+        }
+
+        #endregion
+
+        private static ApplicationPartManager GetApplicationPartManager(this IServiceCollection services)
+        {
+            var manager = services.GetService<ApplicationPartManager>();
             if (manager == null)
             {
                 manager = new ApplicationPartManager();
@@ -218,7 +262,7 @@ namespace AI4E
             return manager;
         }
 
-        private static T GetServiceFromCollection<T>(IServiceCollection services)
+        private static T GetService<T>(this IServiceCollection services)
         {
             return (T)services
                 .LastOrDefault(d => d.ServiceType == typeof(T))
