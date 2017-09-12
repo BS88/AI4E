@@ -1,6 +1,6 @@
 ﻿namespace AI4E.Modularity
 {
-    internal enum MessageEncoding : byte
+    public enum MessageEncoding : byte
     {
         Unkown = 0b0000,
         Raw = 0b0001,
