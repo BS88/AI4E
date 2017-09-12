@@ -4,7 +4,7 @@ using Newtonsoft.Json.Bson;
 
 namespace AI4E.Modularity
 {
-    public sealed class Serializer : ISerializer
+    public sealed class Serializer : IMessageSerializer
     {
         private readonly JsonSerializer _jsonSerializer;
 

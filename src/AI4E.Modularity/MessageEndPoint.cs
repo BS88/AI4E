@@ -57,7 +57,7 @@ namespace AI4E.Modularity
         #region Fields
 
         private readonly Stream _underlyingStream;
-        private readonly ISerializer _serializer;
+        private readonly IMessageSerializer _serializer;
         private readonly ILogger _logger;
         private readonly IServiceProvider _serviceProvider;
         private readonly AsyncProcess _receiveProcess;
@@ -83,7 +83,7 @@ namespace AI4E.Modularity
         /// <exception cref="ArgumentNullException">
         /// Thrown if any of <paramref name="underlyingStream"/>, <paramref name="serializer"/> or <paramref name="serviceProvider"/> is null.
         /// </exception>
-        public MessageEndPoint(Stream underlyingStream, ISerializer serializer, IServiceProvider serviceProvider)
+        public MessageEndPoint(Stream underlyingStream, IMessageSerializer serializer, IServiceProvider serviceProvider)
         {
             if (underlyingStream == null)
                 throw new ArgumentNullException(nameof(underlyingStream));
@@ -102,7 +102,7 @@ namespace AI4E.Modularity
         }
 
         public MessageEndPoint(Stream underlyingStream,
-                               ISerializer serializer,
+                               IMessageSerializer serializer,
                                ILogger<MessageEndPoint> logger,
                                IServiceProvider serviceProvider) : this(underlyingStream, serializer, serviceProvider)
         {

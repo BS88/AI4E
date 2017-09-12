@@ -4,6 +4,7 @@ using AI4E.Integration;
 using AI4E.Integration.EventResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace AI4E.Messaging.Test
 {
@@ -200,5 +201,58 @@ namespace AI4E.Messaging.Test
             await Task.Delay(4000);
             Console.WriteLine(s);
         }
+    }
+
+    public class LoggingEventProcessor
+    {
+        private readonly ILogger _logger;
+
+        public LoggingEventProcessor(ILogger logger)
+        {
+            if (logger == null)
+                throw new ArgumentNullException(nameof(logger));
+
+            _logger = logger;
+        }
+
+        [EventDispatchContext]
+        public EventDispatchContext EventDispatchContext { get; }
+
+        [EventProcessorContext]
+        public EventProcessorContext EventProcessorContext { get; }
+
+        public void PreProcess(object evt)
+        {
+
+        }
+
+        public void PostProcess(object evt)
+        {
+
+        }
+    }
+
+    public abstract class EventProcessor
+    {
+        [EventDispatchContext]
+        public virtual EventDispatchContext EventDispatchContext { get; }
+
+        [EventProcessorContext]
+        public virtual EventProcessorContext EventProcessorContext { get; }
+
+        public virtual Task PreProcessAsync(object evt) { return Task.CompletedTask; }
+
+        public virtual Task PostProcessAsync(object evt) { return Task.CompletedTask; }
+    }
+
+    public class EventProcessorContext
+    {
+
+    }
+
+    [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
+    public class EventProcessorContextAttribute : Attribute
+    {
+
     }
 }

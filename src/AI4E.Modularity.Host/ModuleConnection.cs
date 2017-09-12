@@ -48,8 +48,8 @@ namespace AI4E.Modularity
             sandboxedServices.AddSingleton<IHostQueryDispatcher, HostQueryDispatcher>();
             sandboxedServices.AddSingleton<IHostEventDispatcher, HostEventDispatcher>();
 
-            sandboxedServices.AddSingleton<IMessageEndPoint>(p => new MessageEndPoint(_stream, p.GetRequiredService<ISerializer>(), p));
-            sandboxedServices.AddTransient<ISerializer, Serializer>();
+            sandboxedServices.AddSingleton<IMessageEndPoint>(p => new MessageEndPoint(_stream, p.GetRequiredService<IMessageSerializer>(), p));
+            sandboxedServices.AddTransient<IMessageSerializer, Serializer>();
             _sandboxedServiceProvider = sandboxedServices.BuildServiceProvider();
             _messageEndPoint = _sandboxedServiceProvider.GetRequiredService<IMessageEndPoint>();
         }

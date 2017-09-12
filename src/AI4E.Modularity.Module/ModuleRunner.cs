@@ -67,7 +67,7 @@ namespace AI4E.Modularity
 
             _services.AddSingleton<IMessageEndPoint>(provider =>
             {
-                var endPoint = new MessageEndPoint(client.GetStream(), provider.GetRequiredService<ISerializer>(), provider);
+                var endPoint = new MessageEndPoint(client.GetStream(), provider.GetRequiredService<IMessageSerializer>(), provider);
 
                 endPoint.RegisterAsync(new DefaultHandlerFactory<CommandMessageBroker>());
                 endPoint.RegisterAsync<ActivateCommandForwarding>(new DefaultHandlerFactory<CommandMessageBroker>());
@@ -87,7 +87,7 @@ namespace AI4E.Modularity
                 return endPoint;
             });
 
-            _services.AddTransient<ISerializer, Serializer>();
+            _services.AddTransient<IMessageSerializer, Serializer>();
 
             //var serviceProvider = _services.BuildServiceProvider();
             //var messageEndPoint = serviceProvider.GetRequiredService<IMessageEndPoint>();
