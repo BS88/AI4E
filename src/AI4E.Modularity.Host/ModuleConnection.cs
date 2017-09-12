@@ -49,7 +49,7 @@ namespace AI4E.Modularity
             sandboxedServices.AddSingleton<IHostEventDispatcher, HostEventDispatcher>();
 
             sandboxedServices.AddSingleton<IMessageEndPoint>(p => new MessageEndPoint(_stream, p.GetRequiredService<IMessageSerializer>(), p));
-            sandboxedServices.AddTransient<IMessageSerializer, Serializer>();
+            sandboxedServices.AddTransient<IMessageSerializer, MessageSerializer>();
             _sandboxedServiceProvider = sandboxedServices.BuildServiceProvider();
             _messageEndPoint = _sandboxedServiceProvider.GetRequiredService<IMessageEndPoint>();
         }

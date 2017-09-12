@@ -87,7 +87,7 @@ namespace AI4E.Modularity
                 return endPoint;
             });
 
-            _services.AddTransient<IMessageSerializer, Serializer>();
+            _services.AddTransient<IMessageSerializer, MessageSerializer>();
 
             //var serviceProvider = _services.BuildServiceProvider();
             //var messageEndPoint = serviceProvider.GetRequiredService<IMessageEndPoint>();

@@ -228,7 +228,7 @@ namespace AI4E.Modularity
                 try
                 {
                     // Serialize the message and send it.
-                    await SendPayloadAsync(_serializer.Serialize(message), responseTableSlot.SeqNum, 0, MessageType.Message, MessageEncoding.Bson, cancellation);
+                    await SendPayloadAsync(_serializer.Serialize(message, MessageEncoding.Bson), responseTableSlot.SeqNum, 0, MessageType.Message, MessageEncoding.Bson, cancellation);
                 }
                 catch (Exception exc) when (!(exc is ObjectDisposedException))
                 {
@@ -568,7 +568,6 @@ namespace AI4E.Modularity
                         }
 
                         HandleInitAck(payload, corrId);
-
                         return;
 
                     case MessageType.Terminate:
@@ -592,9 +591,14 @@ namespace AI4E.Modularity
                         return;
 
                     case MessageType.Message:
-                        if (encoding != MessageEncoding.Bson)
+                        if (encoding < MessageEncoding.BinarySerialized || encoding > MessageEncoding.Bson)
                         {
                             goto SEND_BAD_MESSAGE;
+                        }
+
+                        if ((_serializer.SupportedEncodings & encoding) != encoding)
+                        {
+                            goto SEND_BAD_MESSAGE; // TODO: Send unsupported encoding message.
                         }
 
                         await HandleUserMessageAsync(payload, encoding, seqNum, cancellation);
@@ -618,7 +622,7 @@ namespace AI4E.Modularity
                             goto SEND_BAD_MESSAGE;
                         }
 
-                        HandleMessageError(payload, corrId);
+                        HandleMessageError(payload, corrId, encoding);
                         return;
 
                     case MessageType.ProtocolNotSupportedError:
@@ -665,10 +669,10 @@ namespace AI4E.Modularity
         {
             object data = null;
 
-            if (encoding != MessageEncoding.Unkown)
+            if (encoding != MessageEncoding.Unkown && encoding != MessageEncoding.Raw)
             {
                 // TODO: It may be the case that we cannot deserialize the response because the remote end defines it.
-                data = _serializer.Deserialize(payload);
+                data = _serializer.Deserialize(payload, encoding);
             }
 
             if (data == null)
@@ -689,16 +693,16 @@ namespace AI4E.Modularity
             }
             catch (Exception exc)
             {
-                var responsePayload = _serializer.Serialize(exc);
+                var responsePayload = _serializer.Serialize(exc, MessageEncoding.Bson);
 
                 await SendPayloadAsync(responsePayload, GetNextSeqNum(), seqNum, MessageType.MessageError, MessageEncoding.Bson, cancellation);
             }
         }
 
-        private void HandleMessageError(byte[] payload, uint corrId)
+        private void HandleMessageError(byte[] payload, uint corrId, MessageEncoding encoding)
         {
             // TODO: It may be the case that we cannot deserialize the error because the remote end defines it.
-            var error = _serializer.Deserialize(payload) as Exception;
+            var error = _serializer.Deserialize(payload, encoding) as Exception;
             if (_responseTable.TryGetValue(corrId, out var completionSource))
             {
                 completionSource.TrySetException(error);
@@ -712,7 +716,7 @@ namespace AI4E.Modularity
             if (encoding != MessageEncoding.Unkown)
             {
                 // TODO: It may be the case that we cannot deserialize the response because the remote end defines it.
-                response = _serializer.Deserialize(payload);
+                response = _serializer.Deserialize(payload, encoding);
             }
 
             if (_responseTable.TryGetValue(corrId, out var completionSource))

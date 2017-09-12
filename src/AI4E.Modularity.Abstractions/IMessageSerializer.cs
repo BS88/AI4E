@@ -2,7 +2,9 @@
 {
     public interface IMessageSerializer
     {
-        byte[] Serialize(object obj);
-        object Deserialize(byte[] data);
+        MessageEncoding SupportedEncodings { get; }
+
+        byte[] Serialize(object obj, MessageEncoding encoding);
+        object Deserialize(byte[] data, MessageEncoding encoding);
     }
 }
