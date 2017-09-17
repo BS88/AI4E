@@ -9,23 +9,29 @@ namespace AI4E.Modularity
         private sealed class MessageReceiver<TMessage> : IMessageReceiver
         {
             private readonly IAsyncSingleHandlerRegistry<IMessageReplyer<TMessage>> _handler = new AsyncSingleHandlerRegistry<IMessageReplyer<TMessage>>();
-            private readonly MessageEndPoint _messageEndPoint;
+            private readonly MessageEndPoint _endPoint;
 
-            public MessageReceiver(MessageEndPoint messageEndPoint)
+            public MessageReceiver(MessageEndPoint endPoint)
             {
-                Debug.Assert(messageEndPoint != null);
+                Debug.Assert(endPoint != null);
 
-                _messageEndPoint = messageEndPoint;
+                _endPoint = endPoint;
             }
 
-            public async Task<IHandlerRegistration> RegisterAsync<TResponse>(IContextualProvider<IMessageHandler<TMessage, TResponse>> handlerFactory)
+            public async Task<IHandlerRegistration> RegisterAsync<TResponse>(IContextualProvider<IMessageHandler<TMessage, TResponse>> handlerProvider)
             {
-                return await HandlerRegistration.CreateRegistrationAsync(_handler, new MessageReplyerFactory<TMessage, TResponse>(_messageEndPoint, handlerFactory));
+                var provider = new ContextualProvider<IMessageReplyer<TMessage>>(
+                    serviceProvider => new MessageReplyer<TMessage, TResponse>(_endPoint, handlerProvider.ProvideInstance(serviceProvider)));
+
+                return await HandlerRegistration.CreateRegistrationAsync(_handler, provider);
             }
 
-            public async Task<IHandlerRegistration> RegisterAsync(IContextualProvider<IMessageHandler<TMessage>> handlerFactory)
+            public async Task<IHandlerRegistration> RegisterAsync(IContextualProvider<IMessageHandler<TMessage>> handlerProvider)
             {
-                return await HandlerRegistration.CreateRegistrationAsync(_handler, new MessageReplyerFactory<TMessage>(_messageEndPoint, handlerFactory));
+                var provider = new ContextualProvider<IMessageReplyer<TMessage>>(
+                    serviceProvider => new MessageReplyer<TMessage>(_endPoint, handlerProvider.ProvideInstance(serviceProvider)));
+
+                return await HandlerRegistration.CreateRegistrationAsync(_handler, provider);
             }
 
             public async Task HandleMessage(object message, uint seqNum)
@@ -37,7 +43,7 @@ namespace AI4E.Modularity
                     throw new MessageHandlerNotFoundException();
                 }
 
-                using (var scope = _messageEndPoint._serviceProvider.CreateScope())
+                using (var scope = _endPoint._serviceProvider.CreateScope())
                 {
                     await handlerFactory.ProvideInstance(scope.ServiceProvider).ReplyToAsync(typedMessage, seqNum);
                 }

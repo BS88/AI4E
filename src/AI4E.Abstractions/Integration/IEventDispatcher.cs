@@ -47,13 +47,13 @@ namespace AI4E.Integration
         /// Asynchronously registers an event handler.
         /// </summary>
         /// <typeparam name="TEvent">The type of event.</typeparam>
-        /// <param name="eventHandlerFactory">The event handler to register.</param>
+        /// <param name="eventHandlerProvider">The event handler to register.</param>
         /// <returns>
         /// A <see cref="IHandlerRegistration"/> representing the asynchronous operation.
         /// The <see cref="IHandlerRegistration"/> cancels the handler registration if completed.
         /// </returns>
-        /// <exception cref="ArgumentNullException">Thrown if <paramref name="eventHandlerFactory"/> is null.</exception>
-        Task<IHandlerRegistration<IEventHandler<TEvent>>> RegisterAsync<TEvent>(IContextualProvider<IEventHandler<TEvent>> eventHandlerFactory); // TODO: Correct xml-comments
+        /// <exception cref="ArgumentNullException">Thrown if <paramref name="eventHandlerProvider"/> is null.</exception>
+        Task<IHandlerRegistration<IEventHandler<TEvent>>> RegisterAsync<TEvent>(IContextualProvider<IEventHandler<TEvent>> eventHandlerProvider); // TODO: Correct xml-comments
 
         /// <summary>
         /// Returns a typed event dispatcher for the specified event type.
@@ -83,13 +83,13 @@ namespace AI4E.Integration
         /// <summary>
         /// Asynchronously registers an event handler.
         /// </summary>
-        /// <param name="eventHandlerFactory">The event handler to register.</param>
+        /// <param name="eventHandlerProvider">The event handler to register.</param>
         /// <returns>
         /// A <see cref="IHandlerRegistration"/> representing the asynchronous operation.
         /// The <see cref="IHandlerRegistration"/> cancels the handler registration if completed.
         /// </returns>
-        /// <exception cref="ArgumentNullException">Thrown if <paramref name="eventHandlerFactory"/> is null.</exception>
-        Task<IHandlerRegistration<IEventHandler<TEvent>>> RegisterAsync(IContextualProvider<IEventHandler<TEvent>> eventHandlerFactory); // TODO: Correct xml-comments
+        /// <exception cref="ArgumentNullException">Thrown if <paramref name="eventHandlerProvider"/> is null.</exception>
+        Task<IHandlerRegistration<IEventHandler<TEvent>>> RegisterAsync(IContextualProvider<IEventHandler<TEvent>> eventHandlerProvider); // TODO: Correct xml-comments
 
         /// <summary>
         /// Asynchronously dispatches an event.
@@ -111,10 +111,10 @@ namespace AI4E.Integration
         /// Returns a boolean value indicating whether registering the specified event handler is authorized.
         /// </summary>
         /// <typeparam name="TEvent">The type of event.</typeparam>
-        /// <param name="eventHandlerFactory">The event handler that shall be registered.</param>
-        /// <returns>True if registering <paramref name="eventHandlerFactory"/> is authorized, false otherwise.</returns>
-        /// <exception cref="ArgumentNullException">Thrown if <paramref name="eventHandlerFactory"/> is null.</exception>
-        bool IsRegistrationAuthorized<TEvent>(IContextualProvider<IEventHandler<TEvent>> eventHandlerFactory);
+        /// <param name="eventHandlerProvider">The event handler that shall be registered.</param>
+        /// <returns>True if registering <paramref name="eventHandlerProvider"/> is authorized, false otherwise.</returns>
+        /// <exception cref="ArgumentNullException">Thrown if <paramref name="eventHandlerProvider"/> is null.</exception>
+        bool IsRegistrationAuthorized<TEvent>(IContextualProvider<IEventHandler<TEvent>> eventHandlerProvider);
 
         /// <summary>
         /// Returns a boolean value indicating whether dispatching the specified event handler is authorized.
@@ -134,10 +134,10 @@ namespace AI4E.Integration
         /// <summary>
         /// Returns a boolean value indicating whether registering the specified event handler is authorized.
         /// </summary>
-        /// <param name="eventHandlerFactory">The event handler that shall be registered.</param>
-        /// <returns>True if registering <paramref name="eventHandlerFactory"/> is authorized, false otherwise.</returns>
-        /// <exception cref="ArgumentNullException">Thrown if <paramref name="eventHandlerFactory"/> is null.</exception>
-        bool IsRegistrationAuthorized(IContextualProvider<IEventHandler<TEvent>> eventHandlerFactory);
+        /// <param name="eventHandlerProvider">The event handler that shall be registered.</param>
+        /// <returns>True if registering <paramref name="eventHandlerProvider"/> is authorized, false otherwise.</returns>
+        /// <exception cref="ArgumentNullException">Thrown if <paramref name="eventHandlerProvider"/> is null.</exception>
+        bool IsRegistrationAuthorized(IContextualProvider<IEventHandler<TEvent>> eventHandlerProvider);
 
         /// <summary>
         /// Returns a boolean value indicating whether dispatching the specified event handler is authorized.

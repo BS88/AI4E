@@ -64,26 +64,6 @@ namespace AI4E.Integration
         }
 
         /// <summary>
-        /// Asynchronously registers a command handler of the specified type for the specified type of command.
-        /// </summary>
-        /// <typeparam name="TCommand">The type of command.</typeparam>
-        /// <typeparam name="TCommandHandler">The type of command handler.</typeparam>
-        /// <param name="commandDispatcher">The command dispatcher.</param>
-        /// <returns>
-        /// A <see cref="IHandlerRegistration"/> representing the asynchronous operation.
-        /// The <see cref="IHandlerRegistration"/> cancels the handler registration if completed.
-        /// </returns>
-        /// <exception cref="ArgumentNullException">Thrown if <paramref name="commandDispatcher"/> is null.</exception>
-        public static Task<IHandlerRegistration<ICommandHandler<TCommand>>> RegisterAsync<TCommand, TCommandHandler>(this ICommandDispatcher commandDispatcher)
-            where TCommandHandler : ICommandHandler<TCommand>
-        {
-            if (commandDispatcher == null)
-                throw new ArgumentNullException(nameof(commandDispatcher));
-
-            return commandDispatcher.RegisterAsync((IContextualProvider<ICommandHandler<TCommand>>)(IContextualProvider<TCommandHandler>)new DefaultHandlerFactory<TCommandHandler>());
-        }
-
-        /// <summary>
         /// Asynchronously dispatches a command of the specified command type.
         /// </summary>
         /// <param name="commandDispatcher">The command dispatcher.</param>
@@ -114,10 +94,7 @@ namespace AI4E.Integration
                 _handler = handler;
             }
 
-            public ICommandHandler<TCommand> ProvideInstance(IServiceProvider serviceProvider)
-            {
-                return this;
-            }
+            public ICommandHandler<TCommand> ProvideInstance(IServiceProvider serviceProvider) { return this; }
 
             public Task<ICommandResult> HandleAsync(TCommand command)
             {

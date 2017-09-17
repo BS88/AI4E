@@ -63,21 +63,12 @@ namespace AI4E.Integration
             return eventDispatcher.RegisterAsync(new AnonymousEventHandler<TEvent>(handler));
         }
 
-        public static Task<IHandlerRegistration<IEventHandler<TEvent>>> RegisterAsync<TEvent, TEventHandler>(this IEventDispatcher eventDispatcher)
-            where TEventHandler : IEventHandler<TEvent>
+        public static Task<IHandlerRegistration<IEventHandler<TEvent>>> RegisterAsync<TEvent>(this IEventDispatcher eventDispatcher, IEventHandler<TEvent> eventHandler)
         {
             if (eventDispatcher == null)
                 throw new ArgumentNullException(nameof(eventDispatcher));
 
-            return eventDispatcher.RegisterAsync((IContextualProvider<IEventHandler<TEvent>>)(IContextualProvider<TEventHandler>)new DefaultHandlerFactory<TEventHandler>());
-        }
-
-        public static Task<IHandlerRegistration<IEventHandler<TEvent>>> RegisterAsync<TEvent>(this IEventDispatcher eventDispatcher, IEventHandler<TEvent> singletonHandler)
-        {
-            if (eventDispatcher == null)
-                throw new ArgumentNullException(nameof(eventDispatcher));
-
-            return eventDispatcher.RegisterAsync(new DefaultHandlerFactory<IEventHandler<TEvent>>(singletonHandler));
+            return eventDispatcher.RegisterAsync(ContextualProvider.FromValue(eventHandler));
         }
 
         public static Task NotifyAsync(this INonGenericEventDispatcher eventDispatcher, object evt)
