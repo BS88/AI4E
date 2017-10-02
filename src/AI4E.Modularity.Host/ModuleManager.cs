@@ -1,399 +1,189 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Diagnostics;
-using System.IO;
-using System.IO.Compression;
 using System.Linq;
-using System.Net;
-using System.Net.Sockets;
-using System.Threading;
 using System.Threading.Tasks;
-using AI4E.Async;
-using AI4E.Async.Processing;
-using Newtonsoft.Json;
-using Nito.AsyncEx;
+
+// TODO: Dependency resolution
+// TODO: Platform standard
+// TODO: Load modules on restart
 
 namespace AI4E.Modularity
 {
-    public sealed class ModuleManager : IModuleManager
+    public sealed partial class ModuleManager : IModuleManager
     {
-        private readonly List<ModuleSource> _moduleSources = new List<ModuleSource>();
-        private readonly Dictionary<VersionedModule, ModuleRunnerBase> _installedModules = new Dictionary<VersionedModule, ModuleRunnerBase>();
-        private readonly AsyncLock _lock = new AsyncLock();
-        private readonly IServiceProvider _serviceProvider;
-        private readonly string _workingDirectory;
-        private readonly TcpListener _tcpListener;
-        private readonly Task _execution;
-        private readonly ConcurrentDictionary<Guid, ModuleConnection> _connections = new ConcurrentDictionary<Guid, ModuleConnection>();
+        private readonly IModuleSourceManager _moduleSourceStore;
+        private readonly IModuleHost _moduleHost;
+        private readonly IModuleInstaller _moduleInstaller;
 
-        public ModuleManager(string workingDirectory, IServiceProvider serviceProvider)
+        #region C'tor
+
+        /// <summary>
+        /// Creates a new instanc of the <see cref="ModuleManager"/> type.
+        /// </summary>
+        /// <param name="dataStore">The data store that is used to store the manager settings.</param>
+        public ModuleManager(IModuleSourceManager moduleSourceStore, IModuleHost moduleHost, IModuleInstaller moduleInstaller)
         {
-            if (serviceProvider == null)
-                throw new ArgumentNullException(nameof(serviceProvider));
+            if (moduleSourceStore == null)
+                throw new ArgumentNullException(nameof(moduleSourceStore));
 
-            if (string.IsNullOrWhiteSpace(workingDirectory))
-                throw new ArgumentNullOrWhiteSpaceException(nameof(workingDirectory));
+            if (moduleHost == null)
+                throw new ArgumentNullException(nameof(moduleHost));
 
-            _moduleSources.Add(new ModuleSource(Path.Combine(workingDirectory, "Available"), "default"));
-            _serviceProvider = serviceProvider;
-            _workingDirectory = workingDirectory;
+            if (moduleInstaller == null)
+                throw new ArgumentNullException(nameof(moduleInstaller));
 
-            _tcpListener = new TcpListener(new IPEndPoint(IPAddress.Loopback, 4001));
-            _tcpListener.Start();
-
-            _execution = DoExecute();
+            _moduleSourceStore = moduleSourceStore;
+            _moduleHost = moduleHost;
+            _moduleInstaller = moduleInstaller;
         }
 
-        private async Task DoExecute()
+        #endregion
+
+        public async Task<IEnumerable<IModule>> GetAvailableModulesAsync(bool includePreReleases = false)
         {
-            while (true)
+            var modules = new Dictionary<ModuleIdentifier, List<ModuleRelease>>();
+
+            void AddRelease(ModuleRelease release)
             {
-                var client = await _tcpListener.AcceptTcpClientAsync();
-                var stream = client.GetStream();
-
-                var connection = new ModuleConnection(stream, _serviceProvider);
-
-                var runner = new DebugModuleRunner(connection);
-
-                _installedModules.Add(new VersionedModule("Debug-Port", new ModuleVersion()), runner);
-
-                //await Task.Delay(5000);
-
-                //runner.Complete();
-
-                //await runner.Completion;
-
-                //_installedModules.Remove(new VersionedModule("Debug-Port", new ModuleVersion()));
-            }
-        }
-
-        public IEnumerable<VersionedModule> InstalledModules => _installedModules.Keys.ToImmutableList();
-
-        public IEnumerable<ModuleSource> ModuleSources => _moduleSources.AsReadOnly();
-
-        public async Task<IEnumerable<IGrouping<Module, VersionedModule>>> GetAvailableModulesAsync()
-        {
-            return (await Task.WhenAll(_moduleSources.Select(p => p.GetAvailableModulesAsync()))).SelectMany(_ => _).GroupBy(p => new Module(p.Name));
-        }
-
-        public async Task InstallAsync(VersionedModule module)
-        {
-            ModuleRunner moduleSupervisor;
-
-            using (await _lock.LockAsync())
-            {
-                if (_installedModules.ContainsKey(module))
-                    return;
-
-                var moduleInstalled = false;
-                ModuleInstallation installation = null;
-
-                foreach (var source in _moduleSources)
+                if (!modules.TryGetValue(release.Identifier.Module, out var releaseList))
                 {
-                    if ((installation = await source.TryInstallModuleAsync(module, _workingDirectory)) != null)
-                    {
-                        moduleInstalled = true;
-                        break;
-                    }
+                    releaseList = new List<ModuleRelease>();
+
+                    modules.Add(release.Identifier.Module, releaseList);
                 }
 
-                if (!moduleInstalled)
+                if (!releaseList.Any(p => p.Identifier == release.Identifier))
                 {
-                    throw new Exception("No source available that can handle the specified module.");
+                    releaseList.Add(release);
                 }
-
-                Debug.Assert(installation != null);
-
-                moduleSupervisor = new ModuleRunner(installation, _serviceProvider);
-
-                _installedModules.Add(module, moduleSupervisor);
             }
 
-            await moduleSupervisor.Initialization;
-        }
-
-        public async Task UninstallAsync(VersionedModule module)
-        {
-            ModuleRunnerBase moduleSupervisor;
-
-            using (await _lock.LockAsync())
+            // The installed releases have to be added first, because a single release van be present in multiple sources. 
+            // We want to select the source the module was installed from.
+            foreach (var installedRelease in await GetInstalledAsync())
             {
-                if (!_installedModules.TryGetValue(module, out moduleSupervisor))
-                {
-                    return;
-                }
-
-                moduleSupervisor.Complete();
-
-                _installedModules.Remove(module);
+                AddRelease((ModuleRelease)installedRelease);
             }
 
-            await moduleSupervisor.Completion;
-
-            if (moduleSupervisor is ModuleRunner runner)
-                Directory.Delete(runner.Installation.InstallationDirectory, recursive: true);
-        }
-    }
-
-    public sealed class ModuleSource
-    {
-        private ImmutableDictionary<VersionedModule, (string path, ModuleManifest manifest)> _lookup
-            = ImmutableDictionary<VersionedModule, (string path, ModuleManifest manifest)>.Empty;
-
-        public ModuleSource(string source, string name)
-        {
-            if (string.IsNullOrWhiteSpace(source))
-                throw new ArgumentNullOrWhiteSpaceException(nameof(source));
-
-            if (string.IsNullOrWhiteSpace(name))
-                throw new ArgumentNullOrWhiteSpaceException(nameof(name));
-
-            Source = source;
-            Name = name;
-        }
-
-        public string Source { get; }
-
-        public string Name { get; }
-
-        public async Task<IEnumerable<VersionedModule>> GetAvailableModulesAsync()
-        {
-            var directory = new DirectoryInfo(Source);
-
-            if (!directory.Exists)
-                return Enumerable.Empty<VersionedModule>();
-
-            var fileInfos = directory.GetFiles("*.aep", SearchOption.AllDirectories);
-
-            var modules = new List<VersionedModule>();
-
-            var lookup = _lookup.ToBuilder();
-
-            foreach (var fileInfo in fileInfos)
+            foreach (var source in await _moduleSourceStore.GetModuleSourcesAsync())
             {
-                using (var fileStream = fileInfo.OpenReadAsync())
-                using (var package = new ZipArchive(fileStream, ZipArchiveMode.Read))
+                var releases = await GetModuleReleasesAsync(source, includePreReleases);
+
+                foreach (var release in releases)
                 {
-                    var manifest = package.GetEntry("module.json");
+                    AddRelease(release);
+                }
+            }
 
-                    // Invalid package
-                    if (manifest == null)
+            return modules.Select(p => new Module(p.Key, p.Value, _moduleInstaller));
+        }
+
+        public async Task<IModule> GetModuleAsync(ModuleIdentifier moduleIdentifier)
+        {
+            var releaseList = new List<ModuleRelease>();
+
+            foreach (var installedRelease in (await GetInstalledAsync()).Where(p => p.Identifier.Module == moduleIdentifier))
+            {
+                releaseList.Add((ModuleRelease)installedRelease);
+            }
+
+            foreach (var source in await _moduleSourceStore.GetModuleSourcesAsync())
+            {
+                var releases = await GetModuleReleasesAsync(source, includePreReleases: true);
+
+                foreach (var release in releases.Where(p => p.Identifier.Module == moduleIdentifier))
+                {
+                    releaseList.Add(release);
+                }
+            }
+
+            if (releaseList.Any())
+            {
+                return new Module(moduleIdentifier, releaseList, _moduleInstaller);
+            }
+
+            return (await GetDebugModulesAsync()).FirstOrDefault(p => p.Identifier == moduleIdentifier);
+        }
+
+        public async Task<IEnumerable<IModuleRelease>> GetUpdatesAsync(bool includePreReleases = false)
+        {
+            var modules = new Dictionary<ModuleIdentifier, ModuleRelease>();
+
+            foreach (var installedRelease in await GetInstalledAsync())
+            {
+                modules.Add(installedRelease.Identifier.Module, (ModuleRelease)installedRelease);
+            }
+
+            foreach (var source in await _moduleSourceStore.GetModuleSourcesAsync())
+            {
+                var releases = await GetModuleReleasesAsync(source, includePreReleases);
+
+                foreach (var release in releases)
+                {
+                    if (modules.TryGetValue(release.Identifier.Module, out var latestRelease))
                     {
-                        continue;
-                    }
-
-                    using (var memStream = new MemoryStream())
-                    using (var manifestStream = manifest.Open())
-                    using (var manifestReader = new StreamReader(memStream))
-                    using (var manifestJsonReader = new JsonTextReader(manifestReader))
-                    {
-                        await manifestStream.CopyToAsync(memStream, 4096);
-                        memStream.Position = 0;
-
-                        var moduleManifest = JsonSerializer.Create().Deserialize<ModuleManifest>(manifestJsonReader);
-
-                        // Invalid package
-                        if (moduleManifest == null)
+                        if (latestRelease.Version < release.Version)
                         {
-                            continue;
+                            modules[release.Identifier.Module] = release;
                         }
-
-                        modules.Add(new VersionedModule(moduleManifest.Name, moduleManifest.Version));
-
-                        lookup[new VersionedModule(moduleManifest.Name, moduleManifest.Version)] = (fileInfo.FullName, moduleManifest);
                     }
                 }
             }
 
-            _lookup = lookup.ToImmutable();
+            var result = new List<ModuleRelease>();
 
-            return modules;
-        }
-
-        internal async Task<ModuleInstallation> TryInstallModuleAsync(VersionedModule module, string installDirectory)
-        {
-            var lookup = _lookup;
-
-            (string path, ModuleManifest manifest) packageDetails;
-
-            while (!lookup.TryGetValue(module, out packageDetails))
+            foreach (var installedRelease in await GetInstalledAsync())
             {
-                if (!(await GetAvailableModulesAsync()).Contains(module))
+                var latestRelease = modules[installedRelease.Identifier.Module];
+
+                if (latestRelease.Version > installedRelease.Version)
                 {
-                    return null;
+                    result.Add(latestRelease);
                 }
-
-                lookup = _lookup;
             }
 
-            var fileInfo = new FileInfo(packageDetails.path);
+            return result;
+        }
 
-            using (var fileStream = fileInfo.OpenRead())
-            using (var package = new ZipArchive(fileStream, ZipArchiveMode.Read))
+        public async Task<IEnumerable<IModuleRelease>> GetInstalledAsync()
+        {
+            var result = new List<ModuleRelease>();
+
+            foreach (var installation in _moduleInstaller.InstalledModules)
             {
-                var moduleInstallationDirectory = Path.Combine(installDirectory, packageDetails.manifest.Name);
-                Directory.Delete(moduleInstallationDirectory, recursive: true);
-                package.ExtractToDirectory(moduleInstallationDirectory);
+                var moduleLoader = _moduleSourceStore.GetModuleLoader(installation.Source);
+                Debug.Assert(moduleLoader != null);
+                var manifest = await moduleLoader.LoadModuleMetadataAsync(new ModuleReleaseIdentifier(installation.Module, installation.Version));
 
-                return new ModuleInstallation { Manifest = packageDetails.manifest, InstallationDirectory = moduleInstallationDirectory };
+                result.Add(new ModuleRelease(manifest, _moduleInstaller, installation.Source));
             }
+
+            return result;
         }
-    }
 
-    internal sealed class ModuleManifest
-    {
-        [JsonProperty("name")]
-        public string Name { get; set; }
-
-        [JsonProperty("version")]
-        public ModuleVersion Version { get; set; }
-
-        [JsonProperty("host-version")]
-        public string HostVersion { get; set; }
-
-        [JsonProperty("entry")]
-        public string Entry { get; set; }
-
-        [JsonProperty("dependencies")]
-        public List<ModuleDependency> Dependencies { get; set; }
-    }
-
-    internal sealed class ModuleDependency
-    {
-        [JsonProperty("name")]
-        public string Name { get; set; }
-
-        [JsonProperty("version")]
-        public ModuleVersion Version { get; set; }
-    }
-
-    internal sealed class ModuleInstallation
-    {
-        public ModuleManifest Manifest { get; set; }
-
-        public string InstallationDirectory { get; set; }
-    }
-
-
-
-    internal abstract class ModuleRunnerBase : IAsyncInitialization, IAsyncCompletion
-    {
-        private readonly TaskCompletionSource<object> _completionSource = new TaskCompletionSource<object>();
-        private Task _completing;
-
-        public abstract Task Initialization { get; }
-
-        public Task Completion => _completionSource.Task;
-
-        public async void Complete()
+        public Task<IEnumerable<IModule>> GetDebugModulesAsync()
         {
-            if (_completing != null)
+            return Task.FromResult<IEnumerable<IModule>>(_moduleHost.Connections.Where(p => p.IsDebugSession).Select(p => new Module(p.ConnectedModule, _moduleInstaller)));
+        }
+
+        private async Task<IEnumerable<ModuleRelease>> GetModuleReleasesAsync(IModuleSource source, bool includePreReleases)
+        {
+            var result = new List<ModuleRelease>();
+            var moduleLoader = _moduleSourceStore.GetModuleLoader(source);
+
+            Debug.Assert(moduleLoader != null);
+
+            var availableModules = await moduleLoader.ListModulesAsync();
+
+            foreach (var availableModule in availableModules)
             {
-                return;
+                var manifest = await moduleLoader.LoadModuleMetadataAsync(availableModule);
+
+                result.Add(new ModuleRelease(manifest, _moduleInstaller, source));
             }
 
-            _completing = DoCompletionAsync();
-
-            try
-            {
-                await _completing;
-            }
-            catch (Exception exc)
-            {
-                _completionSource.TrySetException(exc);
-            }
-
-            _completionSource.TrySetResult(null);
+            return result;
         }
-
-        protected abstract Task DoCompletionAsync();
-    }
-
-    internal sealed class ModuleRunner : ModuleRunnerBase
-    {
-        private readonly ModuleInstallation _installation;
-        private readonly AsyncProcess _process;
-        private readonly IServiceProvider _serviceProvider;
-
-        public ModuleRunner(ModuleInstallation installation, IServiceProvider serviceProvider)
-        {
-            if (serviceProvider == null)
-                throw new ArgumentNullException(nameof(serviceProvider));
-            _process = new AsyncProcess(ExecuteAsync);
-
-            _installation = installation;
-            _serviceProvider = serviceProvider;
-            Initialization = DoInitializationAsync();
-        }
-
-        private async Task ExecuteAsync(CancellationToken cancellation)
-        {
-            while (cancellation.ThrowOrContinue())
-            {
-                var processCompletionSource = new TaskCompletionSource<object>();
-
-                var listener = new TcpListener(IPAddress.Loopback, 0);
-                listener.Start();
-                var port = ((IPEndPoint)listener.LocalEndpoint).Port;
-
-                var process = Process.Start("dotnet", "\"" + new DirectoryInfo(Path.Combine(Installation.InstallationDirectory, Installation.Manifest.Entry)).FullName + "\" " + port);
-
-                var client = await listener.AcceptTcpClientAsync();
-                var connection = new ModuleConnection(client.GetStream(), _serviceProvider);
-
-                process.EnableRaisingEvents = true;
-                process.Exited += (s, e) => processCompletionSource.TrySetResult(null);
-                cancellation.Register(() => connection.Complete());
-
-                await connection.Initialization;
-                await Task.WhenAny(processCompletionSource.Task, connection.Completion);
-
-                listener.Stop();
-            }
-        }
-
-        protected async Task DoInitializationAsync()
-        {
-            await _process.StartExecutionAndAwait();
-        }
-
-        protected override async Task DoCompletionAsync()
-        {
-            await _process.TerminateExecutionAndAwait();
-        }
-
-        internal ModuleInstallation Installation => _installation;
-
-        public override Task Initialization { get; }
-    }
-
-    internal sealed class DebugModuleRunner : ModuleRunnerBase
-    {
-        private readonly ModuleConnection _connection;
-
-        public DebugModuleRunner(ModuleConnection connection)
-        {
-            if (connection == null)
-                throw new ArgumentNullException(nameof(connection));
-
-            _connection = connection;
-            Initialization = DoInitializationAsync();
-        }
-
-        protected Task DoInitializationAsync()
-        {
-            return _connection.Initialization;
-        }
-
-        protected override Task DoCompletionAsync()
-        {
-            _connection.Complete();
-
-            return _connection.Completion;
-        }
-
-        public override Task Initialization { get; }
     }
 }

@@ -77,7 +77,7 @@ namespace AI4E.Modularity
         /// <param name="cancellation">A <see cref="CancellationToken"/> used to cancel the asynchronous operation or <see cref="CancellationToken.None"/>.</param>
         /// <returns>A task representing the asynchronous operation.</returns>
         /// <exception cref="ArgumentNullException">Thrown if <paramref name="message"/> is null.</exception>
-        Task SendAsync<TMessage>(TMessage message, CancellationToken cancellation = default(CancellationToken));
+        Task SendAsync<TMessage>(TMessage message, CancellationToken cancellation = default);
 
         /// <summary>
         /// Asynchronously send the specified message to the remote endpoint and awaits its answer.
@@ -92,7 +92,7 @@ namespace AI4E.Modularity
         /// or the default value of <typeparamref name="TResponse"/> if either the message end point did not send a response or it was of incompatible type.
         /// </returns>
         /// <exception cref="ArgumentNullException">Thrown if <paramref name="message"/> is null.</exception>
-        Task<TResponse> SendAsync<TMessage, TResponse>(TMessage message, CancellationToken cancellation = default(CancellationToken));
+        Task<TResponse> SendAsync<TMessage, TResponse>(TMessage message, CancellationToken cancellation = default);
     }
 
     [Serializable]

@@ -2,6 +2,7 @@
 using System.Net;
 using System.Net.Sockets;
 using System.Threading.Tasks;
+using AI4E.Async;
 using AI4E.Integration;
 using AI4E.Modularity.Integration;
 using Microsoft.Extensions.DependencyInjection;
@@ -36,6 +37,8 @@ namespace AI4E.Modularity
                 return;
 
             _runner = RunAsync();
+
+            _runner.GetAwaiter().GetResult();
         }
 
         private async Task RunAsync()
@@ -81,28 +84,28 @@ namespace AI4E.Modularity
                 endPoint.RegisterAsync<ActivateEventForwarding>(new DefaultHandlerFactory<EventMessageBroker>());
                 endPoint.RegisterAsync<DeactivateEventForwarding>(new DefaultHandlerFactory<EventMessageBroker>());
 
-                endPoint.RegisterAsync<SetupModule>(new DefaultHandlerFactory<ModuleHandler>());
-                endPoint.RegisterAsync<TearDownModule>(new DefaultHandlerFactory<ModuleHandler>());
+                endPoint.RegisterAsync<InitializeModule, ModuleInitialized>(new DefaultHandlerFactory<ModuleHandler>());
+                endPoint.RegisterAsync<TerminateModule, ModuleTerminated>(new DefaultHandlerFactory<ModuleHandler>());
 
                 return endPoint;
             });
 
             _services.AddTransient<IMessageSerializer, MessageSerializer>();
 
-            //var serviceProvider = _services.BuildServiceProvider();
-            //var messageEndPoint = serviceProvider.GetRequiredService<IMessageEndPoint>();
+            var serviceProvider = _services.BuildServiceProvider();
+            var messageEndPoint = serviceProvider.GetRequiredService<IMessageEndPoint>();
 
-            //await messageEndPoint.Initialization;
+           await messageEndPoint.Initialization;
 
 
 
-            //await messageEndPoint.Completion;
+            await messageEndPoint.Completion;
         }
     }
 
     internal sealed class ModuleHandler :
-        IMessageHandler<SetupModule>,
-        IMessageHandler<TearDownModule>
+        IMessageHandler<InitializeModule, ModuleInitialized>,
+        IMessageHandler<TerminateModule, ModuleTerminated>
     {
         private readonly IModule _module;
 
@@ -114,14 +117,18 @@ namespace AI4E.Modularity
             _module = module;
         }
 
-        public Task HandleAsync(SetupModule message)
+        public async ICovariantAwaitable<ModuleInitialized> HandleAsync(InitializeModule message)
         {
-            return _module.ActivateAsync();
+            await _module.ActivateAsync();
+
+            return new ModuleInitialized(new ModuleIdentifier("Test-Module"), ModuleVersion.Unknown);
         }
 
-        public Task HandleAsync(TearDownModule message)
+        public async ICovariantAwaitable<ModuleTerminated> HandleAsync(TerminateModule message)
         {
-            return _module.DeactivateAsync();
+            await _module.DeactivateAsync();
+
+            return new ModuleTerminated();
         }
     }
 }

@@ -1,19 +1,16 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Globalization;
+using System.Linq;
 
 namespace AI4E.Modularity
 {
     [TypeConverter(typeof(ModuleVersionConverter))]
-    public struct ModuleVersion : IEquatable<ModuleVersion>
+    public struct ModuleVersion : IEquatable<ModuleVersion>, IComparable<ModuleVersion>
     {
         public static ModuleVersion Unknown { get; } = new ModuleVersion();
 
-        private readonly int? _majorVersion;
-        private readonly int? _minorVersion;
-        private readonly int? _revision;
-
-        public ModuleVersion(int majorVersion, int minorVersion, int revision)
+        public ModuleVersion(int majorVersion, int minorVersion, int revision, bool isPreRelease)
         {
             if (majorVersion < 0)
                 throw new ArgumentOutOfRangeException(nameof(majorVersion));
@@ -24,38 +21,23 @@ namespace AI4E.Modularity
             if (revision < 0)
                 throw new ArgumentOutOfRangeException(nameof(revision));
 
-            _majorVersion = majorVersion;
-            _minorVersion = minorVersion;
-            _revision = revision;
+            MajorVersion = majorVersion;
+            MinorVersion = minorVersion;
+            Revision = revision;
+            IsPreRelease = isPreRelease;
         }
 
-        public ModuleVersion(int? majorVersion, int? minorVersion, int? revision)
-        {
-            if (majorVersion != null && majorVersion < 0)
-                throw new ArgumentOutOfRangeException(nameof(majorVersion));
-
-            if (minorVersion != null && minorVersion < 0)
-                throw new ArgumentOutOfRangeException(nameof(minorVersion));
-
-            if (revision != null && revision < 0)
-                throw new ArgumentOutOfRangeException(nameof(revision));
-
-            _majorVersion = majorVersion;
-            _minorVersion = minorVersion;
-            _revision = revision;
-        }
-
-        public int? MajorVersion => _majorVersion;
-        public int? MinorVersion => _minorVersion;
-        public int? Revision => _revision;
-
-        public bool IsFullyQualified => _majorVersion != null && _minorVersion != null && _revision != null;
+        public int MajorVersion { get; }
+        public int MinorVersion { get; }
+        public int Revision { get; }
+        public bool IsPreRelease { get; }
 
         public bool Equals(ModuleVersion other)
         {
             return MajorVersion == other.MajorVersion &&
                    MinorVersion == other.MinorVersion &&
-                   Revision == other.Revision;
+                   Revision == other.Revision &&
+                   IsPreRelease == other.IsPreRelease;
         }
 
         public override bool Equals(object obj)
@@ -63,16 +45,58 @@ namespace AI4E.Modularity
             return obj is ModuleVersion other && Equals(other);
         }
 
+        public int CompareTo(ModuleVersion other)
+        {
+            var comparison = MajorVersion.CompareTo(other.MajorVersion);
+
+            if (comparison != 0)
+            {
+                return comparison;
+            }
+
+            comparison = MinorVersion.CompareTo(other.MinorVersion);
+
+            if (comparison != 0)
+            {
+                return comparison;
+            }
+
+            comparison = Revision.CompareTo(other.Revision);
+
+            if (comparison != 0)
+            {
+                return comparison;
+            }
+
+            if (IsPreRelease && !other.IsPreRelease)
+            {
+                return -1;
+            }
+
+            if (other.IsPreRelease && !IsPreRelease)
+            {
+                return 1;
+            }
+
+            return 0;
+        }
+
         public override int GetHashCode()
         {
             return MajorVersion.GetHashCode() ^
                    MinorVersion.GetHashCode() ^
-                   Revision.GetHashCode();
+                   Revision.GetHashCode() ^
+                   IsPreRelease.GetHashCode();
         }
 
         public override string ToString()
         {
-            return $"{GetComponentString(MajorVersion)}.{GetComponentString(MinorVersion)}.{GetComponentString(Revision)}";
+            var result = $"{GetComponentString(MajorVersion)}.{GetComponentString(MinorVersion)}.{GetComponentString(Revision)}";
+
+            if (IsPreRelease)
+                return result + "-pre";
+
+            return result;
         }
 
         public static bool operator ==(ModuleVersion left, ModuleVersion right)
@@ -83,6 +107,26 @@ namespace AI4E.Modularity
         public static bool operator !=(ModuleVersion left, ModuleVersion right)
         {
             return !left.Equals(right);
+        }
+
+        public static bool operator <(ModuleVersion left, ModuleVersion right)
+        {
+            return left.CompareTo(right) < 0;
+        }
+
+        public static bool operator >(ModuleVersion left, ModuleVersion right)
+        {
+            return left.CompareTo(right) > 0;
+        }
+
+        public static bool operator <=(ModuleVersion left, ModuleVersion right)
+        {
+            return left.CompareTo(right) <= 0;
+        }
+
+        public static bool operator >=(ModuleVersion left, ModuleVersion right)
+        {
+            return left.CompareTo(right) >= 0;
         }
 
         private static string GetComponentString(int? component)
@@ -103,27 +147,35 @@ namespace AI4E.Modularity
             if (components.Length == 0 || components.Length > 3)
                 throw new FormatException();
 
+            var isPreRelease = false;
+
+            if (components.Last().EndsWith("-pre"))
+            {
+                isPreRelease = true;
+                components[components.Length - 1] = components[components.Length - 1].Substring(0, components.Last().Length - 4);
+            }
+
             var c0 = components[0].Trim();
 
-            int? major = c0 == "*" ? null : (int?)int.Parse(c0);
-            int? minor = null;
-            int? revision = null;
+            var major = int.Parse(c0);
+            var minor = 0;
+            var revision = 0;
 
             if (components.Length > 1)
             {
                 var c1 = components[1].Trim();
 
-                minor = c1 == "*" ? null : (int?)int.Parse(c1);
+                minor = int.Parse(c1);
             }
 
             if (components.Length > 2)
             {
                 var c2 = components[2].Trim();
 
-                revision = c2 == "*" ? null : (int?)int.Parse(c2);
+                revision = int.Parse(c2);
             }
 
-            return new ModuleVersion(major, minor, revision);
+            return new ModuleVersion(major, minor, revision, isPreRelease);
         }
     }
 

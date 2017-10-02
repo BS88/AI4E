@@ -1,5 +1,4 @@
 ﻿using System.Diagnostics;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace AI4E.Modularity
@@ -24,7 +23,7 @@ namespace AI4E.Modularity
             {
                 var response = await _messageHandler.HandleAsync(message);
                 var payload = _endPoint._serializer.Serialize(response, MessageEncoding.Bson);
-                await _endPoint.SendPayloadAsync(payload, _endPoint.GetNextSeqNum(), seqNum, MessageType.MessageHandled, MessageEncoding.Bson, default(CancellationToken));
+                await _endPoint.SendPayloadAsync(payload, _endPoint.GetNextSeqNum(), seqNum, MessageType.MessageHandled, MessageEncoding.Bson, default);
             }
         }
 
@@ -45,7 +44,7 @@ namespace AI4E.Modularity
             public async Task ReplyToAsync(TMessage message, uint seqNum)
             {
                 await _messageHandler.HandleAsync(message);
-                await _endPoint.SendPayloadAsync(_emptyPayload, _endPoint.GetNextSeqNum(), seqNum, MessageType.MessageHandled, MessageEncoding.Unkown, default(CancellationToken));
+                await _endPoint.SendPayloadAsync(_emptyPayload, _endPoint.GetNextSeqNum(), seqNum, MessageType.MessageHandled, MessageEncoding.Unkown, default);
             }
         }
     }

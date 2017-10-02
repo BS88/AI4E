@@ -67,6 +67,8 @@ namespace AI4E.Modularity
         private readonly ConcurrentDictionary<uint, TaskCompletionSource<object>> _responseTable = new ConcurrentDictionary<uint, TaskCompletionSource<object>>();
         private readonly ConcurrentDictionary<Type, IMessageReceiver> _messageReceivers = new ConcurrentDictionary<Type, IMessageReceiver>();
 
+        // TODO: Send-Queue, Receive-Queue non-volatile storage backed.
+
         private Task _completing;
         private int _nextSeqNum = 1;
 
@@ -185,7 +187,7 @@ namespace AI4E.Modularity
         /// <param name="cancellation">A <see cref="CancellationToken"/> used to cancel the asynchronous operation or <see cref="CancellationToken.None"/>.</param>
         /// <returns>A task representing the asynchronous operation.</returns>
         /// <exception cref="ArgumentNullException">Thrown if <paramref name="message"/> is null.</exception>
-        public Task SendAsync<TMessage>(TMessage message, CancellationToken cancellation)
+        public Task SendAsync<TMessage>(TMessage message, CancellationToken cancellation = default)
         {
             return SendInternalAsync(message, cancellation);
         }
@@ -203,14 +205,14 @@ namespace AI4E.Modularity
         /// or the default value of <typeparamref name="TResponse"/> if either the message end point did not send a response or it was of incompatible type.
         /// </returns>
         /// <exception cref="ArgumentNullException">Thrown if <paramref name="message"/> is null.</exception>
-        public async Task<TResponse> SendAsync<TMessage, TResponse>(TMessage message, CancellationToken cancellation)
+        public async Task<TResponse> SendAsync<TMessage, TResponse>(TMessage message, CancellationToken cancellation = default)
         {
             if ((await SendInternalAsync(message, cancellation)) is TResponse response)
             {
                 return response;
             }
 
-            return default(TResponse);
+            return default;
         }
 
         private async Task<object> SendInternalAsync<TMessage>(TMessage message, CancellationToken cancellation)
@@ -241,7 +243,7 @@ namespace AI4E.Modularity
 
                 try
                 {
-                    // Wait for a reponse fromthe remote end-point or cancellation alternatively.
+                    // Wait for a reponse from the remote end-point or cancellation alternatively.
                     await Task.WhenAny(responseTableSlot.Response, cancellation.AsTask());
                 }
                 catch (MessageHandlerNotFoundException)
@@ -482,7 +484,7 @@ namespace AI4E.Modularity
         private async Task<(byte[] payload, MessageType type, MessageEncoding encoding, uint seqNum, uint corrId)> ReceiveMessageAsync(CancellationToken cancellation)
         {
             var header = new byte[_headerLength];
-            int packetLength;
+            int packetLength; // Does NOT include padding.
             uint version;
             uint seqNum;
             uint corrId;
@@ -748,7 +750,7 @@ namespace AI4E.Modularity
         /// Starts completing the instance asynchronously.
         /// </summary>
         /// <remarks>
-        /// This is conceptually similar to <see cref="System.IDisposable.Dispose"/>.
+        /// This is conceptually similar to <see cref="IDisposable.Dispose"/>.
         /// After calling this method, invoking any member except <see cref="Completion"/> is forbidden.
         /// </remarks>
         public void Complete()
@@ -767,7 +769,7 @@ namespace AI4E.Modularity
             _receiveProcess.Execution.HandleExceptions();
 
             // Send init message & await init ack
-            await RequestInitAsync(default(CancellationToken));
+            await RequestInitAsync(default);
         }
 
         private async Task CompleteAsync()
@@ -777,7 +779,7 @@ namespace AI4E.Modularity
             try
             {
                 // Send terminate message & await terminate ack
-                await RequestTerminationAsync(default(CancellationToken));
+                await RequestTerminationAsync(default);
 
                 // Terminate receive proc
                 _receiveProcess.TerminateExecution();

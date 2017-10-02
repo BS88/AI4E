@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26823.1
+VisualStudioVersion = 15.0.26730.16
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{0F6E77C0-90F0-4593-89EA-4830EE7A3084}"
 EndProject
@@ -25,7 +25,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AI4E.Modularity.Module", "s
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AI4E.Modularity.Module.Abstractions", "src\AI4E.Modularity.Module.Abstractions\AI4E.Modularity.Module.Abstractions.csproj", "{5D95A7E5-7900-4417-AD32-1D1A4D5C5C95}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AI4E.Messaging.Test", "test\AI4E.Messaging.Test\AI4E.Messaging.Test.csproj", "{BD8C18DD-F092-45C5-8B0E-79BD33AE8DE6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AI4E.Messaging.Test", "test\AI4E.Messaging.Test\AI4E.Messaging.Test.csproj", "{BD8C18DD-F092-45C5-8B0E-79BD33AE8DE6}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AI4E.Modularity.Test.Minimal.Host", "test\AI4E.Modularity.Test.Minimal.Host\AI4E.Modularity.Test.Minimal.Host.csproj", "{EEBC3C1F-CB3D-45A6-B41A-DF4EFA4A494B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AI4E.Modularity.Test.Minimal.Module", "test\AI4E.Modularity.Test.Minimal.Module\AI4E.Modularity.Test.Minimal.Module.csproj", "{1DECEE25-EEB3-45EE-99AD-9158DF0E4698}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -73,6 +77,14 @@ Global
 		{BD8C18DD-F092-45C5-8B0E-79BD33AE8DE6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BD8C18DD-F092-45C5-8B0E-79BD33AE8DE6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BD8C18DD-F092-45C5-8B0E-79BD33AE8DE6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EEBC3C1F-CB3D-45A6-B41A-DF4EFA4A494B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EEBC3C1F-CB3D-45A6-B41A-DF4EFA4A494B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EEBC3C1F-CB3D-45A6-B41A-DF4EFA4A494B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EEBC3C1F-CB3D-45A6-B41A-DF4EFA4A494B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1DECEE25-EEB3-45EE-99AD-9158DF0E4698}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1DECEE25-EEB3-45EE-99AD-9158DF0E4698}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1DECEE25-EEB3-45EE-99AD-9158DF0E4698}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1DECEE25-EEB3-45EE-99AD-9158DF0E4698}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -88,6 +100,8 @@ Global
 		{48D91561-1804-43FB-B3A1-FAD5BCE3E8FD} = {0F6E77C0-90F0-4593-89EA-4830EE7A3084}
 		{5D95A7E5-7900-4417-AD32-1D1A4D5C5C95} = {0F6E77C0-90F0-4593-89EA-4830EE7A3084}
 		{BD8C18DD-F092-45C5-8B0E-79BD33AE8DE6} = {51EBAD3B-B475-4587-A6DE-2CCDDC1952F7}
+		{EEBC3C1F-CB3D-45A6-B41A-DF4EFA4A494B} = {51EBAD3B-B475-4587-A6DE-2CCDDC1952F7}
+		{1DECEE25-EEB3-45EE-99AD-9158DF0E4698} = {51EBAD3B-B475-4587-A6DE-2CCDDC1952F7}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {5D718ACF-C9D8-4E4A-BBA7-AD3A525FE8B8}

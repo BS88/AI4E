@@ -1,27 +1,44 @@
 ﻿using System;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace AI4E.Modularity
 {
-    public static class ServiceCollectionExtension
+    public static partial class ServiceCollectionExtension
     {
-        public static void AddModularHost(this IServiceCollection serviceCollection, string workingDirectory)
+        public static IModularityBuilder AddModularity(this IServiceCollection services)
         {
-            if (serviceCollection == null)
-                throw new ArgumentNullException(nameof(serviceCollection));
+            if (services == null)
+                throw new ArgumentNullException(nameof(services));
 
-            serviceCollection.AddSingleton<IModuleManager, ModuleManager>(serviceProvider => new ModuleManager(workingDirectory, serviceProvider));
-            //serviceCollection.AddSingleton<ModuleHostConfiguration>();
+            // This is added for the implementation to know that the required services were registered properly.
+            services.AddSingleton<ModularityMarkerService>();
+
+            services.TryAddSingleton<IModuleHost, ModuleHost>();
+            services.TryAddSingleton<IModuleInstaller, ModuleInstaller>();
+            services.TryAddSingleton<IModuleSupervision, ModuleSupervision>();
+
+            services.TryAddScoped<IModuleManager, ModuleManager>();
+            services.TryAddScoped<IModuleSourceManager, ModuleSourceManager>();
+
+            return new ModularityBuilder(services);
         }
 
-        public static void UseModularHost(this IServiceProvider serviceProvider)
+        public static IModularityBuilder AddModularity(this IServiceCollection services, Action<ModularityOptions> configuration)
         {
-            if (serviceProvider == null)
-                throw new ArgumentNullException(nameof(serviceProvider));
+            if (services == null)
+                throw new ArgumentNullException(nameof(services));
 
-            var moduleHost = serviceProvider.GetRequiredService<IModuleManager>();
+            if (configuration == null)
+                throw new ArgumentNullException(nameof(configuration));
 
+            var result = services.AddModularity();
 
+            result.Configure(configuration);
+
+            return result;
         }
     }
+
+    internal class ModularityMarkerService { }
 }
