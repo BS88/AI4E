@@ -22,37 +22,32 @@ namespace AI4E.Modularity
             return (await _moduleSourceStore.GetAllAsync(default)).Select(p => new ModuleSource(p.name, p.source));
         }
 
-        public async Task<bool> TryAddModuleSourceAsync(IModuleSource moduleSource) // TODO: Forget about the try.
+        public async Task AddModuleSourceAsync(IModuleSource moduleSource)
         {
             if (moduleSource == null)
                 throw new ArgumentNullException(nameof(moduleSource));
-
-            //if (await _moduleSourceStore.GetByAsync<ModuleSource>(p => p.Name == moduleSource.Name).Any())
-            //{
-            //    return false;
-            //}
 
             await _moduleSourceStore.AddAsync(moduleSource.Name, moduleSource.Source, default);
             await _moduleSourceStore.SaveChangesAsync(default);
-            return true;
         }
 
-        public async Task<bool> TryRemoveModuleSourceAsync(IModuleSource moduleSource) // TODO: Forget about the try.
+        public async Task RemoveModuleSourceAsync(IModuleSource moduleSource)
         {
             if (moduleSource == null)
                 throw new ArgumentNullException(nameof(moduleSource));
 
-            //if (!(await _moduleSourceStore.GetByAsync<ModuleSource>(p => p.Name == moduleSource.Name).Any()))
-            //{
-            //    return false;
-            //}
-
             await _moduleSourceStore.RemoveAsync(moduleSource.Name, default);
             await _moduleSourceStore.SaveChangesAsync(default);
-            return true;
         }
 
-        // TODO: Update source
+        public async Task UpdateModuleSourceAsync(IModuleSource moduleSource)
+        {
+            if (moduleSource == null)
+                throw new ArgumentNullException(nameof(moduleSource));
+
+            await _moduleSourceStore.UpdateAsync(moduleSource.Name, moduleSource.Source, default);
+            await _moduleSourceStore.SaveChangesAsync(default);
+        }
 
         public IModuleLoader GetModuleLoader(IModuleSource moduleSource)
         {

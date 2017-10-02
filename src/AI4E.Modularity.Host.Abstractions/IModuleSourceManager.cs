@@ -7,9 +7,11 @@ namespace AI4E.Modularity
     {
         Task<IEnumerable<IModuleSource>> GetModuleSourcesAsync();
 
-        Task<bool> TryAddModuleSourceAsync(IModuleSource moduleSource);
+        Task AddModuleSourceAsync(IModuleSource moduleSource);
 
-        Task<bool> TryRemoveModuleSourceAsync(IModuleSource moduleSource);
+        Task RemoveModuleSourceAsync(IModuleSource moduleSource);
+
+        Task UpdateModuleSourceAsync(IModuleSource moduleSource);
 
         IModuleLoader GetModuleLoader(IModuleSource moduleSource);
     }
