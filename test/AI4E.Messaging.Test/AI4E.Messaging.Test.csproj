@@ -12,6 +12,8 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\AI4E.Abstractions\AI4E.Abstractions.csproj" />
     <ProjectReference Include="..\..\src\AI4E.Async\AI4E.Async.csproj" />
+    <ProjectReference Include="..\..\src\AI4E.StatefulMessaging\AI4E.StatefulMessaging.csproj" />
+    <ProjectReference Include="..\..\src\AI4E.Storage.Abstractions\AI4E.Storage.Abstractions.csproj" />
     <ProjectReference Include="..\..\src\AI4E\AI4E.csproj" />
   </ItemGroup>
 

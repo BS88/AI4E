@@ -75,9 +75,33 @@ namespace AI4E
 
     public static class ContextualProvider
     {
-        public static ContextualProvider<T> FromValue<T>(T value)
+        public static ContextualProvider<T> Create<T>()
         {
+            return new ContextualProvider<T>(provider => ActivatorUtilities.CreateInstance<T>(provider));
+        }
+
+        public static ContextualProvider<T> Create<T>(T value)
+        {
+            if (value == null)
+                throw new ArgumentNullException(nameof(value));
+
             return new ContextualProvider<T>(provider => value);
+        }
+
+        public static ContextualProvider<T> Create<T>(Func<T> factory)
+        {
+            if (factory == null)
+                throw new ArgumentNullException(nameof(factory));
+
+            return new ContextualProvider<T>(_ => factory());
+        }
+
+        public static ContextualProvider<T> Create<T>(Func<IServiceProvider, T> factory)
+        {
+            if (factory == null)
+                throw new ArgumentNullException(nameof(factory));
+
+            return new ContextualProvider<T>(factory);
         }
     }
 }

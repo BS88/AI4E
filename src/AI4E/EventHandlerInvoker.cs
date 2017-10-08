@@ -29,15 +29,17 @@
  */
 
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.Serialization;
 using System.Threading.Tasks;
 using AI4E.EventResults;
-//using AI4E.Storage;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 
 namespace AI4E
 {
@@ -47,7 +49,9 @@ namespace AI4E
         private readonly EventHandlerActionDescriptor _actionDescriptor;
         private readonly IServiceProvider _serviceProvider;
 
-        public EventHandlerInvoker(object handler, EventHandlerActionDescriptor actionDescriptor, IServiceProvider serviceProvider)
+        private readonly IEnumerable<IContextualProvider<IEventProcessor>> _eventProcessors;
+
+        public EventHandlerInvoker(object handler, EventHandlerActionDescriptor actionDescriptor, IServiceProvider serviceProvider, IOptions<MessagingOptions> optionsProvider)
         {
             if (handler == null)
                 throw new ArgumentNullException(nameof(handler));
@@ -55,9 +59,16 @@ namespace AI4E
             if (serviceProvider == null)
                 throw new ArgumentNullException(nameof(serviceProvider));
 
+            if (optionsProvider == null)
+                throw new ArgumentNullException(nameof(optionsProvider));
+
             _handler = handler;
             _actionDescriptor = actionDescriptor;
             _serviceProvider = serviceProvider;
+
+            var options = optionsProvider.Value;
+
+            _eventProcessors = new List<IContextualProvider<IEventProcessor>>(options.EventProcessors);
         }
 
         //private bool IsProcessManager()
@@ -164,7 +175,7 @@ namespace AI4E
 
             //if (!isProcessManager)
             //{
-                return await InternalHandleAsync(evt);
+            //    return await InternalHandleAsync(evt);
             //}
 
             //var type = _handler.GetType();
@@ -214,7 +225,39 @@ namespace AI4E
             //    processManagerStateProperty.SetValue(_handler, state);
             //}
 
-            //var result = await InternalHandleAsync(evt);
+            var eventProcessorStack = new Stack<IEventProcessor>();
+
+            foreach (var eventProcessorProvider in _eventProcessors)
+            {
+                var eventProcessor = eventProcessorProvider.ProvideInstance(_serviceProvider);
+
+                Debug.Assert(eventProcessor != null);
+
+                var props = eventProcessor.GetType().GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+                var prop = props.FirstOrDefault(p => p.IsDefined<EventProcessorContextAttribute>() &&
+                                                     p.PropertyType == typeof(object) || p.PropertyType == typeof(IEventProcessorContext) &&
+                                                     p.GetIndexParameters().Length == 0 && 
+                                                     p.CanWrite);
+
+                if (prop != null)
+                {
+                    IEventProcessorContext eventProcessorContext = new EventProcessorContext(_handler, typeof(TEvent));
+
+                    prop.SetValue(eventProcessor, eventProcessorContext);
+                }
+
+                await eventProcessor.PreProcessAsync(evt);
+
+                eventProcessorStack.Push(eventProcessor);
+            }
+
+            var result = await InternalHandleAsync(evt);
+
+            foreach (var eventProcessor in eventProcessorStack)
+            {
+                await eventProcessor.PostProcessAsync(result);
+            }
+
             //var terminated = (bool)((dynamic)_handler).IsTerminated;
 
             //if (created && !terminated)
@@ -231,7 +274,23 @@ namespace AI4E
             //}
 
             //await dataStore.SaveChangesAsync();
-            //return result;
+            return result;
+        }
+
+        private sealed class EventProcessorContext : IEventProcessorContext
+        {
+            public EventProcessorContext(object eventHandler, Type eventType)
+            {
+                Debug.Assert(eventHandler != null);
+                Debug.Assert(eventType != null);
+
+                EventHandler = eventHandler;
+                EventType = eventType;
+            }
+
+            public object EventHandler { get; }
+
+            public Type EventType { get; }
         }
     }
 }

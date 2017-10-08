@@ -29,9 +29,17 @@
  */
 
 
+using System.Collections.Generic;
+
 namespace AI4E
 {
     public class MessagingOptions
     {
+        public MessagingOptions()
+        {
+            //EventProcessors.Add(ContextualProvider.Create<ProcessManagerEventProcessor>());
+        }
+
+        public IList<IContextualProvider<IEventProcessor>> EventProcessors { get; } = new List<IContextualProvider<IEventProcessor>>();
     }
 }

@@ -32,6 +32,7 @@ using System;
 using System.Diagnostics;
 using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 
 namespace AI4E
 {
@@ -70,7 +71,7 @@ namespace AI4E
                 contextProperty.SetValue(handler, context);
             }
 
-            return new EventHandlerInvoker<TEvent>(handler, _actionDescriptor, serviceProvider);
+            return new EventHandlerInvoker<TEvent>(handler, _actionDescriptor, serviceProvider, serviceProvider.GetRequiredService<IOptions<MessagingOptions>>());
         }
     }
 }

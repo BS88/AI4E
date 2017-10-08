@@ -28,4 +28,8 @@
     <ProjectReference Include="..\AI4E.Async\AI4E.Async.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Reflection\" />
+  </ItemGroup>
+
 </Project>
