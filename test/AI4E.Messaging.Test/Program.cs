@@ -2,9 +2,9 @@
 using System.Threading.Tasks;
 using AI4E.Integration;
 using AI4E.Integration.EventResults;
+using AI4E.Storage;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 
 namespace AI4E.Messaging.Test
 {
@@ -30,7 +30,7 @@ namespace AI4E.Messaging.Test
             Console.WriteLine("Query-handler returned: " + queryResult.ToString());
 
             var eventDispatcher = serviceProvider.GetRequiredService<IEventDispatcher>();
-            var eventResult = await eventDispatcher.NotifyAsync(new TestEvent { Value = "Hello" });
+            var eventResult = await eventDispatcher.NotifyAsync(new TestEvent { Value = Guid.NewGuid().ToString() });
 
             Console.WriteLine("Event-handler returned: " + eventResult.ToString());
 
@@ -39,6 +39,10 @@ namespace AI4E.Messaging.Test
 
         public static void AddServices(IServiceCollection services)
         {
+            services.AddOptions();
+
+            services.AddScoped<IDataStore, InMemoryDataStore>();
+
             services.AddMessaging(options =>
             {
                 // TODO: Configure messaging
@@ -70,7 +74,7 @@ namespace AI4E.Messaging.Test
         {
             await emailSender.SendAsync($"Handling command (X = {command.X})");
 
-            await Task.Delay(2000);
+            await Task.Delay(0);
 
             return Success(123, "This is a success");
         }
@@ -152,10 +156,10 @@ namespace AI4E.Messaging.Test
 
         }
 
-        protected override void AttachProcessManager(IProcessManagerAttachments<TestProcessManagerState> attachments)
+        protected override void AttachProcess(IProcessAttachments<TestProcessManagerState> attachments)
         {
             attachments
-                .Attach<TestEvent>((e, s) => e.Value == s.Id.ToString())
+                .Attach<TestEvent>((e, s) => e.Value == s.Id.ToString()).CanStartProcess(e => new TestProcessManagerState(Guid.Parse(e.Value)))
                 .Attach<AnotherTestEvent>((e, s) => e.Id == s.Id);
         }
 
@@ -182,6 +186,8 @@ namespace AI4E.Messaging.Test
             Count = 0;
         }
 
+        public TestProcessManagerState() : this(Guid.NewGuid()) { }
+
         public Guid Id { get; }
 
         public int Count { get; set; }
@@ -198,61 +204,61 @@ namespace AI4E.Messaging.Test
     {
         public async Task SendAsync(string s)
         {
-            await Task.Delay(4000);
+            await Task.Delay(0);
             Console.WriteLine(s);
         }
     }
 
-    public class LoggingEventProcessor
-    {
-        private readonly ILogger _logger;
+    //public class LoggingEventProcessor
+    //{
+    //    private readonly ILogger _logger;
 
-        public LoggingEventProcessor(ILogger logger)
-        {
-            if (logger == null)
-                throw new ArgumentNullException(nameof(logger));
+    //    public LoggingEventProcessor(ILogger logger)
+    //    {
+    //        if (logger == null)
+    //            throw new ArgumentNullException(nameof(logger));
 
-            _logger = logger;
-        }
+    //        _logger = logger;
+    //    }
 
-        [EventDispatchContext]
-        public EventDispatchContext EventDispatchContext { get; }
+    //    [EventDispatchContext]
+    //    public EventDispatchContext EventDispatchContext { get; }
 
-        [EventProcessorContext]
-        public EventProcessorContext EventProcessorContext { get; }
+    //    [EventProcessorContext]
+    //    public IEventProcessorContext EventProcessorContext { get; }
 
-        public void PreProcess(object evt)
-        {
+    //    public void PreProcess(object evt)
+    //    {
 
-        }
+    //    }
 
-        public void PostProcess(object evt)
-        {
+    //    public void PostProcess(object evt)
+    //    {
 
-        }
-    }
+    //    }
+    //}
 
-    public abstract class EventProcessor
-    {
-        [EventDispatchContext]
-        public virtual EventDispatchContext EventDispatchContext { get; }
+    //public abstract class EventProcessor
+    //{
+    //    [EventDispatchContext]
+    //    public virtual EventDispatchContext EventDispatchContext { get; }
 
-        [EventProcessorContext]
-        public virtual EventProcessorContext EventProcessorContext { get; }
+    //    [EventProcessorContext]
+    //    public virtual EventProcessorContext EventProcessorContext { get; }
 
-        public virtual Task PreProcessAsync(object evt) { return Task.CompletedTask; }
+    //    public virtual Task PreProcessAsync(object evt) { return Task.CompletedTask; }
 
-        public virtual Task PostProcessAsync(object evt) { return Task.CompletedTask; }
-    }
+    //    public virtual Task PostProcessAsync(object evt) { return Task.CompletedTask; }
+    //}
 
-    public class EventProcessorContext
-    {
+    //public class EventProcessorContext
+    //{
 
-    }
+    //}
 
-    [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
-    public class EventProcessorContextAttribute : Attribute
-    {
+    //[AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
+    //public class EventProcessorContextAttribute : Attribute
+    //{
 
-    }
+    //}
 }

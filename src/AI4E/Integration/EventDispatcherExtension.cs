@@ -68,7 +68,7 @@ namespace AI4E.Integration
             if (eventDispatcher == null)
                 throw new ArgumentNullException(nameof(eventDispatcher));
 
-            return eventDispatcher.RegisterAsync(ContextualProvider.FromValue(eventHandler));
+            return eventDispatcher.RegisterAsync(ContextualProvider.Create(eventHandler));
         }
 
         public static Task NotifyAsync(this INonGenericEventDispatcher eventDispatcher, object evt)

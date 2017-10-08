@@ -29,6 +29,8 @@
  */
 
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
@@ -38,6 +40,7 @@ using AI4E.Integration.EventResults;
 using AI4E.Storage;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 
 namespace AI4E.Integration
 {
@@ -47,7 +50,9 @@ namespace AI4E.Integration
         private readonly EventHandlerActionDescriptor _actionDescriptor;
         private readonly IServiceProvider _serviceProvider;
 
-        public EventHandlerInvoker(object handler, EventHandlerActionDescriptor actionDescriptor, IServiceProvider serviceProvider)
+        private readonly IEnumerable<IContextualProvider<IEventProcessor>> _eventProcessors;
+
+        public EventHandlerInvoker(object handler, EventHandlerActionDescriptor actionDescriptor, IServiceProvider serviceProvider, IOptions<MessagingOptions> optionsProvider)
         {
             if (handler == null)
                 throw new ArgumentNullException(nameof(handler));
@@ -55,22 +60,29 @@ namespace AI4E.Integration
             if (serviceProvider == null)
                 throw new ArgumentNullException(nameof(serviceProvider));
 
+            if (optionsProvider == null)
+                throw new ArgumentNullException(nameof(optionsProvider));
+
             _handler = handler;
             _actionDescriptor = actionDescriptor;
             _serviceProvider = serviceProvider;
+
+            var options = optionsProvider.Value;
+
+            _eventProcessors = new List<IContextualProvider<IEventProcessor>>(options.EventProcessors);
         }
 
-        private bool IsProcessManager()
-        {
-            var type = _handler.GetType();
+        //private bool IsProcessManager()
+        //{
+        //    var type = _handler.GetType();
 
-            return (type.IsClass || type.IsValueType && !type.IsEnum) &&
-                   !type.IsAbstract &&
-                   type.IsPublic &&
-                   !type.ContainsGenericParameters &&
-                   !type.IsDefined<NoProcessManagerAttribute>() &&
-                   (type.Name.EndsWith("ProcessManager", StringComparison.OrdinalIgnoreCase) || type.IsDefined<ProcessManagerAttribute>());
-        }
+        //    return (type.IsClass || type.IsValueType && !type.IsEnum) &&
+        //           !type.IsAbstract &&
+        //           type.IsPublic &&
+        //           !type.ContainsGenericParameters &&
+        //           !type.IsDefined<NoProcessManagerAttribute>() &&
+        //           (type.Name.EndsWith("ProcessManager", StringComparison.OrdinalIgnoreCase) || type.IsDefined<ProcessManagerAttribute>());
+        //}
 
         private async Task<IEventResult> InternalHandleAsync(TEvent evt)
         {
@@ -160,78 +172,126 @@ namespace AI4E.Integration
 
         public async Task<IEventResult> HandleAsync(TEvent evt)
         {
-            var isProcessManager = IsProcessManager();
+            //var isProcessManager = IsProcessManager();
 
-            if (!isProcessManager)
+            //if (!isProcessManager)
+            //{
+            //    return await InternalHandleAsync(evt);
+            //}
+
+            //var type = _handler.GetType();
+            //var dataStore = _serviceProvider.GetRequiredService<IDataStore>();
+            //object state = null;
+            //var created = false;
+
+            //var processManagerStateProperty = type.GetProperties().SingleOrDefault(p => p.CanWrite && p.IsDefined<ProcessManagerStateAttribute>());
+
+            //if (processManagerStateProperty != null)
+            //{
+            //    var stateType = processManagerStateProperty.PropertyType;
+            //    {
+            //        var customType = processManagerStateProperty.GetCustomAttribute<ProcessManagerStateAttribute>().StateType;
+
+            //        if (customType != null)
+            //        {
+            //            if (!stateType.IsAssignableFrom(customType))
+            //            {
+            //                throw new InvalidOperationException(); // TODO
+            //            }
+            //            stateType = customType;
+            //        }
+            //    }
+
+            //    var attachments = Activator.CreateInstance(typeof(ProcessManagerAttachment<>).MakeGenericType(stateType), dataStore);
+
+            //    Debug.Assert(attachments != null);
+
+            //    ((dynamic)_handler).AttachProcessManager(attachments);
+
+            //    state = (object)(await ((dynamic)attachments).GetStateAsync(evt));
+
+            //    // TODO: Not all events are allowed to start a process.
+            //    if (state == null)
+            //    {
+            //        if (!(bool)(((dynamic)_handler).CanInitiateProzess(evt)))
+            //        {
+            //            return new FailureEventResult(""); // TODO: Maybe the events are out of order? What to do about that?
+            //        }
+
+            //        // Create state
+            //        state = (object)(((dynamic)_handler).CreateInitialState(evt, stateType));
+            //        created = true;
+            //    }
+
+            //    processManagerStateProperty.SetValue(_handler, state);
+            //}
+
+            var eventProcessorStack = new Stack<IEventProcessor>();
+
+            foreach (var eventProcessorProvider in _eventProcessors)
             {
-                return await InternalHandleAsync(evt);
-            }
+                var eventProcessor = eventProcessorProvider.ProvideInstance(_serviceProvider);
 
-            var type = _handler.GetType();
-            var dataStore = _serviceProvider.GetRequiredService<IDataStore>();
-            object state = null;
-            var created = false;
+                Debug.Assert(eventProcessor != null);
 
-            var processManagerStateProperty = type.GetProperties().SingleOrDefault(p => p.CanWrite && p.IsDefined<ProcessManagerStateAttribute>());
+                var props = eventProcessor.GetType().GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+                var prop = props.FirstOrDefault(p => p.IsDefined<EventProcessorContextAttribute>() &&
+                                                     p.PropertyType == typeof(object) || p.PropertyType == typeof(IEventProcessorContext) &&
+                                                     p.GetIndexParameters().Length == 0 && 
+                                                     p.CanWrite);
 
-            if (processManagerStateProperty != null)
-            {
-                var stateType = processManagerStateProperty.PropertyType;
+                if (prop != null)
                 {
-                    var customType = processManagerStateProperty.GetCustomAttribute<ProcessManagerStateAttribute>().StateType;
+                    IEventProcessorContext eventProcessorContext = new EventProcessorContext(_handler, typeof(TEvent));
 
-                    if (customType != null)
-                    {
-                        if (!stateType.IsAssignableFrom(customType))
-                        {
-                            throw new InvalidOperationException(); // TODO
-                        }
-                        stateType = customType;
-                    }
+                    prop.SetValue(eventProcessor, eventProcessorContext);
                 }
 
-                var attachments = Activator.CreateInstance(typeof(ProcessManagerAttachment<>).MakeGenericType(stateType), dataStore);
+                await eventProcessor.PreProcessAsync(evt);
 
-                Debug.Assert(attachments != null);
-
-                ((dynamic)_handler).AttachProcessManager(attachments);
-
-                state = (object)(await ((dynamic)attachments).GetStateAsync(evt));
-
-                // TODO: Not all events are allowed to start a process.
-                if (state == null)
-                {
-                    if (!(bool)(((dynamic)_handler).CanInitiateProzess(evt)))
-                    {
-                        return new FailureEventResult(""); // TODO: Maybe the events are out of order? What to do about that?
-                    }
-
-                    // Create state
-                    state = (object)(((dynamic)_handler).CreateInitialState(evt, stateType));
-                    created = true;
-                }
-
-                processManagerStateProperty.SetValue(_handler, state);
+                eventProcessorStack.Push(eventProcessor);
             }
 
             var result = await InternalHandleAsync(evt);
-            var terminated = (bool)((dynamic)_handler).IsTerminated;
 
-            if (created && !terminated)
+            foreach (var eventProcessor in eventProcessorStack)
             {
-                dataStore.Add((dynamic)state);
-            }
-            else if (!created && terminated)
-            {
-                dataStore.Remove((dynamic)state);
-            }
-            else if (!created && !terminated)
-            {
-                dataStore.Update((dynamic)state);
+                await eventProcessor.PostProcessAsync(result);
             }
 
-            await dataStore.SaveChangesAsync();
+            //var terminated = (bool)((dynamic)_handler).IsTerminated;
+
+            //if (created && !terminated)
+            //{
+            //    dataStore.Add((dynamic)state);
+            //}
+            //else if (!created && terminated)
+            //{
+            //    dataStore.Remove((dynamic)state);
+            //}
+            //else if (!created && !terminated)
+            //{
+            //    dataStore.Update((dynamic)state);
+            //}
+
+            //await dataStore.SaveChangesAsync();
             return result;
+        }
+
+        private sealed class EventProcessorContext : IEventProcessorContext
+        {
+            public EventProcessorContext(object eventHandler, Type eventType)
+            {
+                Debug.Assert(eventHandler != null);
+                Debug.Assert(eventType != null);
+
+                EventHandler = eventHandler;
+                EventType = eventType;
+            }
+
+            public object EventHandler { get; }
+
+            public Type EventType { get; }
         }
     }
 }

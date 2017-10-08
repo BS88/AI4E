@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 using System.Threading.Tasks;
 using AI4E.Storage;
 using Microsoft.Extensions.DependencyInjection;
@@ -24,10 +25,10 @@ namespace AI4E.Integration
         }
 
         [NoEventHandlerAction]
-        protected virtual void AttachProcessManager(IProcessManagerAttachments<TState> attachments) { }
+        protected virtual void AttachProcess(IProcessAttachments<TState> attachments) { }
 
         [NoEventHandlerAction]
-        protected virtual bool CanInitiateProzess<TEvent>(TEvent evt) { return false; }
+        protected virtual bool CanInitiateProcess<TEvent>(TEvent evt) { return false; }
 
         [NoEventHandlerAction]
         protected virtual TState CreateInitialState<TEvent>(TEvent initiatingEvent, Type stateType)
@@ -36,11 +37,7 @@ namespace AI4E.Integration
             Debug.Assert(stateType != null);
             Debug.Assert(typeof(TState).IsAssignableFrom(stateType));
 
-            var services = EventDispatchContext.DispatchServices;
-
-            Debug.Assert(services != null);
-
-            var state = ActivatorUtilities.CreateInstance(services, stateType);
+            var state = Activator.CreateInstance(stateType);
 
             Debug.Assert(state != null);
 
@@ -60,12 +57,18 @@ namespace AI4E.Integration
         public Type StateType { get; set; }
     }
 
-    public interface IProcessManagerAttachments<TState> where TState : class
+    public interface IProcessAttachments<TState> where TState : class
     {
-        IProcessManagerAttachments<TState> Attach<TEvent>(Expression<Func<TEvent, TState, bool>> predicate);
+        IProcessEventAttachment<TState, TEvent> Attach<TEvent>(Expression<Func<TEvent, TState, bool>> predicate);
     }
 
-    public class ProcessManagerAttachment<TState> : IProcessManagerAttachments<TState> where TState : class
+    public interface IProcessEventAttachment<TState, TEvent> : IProcessAttachments<TState>
+        where TState : class
+    {
+        IProcessEventAttachment<TState, TEvent> CanStartProcess(Func<TEvent, TState> stateFactory);
+    }
+
+    public class ProcessManagerAttachment<TState> : IProcessAttachments<TState> where TState : class
     {
         private readonly IQueryableDataStore _dataStore;
         private readonly Dictionary<Type, Func<object, Task<TState>>> _mappings = new Dictionary<Type, Func<object, Task<TState>>>();
@@ -78,7 +81,7 @@ namespace AI4E.Integration
             _dataStore = dataStore;
         }
 
-        public IProcessManagerAttachments<TState> Attach<TEvent>(Expression<Func<TEvent, TState, bool>> predicate)
+        public IProcessAttachments<TState> Attach<TEvent>(Expression<Func<TEvent, TState, bool>> predicate)
         {
             Func<object, Task<TState>> mapping = o =>
             {
@@ -151,6 +154,151 @@ namespace AI4E.Integration
                 // Replace the source with the target, visit other params as usual.
                 return node == _source ? _target : base.VisitParameter(node);
             }
+        }
+    }
+
+    public sealed class ProcessManagerEventProcessor : EventProcessor
+    {
+        private readonly IServiceProvider _serviceProvider;
+        private readonly IDataStore _dataStore;
+
+        private bool _created;
+        private object _state;
+
+        public ProcessManagerEventProcessor(IServiceProvider serviceProvider, IDataStore dataStore)
+        {
+            if (serviceProvider == null)
+                throw new ArgumentNullException(nameof(serviceProvider));
+
+            if (dataStore == null)
+                throw new ArgumentNullException(nameof(dataStore));
+
+            _serviceProvider = serviceProvider;
+            _dataStore = dataStore;
+        }
+
+        public override async Task<TEvent> PreProcessAsync<TEvent>(TEvent evt)
+        {
+            if (!IsProcessManager)
+            {
+                return evt;
+            }
+
+            var processManagerStateProperty = EventHandlerType.GetProperties().SingleOrDefault(p => p.CanWrite && p.IsDefined<ProcessManagerStateAttribute>());
+
+            if (processManagerStateProperty != null)
+            {
+                var stateType = processManagerStateProperty.PropertyType;
+                {
+                    var customType = processManagerStateProperty.GetCustomAttribute<ProcessManagerStateAttribute>().StateType;
+
+                    if (customType != null)
+                    {
+                        if (!stateType.IsAssignableFrom(customType))
+                        {
+                            throw new InvalidOperationException(); // TODO
+                        }
+                        stateType = customType;
+                    }
+                }
+
+                var attachments = Activator.CreateInstance(typeof(ProcessManagerAttachment<>).MakeGenericType(stateType), _dataStore);
+
+                Debug.Assert(attachments != null);
+
+                var attachMethod = EventHandlerType.GetMethod("AttachProcess", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+
+                if (attachMethod == null)
+                {
+                    throw new InvalidOperationException(); // TODO
+                }
+
+                attachMethod.Invoke(EventHandler, new[] { attachments });
+
+                //EventHandler.AttachProcessManager(attachments);
+
+                _state = (object)(await ((dynamic)attachments).GetStateAsync(evt));
+
+                // TODO: Not all events are allowed to start a process.
+                if (_state == null)
+                {
+                    var canInitMethodDef = EventHandlerType.GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic).FirstOrDefault(p => p.Name == "CanInitiateProcess" && p.IsGenericMethodDefinition && p.GetGenericArguments().Length == 1);
+                    var canInitMethod = canInitMethodDef?.MakeGenericMethod(typeof(TEvent));
+
+
+                    if (canInitMethod != null && !(bool)canInitMethod.Invoke(EventHandler, new object[] { evt })) //!(bool)(EventHandler.CanInitiateProcess(evt)))
+                    {
+                        return evt;
+
+                        // return new FailureEventResult(""); // TODO: Maybe the events are out of order? What to do about that?
+                    }
+
+                    // Create state
+
+                    var createInitStateMethodDef = EventHandlerType.GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic).FirstOrDefault(p => p.Name == "CreateInitialState" && p.IsGenericMethodDefinition && p.GetGenericArguments().Length == 1);
+                    var createInitStateMethod = createInitStateMethodDef?.MakeGenericMethod(typeof(TEvent));
+
+                    _state = createInitStateMethod?.Invoke(EventHandler, new object[] { evt, stateType }); //(object)(EventHandler.CreateInitialState(evt, stateType));
+                    _created = true;
+                }
+
+                processManagerStateProperty.SetValue(EventHandler, _state);
+            }
+
+            return evt;
+        }
+
+        private object EventHandler => Context.EventHandler;
+
+        private bool IsProcessManager
+        {
+            get
+            {
+                return (EventHandlerType.IsClass || EventHandlerType.IsValueType && !EventHandlerType.IsEnum) &&
+                       !EventHandlerType.IsAbstract &&
+                       EventHandlerType.IsPublic &&
+                       !EventHandlerType.ContainsGenericParameters &&
+                       !EventHandlerType.IsDefined<NoProcessManagerAttribute>() &&
+                       (EventHandlerType.Name.EndsWith("ProcessManager", StringComparison.OrdinalIgnoreCase) || EventHandlerType.IsDefined<ProcessManagerAttribute>());
+            }
+        }
+
+        private Type EventHandlerType => Context.EventHandler.GetType();
+
+        public override async Task<TEventResult> PostProcessAsync<TEventResult>(TEventResult eventResult)
+        {
+            if (!IsProcessManager)
+            {
+                return eventResult;
+            }
+
+            var isTerminatedProperty = EventHandlerType.GetProperty("IsTerminated", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+
+            var terminated = isTerminatedProperty != null &&
+                             isTerminatedProperty.CanRead &&
+                             isTerminatedProperty.PropertyType == typeof(bool) &&
+                             isTerminatedProperty.GetIndexParameters().Length == 0 &&
+                             (bool)isTerminatedProperty.GetValue(EventHandler);//(bool)EventHandler.IsTerminated;
+
+            if (_created && !terminated)
+            {
+                ((dynamic)_dataStore).Add(_state);
+            }
+            else if (!_created && terminated)
+            {
+                ((dynamic)_dataStore).Remove(_state);
+            }
+            else if (!_created && !terminated)
+            {
+                ((dynamic)_dataStore).Update(_state);
+            }
+            // else if (_created && terminated)
+            // {
+            //     Nothing to store, because data is not yet in the db and shall not be in the db from now on.
+            // }
+
+            await _dataStore.SaveChangesAsync();
+            return eventResult;
         }
     }
 }
