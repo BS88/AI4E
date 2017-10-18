@@ -45,13 +45,15 @@ namespace AI4E.Domain
             _domainEventPublisher = domainEventPublisher;
         }
 
+        public int Version { get; private set; }
+
         public bool IsDisposed => _isDisposed;
 
         public DomainEventPublisher DomainEventPublisher => _domainEventPublisher;
 
         public void Dispose()
         {
-            if(!_isDisposed)
+            if (!_isDisposed)
             {
                 DoDispose();
                 _isDisposed = true;
@@ -72,6 +74,7 @@ namespace AI4E.Domain
             if (evt.Stream != Id)
                 throw new ArgumentException("The event does not belong to the stream of the aggregate.", nameof(evt));
 
+            Version++;
             _domainEventPublisher.Publish(this, evt);
         }
 

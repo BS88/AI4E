@@ -1,8 +1,7 @@
 ﻿/* Summary
  * --------------------------------------------------------------------------------------------------------------------
- * Filename:        IAggregateRoot.cs 
- * Types:           (1) AI4E.Domain.IAggregateRoot'1
- *                  (2) AI4E.Domain.IAggregateRoot
+ * Filename:        IReferenceResolver.cs 
+ * Types:           (1) AI4E.Domain.IReferenceResolver
  * Version:         1.0
  * Author:          Andreas Trütschel
  * Last modified:   18.10.2017 
@@ -30,17 +29,14 @@
  */
 
 using System;
+using System.Threading.Tasks;
 
 namespace AI4E.Domain
 {
-    public interface IAggregateRoot<TId> : IEntity<TId, TId>, IDisposable
+    public interface IReferenceResolver
     {
-        DomainEventPublisher DomainEventPublisher { get; }
-
-        bool IsDisposed { get; }
-
-        int Version { get; }
+        Task<T> ResolveAsync<T, TId>(TId id) 
+            where TId : struct, IEquatable<TId>
+            where T : IAggregateRoot<TId>;
     }
-
-    public interface IAggregateRoot : IEntity, IAggregateRoot<Guid> { }
 }
