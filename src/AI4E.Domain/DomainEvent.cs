@@ -31,6 +31,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Reflection;
 
 namespace AI4E.Domain
@@ -42,6 +43,9 @@ namespace AI4E.Domain
 
         protected DomainEvent(Guid stream)
         {
+            if (stream == default)
+                throw new ArgumentException("The stream must not be an empty guid.", nameof(stream));
+
             Stream = stream;
 
             _eventType = new Lazy<Type>(() => GetType());
@@ -62,6 +66,9 @@ namespace AI4E.Domain
             {
                 var hierarchyDiff = GetHierarchyDifference(other.GetType(), attribute.EventType);
 
+                if (hierarchyDiff == -1)
+                    continue;
+
                 if(currentHierarchyDiff == -1 || hierarchyDiff < currentHierarchyDiff)
                 {
                     currentHierarchyDiff = hierarchyDiff;
@@ -74,6 +81,9 @@ namespace AI4E.Domain
 
         private int GetHierarchyDifference(Type type, Type baseType)
         {
+            Debug.Assert(type != null);
+            Debug.Assert(baseType != null);
+
             for(var result = 0; type != null && type != typeof(object); result++)
             {
                 if (type == baseType)

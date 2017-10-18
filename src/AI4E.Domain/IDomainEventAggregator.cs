@@ -28,11 +28,13 @@
  * --------------------------------------------------------------------------------------------------------------------
  */
 
+using System;
+
 namespace AI4E.Domain
 {
     public interface IDomainEventAggregator
     {
         void Add<TEvent>(AggregateRoot aggregate, TEvent evt) 
-            where TEvent : DomainEvent;
+            where TEvent : IDomainEvent<Guid>;
     }
 }

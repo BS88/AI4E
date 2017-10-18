@@ -71,7 +71,7 @@ namespace AI4E.Domain
         }
 
         public void Publish<TEvent>(AggregateRoot aggregate, TEvent evt)
-            where TEvent:DomainEvent
+            where TEvent:IDomainEvent<Guid>
         {
             if (evt == null)
                 throw new ArgumentNullException(nameof(evt));

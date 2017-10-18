@@ -49,7 +49,7 @@ namespace AI4E.Domain
 
         internal Entity(Guid id)
         {
-            if (id == default(Guid))
+            if (id == default)
                 throw new ArgumentException("The id must not be an empty guid.", nameof(id));
 
             _id = id;
@@ -73,7 +73,7 @@ namespace AI4E.Domain
         }
 
         protected virtual void Publish<TEvent>(TEvent evt)
-            where TEvent : DomainEvent
+            where TEvent : IDomainEvent<Guid>
         {
             var aggregateRoot = GetAggregateRoot();
 
