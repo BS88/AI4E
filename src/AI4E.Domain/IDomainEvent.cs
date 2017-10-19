@@ -34,6 +34,7 @@ using System;
 namespace AI4E.Domain
 {
     public interface IDomainEvent<TId>
+        where TId : struct, IEquatable<TId>
     {
         TId Stream { get; }
 

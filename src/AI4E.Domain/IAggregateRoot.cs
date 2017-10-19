@@ -34,6 +34,7 @@ using System;
 namespace AI4E.Domain
 {
     public interface IAggregateRoot<TId> : IEntity<TId, TId>, IDisposable
+        where TId : struct, IEquatable<TId>
     {
         DomainEventPublisher DomainEventPublisher { get; }
 

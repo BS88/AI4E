@@ -35,6 +35,7 @@ using System.Threading.Tasks;
 namespace AI4E.Domain
 {
     public interface IReference<T, TId> : IEquatable<IReference<T, TId>>
+        where TId : struct, IEquatable<TId>
         where T : IAggregateRoot<TId>
     {
         TId Id { get; }

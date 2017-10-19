@@ -34,6 +34,8 @@ using System;
 namespace AI4E.Domain
 {
     public interface IEntity<TId, TAggregateRootId> : IEquatable<IEntity<TId, TAggregateRootId>>
+        where TId : struct, IEquatable<TId>
+        where TAggregateRootId : struct, IEquatable<TAggregateRootId>
     {
         TId Id { get; }
 
