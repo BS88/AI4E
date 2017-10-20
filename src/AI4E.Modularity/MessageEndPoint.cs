@@ -178,7 +178,7 @@ namespace AI4E.Modularity
         #region Send
 
         /// <summary>
-        /// Asynchronously sends the specified message to the remote endpoint and awaits its answer.
+        /// Asynchronously sends the specified message to the remote endpoint and awaits its invocation.
         /// </summary>
         /// <typeparam name="TMessage">The type of message.</typeparam>
         /// <param name="message">The message to send to the remove end point.</param>

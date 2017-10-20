@@ -39,7 +39,7 @@ using AI4E.Async;
 namespace AI4E.Modularity
 {
     /// <summary>
-    /// Represents a message endpoint that can send messages to remove endpoints 
+    /// Represents a message endpoint that can send messages to remote endpoints 
     /// and receive messages that are delivered to message handlers.
     /// </summary>
     public interface IMessageEndPoint : IAsyncInitialization, IAsyncCompletion
