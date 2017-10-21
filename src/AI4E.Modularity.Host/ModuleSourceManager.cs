@@ -51,7 +51,7 @@ namespace AI4E.Modularity
 
         public IModuleLoader GetModuleLoader(IModuleSource moduleSource)
         {
-            return new ModuleLoader(moduleSource);
+            return new FileSystemModuleLoader(moduleSource);
         }
     }
 }

@@ -10,12 +10,24 @@ namespace AI4E.Modularity
         {
             if (module == ModuleIdentifier.UnknownModule || version == ModuleVersion.Unknown)
             {
-                Module = ModuleIdentifier.UnknownModule;
-                Version = ModuleVersion.Unknown;
+                this = default;
             }
             else
             {
                 Module = module;
+                Version = version;
+            }
+        }
+
+        public ModuleReleaseIdentifier(string name, ModuleVersion version)
+        {
+            if (version == ModuleVersion.Unknown)
+            {
+                this = default;
+            }
+            else
+            {
+                Module = new ModuleIdentifier(name);
                 Version = version;
             }
         }
