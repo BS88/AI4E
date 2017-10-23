@@ -35,7 +35,7 @@ using System.Threading.Tasks;
 namespace AI4E.Domain
 {
     public struct Reference<T> : IReference<T>, IEquatable<Reference<T>>
-        where T : IAggregateRoot<Guid>
+        where T : AggregateRoot
     {
         private readonly AsyncLazy<T> _aggregate;
 
@@ -59,7 +59,7 @@ namespace AI4E.Domain
                 throw new ArgumentNullException(nameof(referenceResolver));
 
             Id = id;
-            _aggregate = new AsyncLazy<T>(async () => await referenceResolver.ResolveAsync<T, Guid>(id));
+            _aggregate = new AsyncLazy<T>(async () => await referenceResolver.ResolveAsync<T>(id));
         }
 
         public Guid Id { get; }

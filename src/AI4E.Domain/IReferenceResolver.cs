@@ -33,10 +33,13 @@ using System.Threading.Tasks;
 
 namespace AI4E.Domain
 {
-    public interface IReferenceResolver
+    public interface IReferenceResolver<TId, TEntityBase>
+        where TId : struct, IEquatable<TId>
+        where TEntityBase : IAggregateRoot<TId>
     {
-        Task<T> ResolveAsync<T, TId>(TId id) 
-            where TId : struct, IEquatable<TId>
-            where T : IAggregateRoot<TId>;
+        Task<TEntity> ResolveAsync<TEntity>(TId id)
+            where TEntity : TEntityBase;
     }
+
+    public interface IReferenceResolver : IReferenceResolver<Guid, AggregateRoot> { }
 }
