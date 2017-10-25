@@ -1,7 +1,7 @@
 ﻿/* Summary
  * --------------------------------------------------------------------------------------------------------------------
- * Filename:        IEntityAccessor.cs
- * Types:           AI4E.IEntityAccessor'3
+ * Filename:        IEventProcessorBinder.cs
+ * Types:           AI4E.IEventProcessorBinder'3
  * Version:         1.0
  * Author:          Andreas Trütschel
  * Last modified:   16.05.2017 
@@ -29,26 +29,29 @@
  * --------------------------------------------------------------------------------------------------------------------
  */
 
-using System;
-
 namespace AI4E
 {
     /// <summary>
-    /// Represents an accessor for entity identity.
+    /// Represents an accesor for event publishers.
     /// </summary>
-    /// <typeparam name="TId">The type of id used for entity identification.</typeparam>
+    /// <typeparam name="TEventBase">The event layer supertype.</typeparam>
     /// <typeparam name="TEntityBase">The entity layer supertype.</typeparam>
-    public interface IEntityAccessor<TId, TEventPublisher, TEntityBase>
-        where TId : struct, IEquatable<TId>
+    public interface IEventProcessorBinder<TEventBase, TEventPublisher, TEntityBase>
         //where TEventPublisher : class, new()
     {
         /// <summary>
-        /// Returns the identifier of the specified entity.
+        /// Binds an event-processor to the specified entity.
         /// </summary>
-        /// <param name="entity">The entity whose identifier is retrived.</param>
-        /// <returns>The identifier of <paramref name="entity"/>.</returns>
-        TId GetId(TEntityBase entity);
+        /// <param name="eventPublisher">The event-publisher.</param>
+        /// <param name="eventProcessor">The event processor that shall be bound.</param>
+        /// <exception cref="System.ArgumentNullException">Thrown if <paramref name="eventProcessor"/> is null.</exception>
+        /// <exception cref="System.InvalidOperationException">Thrown if <paramref name="eventPublisher"/> is already bound to an event-processor.</exception>
+        void BindProcessor(TEventPublisher eventPublisher, IEventProcessor<TEventBase, TEntityBase> eventProcessor);
 
-        TEventPublisher GetEventPublisher(TEntityBase entity);
+        /// <summary>
+        /// Unbinds a bound event-processor from the specified entity.
+        /// </summary>
+        /// <param name="eventPublisher">The event-publisher.</param>
+        void UnbindProcessor(TEventPublisher eventPublisher);
     }
 }

@@ -137,7 +137,6 @@ namespace AI4E.Storage
     /// <typeparam name="TEntityBase">The entity layer supertype.</typeparam>
     public interface IReadOnlyEntityStore<TId, TEventBase, TEventPublisher, TEntityBase>
         where TId : struct, IEquatable<TId>
-        where TEventPublisher : new()
     {
         /// <summary>
         /// Asynchronously retrieves an entity by its identifier.
@@ -182,13 +181,42 @@ namespace AI4E.Storage
     /// <typeparam name="TEntityBase">The entity layer supertype.</typeparam>
     public interface IEntityStore<TId, TEventBase, TEventPublisher, TEntityBase> : IReadOnlyEntityStore<TId, TEventBase, TEventPublisher, TEntityBase>
         where TId : struct, IEquatable<TId>
-        where TEventPublisher : new()
     {
         /// <summary>
         /// Gets a boolean value indicating whether any changes are pending.
         /// </summary>
         /// <exception cref="ObjectDisposedException">Thrown if the object is disposed.</exception>
         bool ChangesPending { get; }
+
+        /// <summary>
+        /// Adds an entity to the store.
+        /// </summary>
+        /// <typeparam name="TEntity">The type of entity.</typeparam>
+        /// <param name="entity">The entity to store.</param>
+        /// <exception cref="ArgumentNullException">Thrown if <paramref name="entity"/> is null.</exception>
+        /// <exception cref="ObjectDisposedException">Thrown if the object is disposed.</exception>
+        void Add<TEntity>(TEntity entity)
+            where TEntity : TEntityBase;
+
+        /// <summary>
+        /// Updates an entity in the store.
+        /// </summary>
+        /// <typeparam name="TEntity">The type of entity.</typeparam>
+        /// <param name="entity">The entity to update.</param>
+        /// <exception cref="ArgumentNullException">Thrown if <paramref name="entity"/> is null.</exception>
+        /// <exception cref="ObjectDisposedException">Thrown if the object is disposed.</exception>
+        void Update<TEntity>(TEntity entity)
+            where TEntity : TEntityBase;
+
+        /// <summary>
+        /// Removes an entity from the store.
+        /// </summary>
+        /// <typeparam name="TEntity">The type of entity.</typeparam>
+        /// <param name="entity">The entity to remove.</param>
+        /// <exception cref="ArgumentNullException">Thrown if <paramref name="entity"/> is null.</exception>
+        /// <exception cref="ObjectDisposedException">Thrown if the object is disposed.</exception>
+        void Remove<TEntity>(TEntity entity)
+            where TEntity : TEntityBase;
 
         /// <summary>
         /// Asynchronously saves all pending changes.

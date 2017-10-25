@@ -33,7 +33,7 @@ using System.Reflection;
 
 namespace AI4E
 {
-    internal static class MemberInfoExtension
+    public static class MemberInfoExtension
     {
         public static bool IsDefined<TCustomAttribute>(this MemberInfo member) where TCustomAttribute : Attribute
         {

@@ -51,7 +51,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using AI4E.Integration;
-using AI4E.Storage;
+//using AI4E.Storage;
 using Microsoft.AspNetCore.Mvc.ApplicationParts;
 using Microsoft.AspNetCore.Mvc.Internal;
 using Microsoft.Extensions.DependencyInjection;
@@ -205,46 +205,46 @@ namespace AI4E
 
         #endregion
 
-        #region EventSourcing
+        //#region EventSourcing
 
-        public static IEventSourcingBuilder AddEventSourcing(this IServiceCollection services)
-        {
-            if (services == null)
-                throw new ArgumentNullException(nameof(services));
+        //public static IEventSourcingBuilder AddEventSourcing(this IServiceCollection services)
+        //{
+        //    if (services == null)
+        //        throw new ArgumentNullException(nameof(services));
 
-            // Configure necessary application parts
-            var partManager = services.GetApplicationPartManager();
-            partManager.ConfigureEventSourcingFeatureProvider();
-            services.TryAddSingleton(partManager);
+        //    // Configure necessary application parts
+        //    var partManager = services.GetApplicationPartManager();
+        //    partManager.ConfigureEventSourcingFeatureProvider();
+        //    services.TryAddSingleton(partManager);
 
-            // Configure services
-            // TODO
+        //    // Configure services
+        //    // TODO
 
-            return new EventSourcingBuilder(services);
-        }
+        //    return new EventSourcingBuilder(services);
+        //}
 
-        public static IEventSourcingBuilder AddEventSourcing(this IServiceCollection services, Action<EventSourcingOptions> configuration)
-        {
-            if (services == null)
-                throw new ArgumentNullException(nameof(services));
+        //public static IEventSourcingBuilder AddEventSourcing(this IServiceCollection services, Action<EventSourcingOptions> configuration)
+        //{
+        //    if (services == null)
+        //        throw new ArgumentNullException(nameof(services));
 
-            if (configuration == null)
-                throw new ArgumentNullException(nameof(configuration));
+        //    if (configuration == null)
+        //        throw new ArgumentNullException(nameof(configuration));
 
-            var builder = AddEventSourcing(services);
-            builder.Configure(configuration);
-            return builder;
-        }
+        //    var builder = AddEventSourcing(services);
+        //    builder.Configure(configuration);
+        //    return builder;
+        //}
 
-        private static void ConfigureEventSourcingFeatureProvider(this ApplicationPartManager partManager)
-        {
-            if (!partManager.FeatureProviders.OfType<EventReplayerFeatureProvider>().Any())
-            {
-                partManager.FeatureProviders.Add(new EventReplayerFeatureProvider());
-            }
-        }
+        //private static void ConfigureEventSourcingFeatureProvider(this ApplicationPartManager partManager)
+        //{
+        //    if (!partManager.FeatureProviders.OfType<EventReplayerFeatureProvider>().Any())
+        //    {
+        //        partManager.FeatureProviders.Add(new EventReplayerFeatureProvider());
+        //    }
+        //}
 
-        #endregion
+        //#endregion
 
         private static ApplicationPartManager GetApplicationPartManager(this IServiceCollection services)
         {

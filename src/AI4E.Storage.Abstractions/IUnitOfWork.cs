@@ -98,6 +98,10 @@ namespace AI4E.Storage
         /// <exception cref="ObjectDisposedException">Thrown if the object is disposed.</exception>
         void Deregister(T obj);
 
+        EntityState GetState(T obj);
+
+        void SetState(T obj, EntityState state);
+
         /// <summary>
         /// Rolls back the unit of work.
         /// </summary>
@@ -111,5 +115,13 @@ namespace AI4E.Storage
         /// <returns>A task representing the asynchronous operation.</returns>
         /// <exception cref="ObjectDisposedException">Thrown if the object is disposed.</exception>
         Task CommitAsync(CancellationToken cancellation);
+    }
+
+    public enum EntityState
+    {
+        Untracked = 0,
+        Created = 1,
+        Updated = 2,
+        Deleted = 3
     }
 }

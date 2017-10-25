@@ -1,11 +1,10 @@
 ﻿/* Summary
  * --------------------------------------------------------------------------------------------------------------------
- * Filename:        IEntityAccessor.cs
- * Types:           AI4E.IEntityAccessor'3
+ * Filename:        IEventConflictResolver.cs
+ * Types:           AI4E.IEventConflictResolver'1
  * Version:         1.0
  * Author:          Andreas Trütschel
  * Last modified:   16.05.2017 
- * Status:          Ready
  * --------------------------------------------------------------------------------------------------------------------
  */
 
@@ -29,26 +28,21 @@
  * --------------------------------------------------------------------------------------------------------------------
  */
 
-using System;
-
 namespace AI4E
 {
     /// <summary>
-    /// Represents an accessor for entity identity.
+    /// Represents a conflict resolver for the specified type of events.
     /// </summary>
-    /// <typeparam name="TId">The type of id used for entity identification.</typeparam>
-    /// <typeparam name="TEntityBase">The entity layer supertype.</typeparam>
-    public interface IEntityAccessor<TId, TEventPublisher, TEntityBase>
-        where TId : struct, IEquatable<TId>
-        //where TEventPublisher : class, new()
+    /// <typeparam name="TEventBase">The event layer supertype.</typeparam>
+    public interface IEventConflictResolver<TEventBase>
     {
         /// <summary>
-        /// Returns the identifier of the specified entity.
+        /// Returns a boolean value indicating whether the soecified event conflicts with another event.
         /// </summary>
-        /// <param name="entity">The entity whose identifier is retrived.</param>
-        /// <returns>The identifier of <paramref name="entity"/>.</returns>
-        TId GetId(TEntityBase entity);
-
-        TEventPublisher GetEventPublisher(TEntityBase entity);
+        /// <param name="evt">The event that shall be checked for a conflict.</param>
+        /// <param name="other">The existing event.</param>
+        /// <returns>True if <paramref name="evt"/> conflicts with <paramref name="other"/>, false otherwise.</returns>
+        /// <exception cref="System.ArgumentNullException">Thrown if either<paramref name="evt"/> or <paramref name="other"/> is null.</exception>
+        bool DoConflict(TEventBase evt, TEventBase other);
     }
 }

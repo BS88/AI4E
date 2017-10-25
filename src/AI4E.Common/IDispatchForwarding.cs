@@ -33,7 +33,7 @@ using System.Threading.Tasks;
 
 namespace AI4E
 {
-    public interface IDispatchForwarding
+    public interface IDispatchForwarding // TODO: Rename
     {
         Task RegisterForwardingAsync();
         Task UnregisterForwardingAsync();

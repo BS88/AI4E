@@ -35,7 +35,7 @@ using System.Reflection;
 using System.Runtime.Serialization;
 using System.Threading.Tasks;
 using AI4E.Integration.EventResults;
-using AI4E.Storage;
+//using AI4E.Storage;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -60,17 +60,17 @@ namespace AI4E.Integration
             _serviceProvider = serviceProvider;
         }
 
-        private bool IsProcessManager()
-        {
-            var type = _handler.GetType();
+        //private bool IsProcessManager()
+        //{
+        //    var type = _handler.GetType();
 
-            return (type.IsClass || type.IsValueType && !type.IsEnum) &&
-                   !type.IsAbstract &&
-                   type.IsPublic &&
-                   !type.ContainsGenericParameters &&
-                   !type.IsDefined<NoProcessManagerAttribute>() &&
-                   (type.Name.EndsWith("ProcessManager", StringComparison.OrdinalIgnoreCase) || type.IsDefined<ProcessManagerAttribute>());
-        }
+        //    return (type.IsClass || type.IsValueType && !type.IsEnum) &&
+        //           !type.IsAbstract &&
+        //           type.IsPublic &&
+        //           !type.ContainsGenericParameters &&
+        //           !type.IsDefined<NoProcessManagerAttribute>() &&
+        //           (type.Name.EndsWith("ProcessManager", StringComparison.OrdinalIgnoreCase) || type.IsDefined<ProcessManagerAttribute>());
+        //}
 
         private async Task<IEventResult> InternalHandleAsync(TEvent evt)
         {
@@ -160,78 +160,78 @@ namespace AI4E.Integration
 
         public async Task<IEventResult> HandleAsync(TEvent evt)
         {
-            var isProcessManager = IsProcessManager();
+            //var isProcessManager = IsProcessManager();
 
-            if (!isProcessManager)
-            {
+            //if (!isProcessManager)
+            //{
                 return await InternalHandleAsync(evt);
-            }
+            //}
 
-            var type = _handler.GetType();
-            var dataStore = _serviceProvider.GetRequiredService<IDataStore>();
-            object state = null;
-            var created = false;
+            //var type = _handler.GetType();
+            //var dataStore = _serviceProvider.GetRequiredService<IDataStore>();
+            //object state = null;
+            //var created = false;
 
-            var processManagerStateProperty = type.GetProperties().SingleOrDefault(p => p.CanWrite && p.IsDefined<ProcessManagerStateAttribute>());
+            //var processManagerStateProperty = type.GetProperties().SingleOrDefault(p => p.CanWrite && p.IsDefined<ProcessManagerStateAttribute>());
 
-            if (processManagerStateProperty != null)
-            {
-                var stateType = processManagerStateProperty.PropertyType;
-                {
-                    var customType = processManagerStateProperty.GetCustomAttribute<ProcessManagerStateAttribute>().StateType;
+            //if (processManagerStateProperty != null)
+            //{
+            //    var stateType = processManagerStateProperty.PropertyType;
+            //    {
+            //        var customType = processManagerStateProperty.GetCustomAttribute<ProcessManagerStateAttribute>().StateType;
 
-                    if (customType != null)
-                    {
-                        if (!stateType.IsAssignableFrom(customType))
-                        {
-                            throw new InvalidOperationException(); // TODO
-                        }
-                        stateType = customType;
-                    }
-                }
+            //        if (customType != null)
+            //        {
+            //            if (!stateType.IsAssignableFrom(customType))
+            //            {
+            //                throw new InvalidOperationException(); // TODO
+            //            }
+            //            stateType = customType;
+            //        }
+            //    }
 
-                var attachments = Activator.CreateInstance(typeof(ProcessManagerAttachment<>).MakeGenericType(stateType), dataStore);
+            //    var attachments = Activator.CreateInstance(typeof(ProcessManagerAttachment<>).MakeGenericType(stateType), dataStore);
 
-                Debug.Assert(attachments != null);
+            //    Debug.Assert(attachments != null);
 
-                ((dynamic)_handler).AttachProcessManager(attachments);
+            //    ((dynamic)_handler).AttachProcessManager(attachments);
 
-                state = (object)(await ((dynamic)attachments).GetStateAsync(evt));
+            //    state = (object)(await ((dynamic)attachments).GetStateAsync(evt));
 
-                // TODO: Not all events are allowed to start a process.
-                if (state == null)
-                {
-                    if (!(bool)(((dynamic)_handler).CanInitiateProzess(evt)))
-                    {
-                        return new FailureEventResult(""); // TODO: Maybe the events are out of order? What to do about that?
-                    }
+            //    // TODO: Not all events are allowed to start a process.
+            //    if (state == null)
+            //    {
+            //        if (!(bool)(((dynamic)_handler).CanInitiateProzess(evt)))
+            //        {
+            //            return new FailureEventResult(""); // TODO: Maybe the events are out of order? What to do about that?
+            //        }
 
-                    // Create state
-                    state = (object)(((dynamic)_handler).CreateInitialState(evt, stateType));
-                    created = true;
-                }
+            //        // Create state
+            //        state = (object)(((dynamic)_handler).CreateInitialState(evt, stateType));
+            //        created = true;
+            //    }
 
-                processManagerStateProperty.SetValue(_handler, state);
-            }
+            //    processManagerStateProperty.SetValue(_handler, state);
+            //}
 
-            var result = await InternalHandleAsync(evt);
-            var terminated = (bool)((dynamic)_handler).IsTerminated;
+            //var result = await InternalHandleAsync(evt);
+            //var terminated = (bool)((dynamic)_handler).IsTerminated;
 
-            if (created && !terminated)
-            {
-                dataStore.Add((dynamic)state);
-            }
-            else if (!created && terminated)
-            {
-                dataStore.Remove((dynamic)state);
-            }
-            else if (!created && !terminated)
-            {
-                dataStore.Update((dynamic)state);
-            }
+            //if (created && !terminated)
+            //{
+            //    dataStore.Add((dynamic)state);
+            //}
+            //else if (!created && terminated)
+            //{
+            //    dataStore.Remove((dynamic)state);
+            //}
+            //else if (!created && !terminated)
+            //{
+            //    dataStore.Update((dynamic)state);
+            //}
 
-            await dataStore.SaveChangesAsync();
-            return result;
+            //await dataStore.SaveChangesAsync();
+            //return result;
         }
     }
 }
