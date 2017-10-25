@@ -17,8 +17,4 @@
     <ProjectReference Include="..\AI4E.Common\AI4E.Common.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Integration\" />
-  </ItemGroup>
-
 </Project>
