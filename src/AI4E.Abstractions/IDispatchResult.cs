@@ -1,8 +1,8 @@
 ﻿/* Summary
  * --------------------------------------------------------------------------------------------------------------------
  * Filename:        IDispatchResult.cs 
- * Types:           (1) AI4E.Integration.IDispatchResult
- *                  (2) AI4E.Integration.IDispatchResult'1
+ * Types:           (1) AI4E.IDispatchResult
+ *                  (2) AI4E.IDispatchResult'1
  * Version:         1.0
  * Author:          Andreas Trütschel
  * Last modified:   15.07.2017 
@@ -32,7 +32,7 @@
 
 using System;
 
-namespace AI4E.Integration
+namespace AI4E
 {
     public interface IDispatchResult
     {

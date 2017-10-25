@@ -7,7 +7,7 @@
 //using AI4E.Storage;
 //using Microsoft.Extensions.DependencyInjection;
 
-//namespace AI4E.Integration
+//namespace AI4E
 //{
 //    [ProcessManager]
 //    public abstract class ProcessManager<TState> : EventHandler where TState : class

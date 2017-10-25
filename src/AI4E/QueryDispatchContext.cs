@@ -1,8 +1,8 @@
 ﻿/* Summary
  * --------------------------------------------------------------------------------------------------------------------
  * Filename:        QueryDispatchContext.cs 
- * Types:           (1) AI4E.Integration.QueryDispatchContext
- *                  (2) AI4E.Integration.QueryDispatchContextAttribute
+ * Types:           (1) AI4E.QueryDispatchContext
+ *                  (2) AI4E.QueryDispatchContextAttribute
  * Version:         1.0
  * Author:          Andreas Trütschel
  * Last modified:   27.08.2017 
@@ -31,7 +31,7 @@
 
 using System;
 
-namespace AI4E.Integration
+namespace AI4E
 {
     public sealed class QueryDispatchContext
     {

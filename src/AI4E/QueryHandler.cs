@@ -1,11 +1,11 @@
 ﻿/* Summary
  * --------------------------------------------------------------------------------------------------------------------
  * Filename:        QueryHandler.cs 
- * Types:           (1) AI4E.Integration.QueryHandler
- *                  (2) AI4E.Integration.QueryHandlerAttribute
- *                  (3) AI4E.Integration.NoQueryHandlerAttribute
- *                  (4) AI4E.Integration.QueryHandlerActionAttribute
- *                  (5) AI4E.Integration.NoQueryHandlerActionAttribute
+ * Types:           (1) AI4E.QueryHandler
+ *                  (2) AI4E.QueryHandlerAttribute
+ *                  (3) AI4E.NoQueryHandlerAttribute
+ *                  (4) AI4E.QueryHandlerActionAttribute
+ *                  (5) AI4E.NoQueryHandlerActionAttribute
  * Version:         1.0
  * Author:          Andreas Trütschel
  * Last modified:   27.08.2017 
@@ -33,9 +33,9 @@
  */
 
 using System;
-using AI4E.Integration.QueryResults;
+using AI4E.QueryResults;
 
-namespace AI4E.Integration
+namespace AI4E
 {
     [QueryHandler]
     public abstract class QueryHandler

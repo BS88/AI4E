@@ -1,7 +1,7 @@
 ﻿/* Summary
  * --------------------------------------------------------------------------------------------------------------------
  * Filename:        CommandResultExtension.cs 
- * Types:           AI4E.Integration.CommandResultExtension
+ * Types:           AI4E.CommandResultExtension
  * Version:         1.0
  * Author:          Andreas Trütschel
  * Last modified:   26.08.2017 
@@ -32,9 +32,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using AI4E.Integration.CommandResults;
+using AI4E.CommandResults;
 
-namespace AI4E.Integration
+namespace AI4E
 {
     /// <summary>
     /// Defines extensions for the <see cref="CommandResult"/> type.

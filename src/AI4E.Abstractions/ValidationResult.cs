@@ -1,8 +1,8 @@
 ﻿/* Summary
  * --------------------------------------------------------------------------------------------------------------------
  * Filename:        ValidationResult.cs 
- * Types:           (1) AI4E.Integration.ValidationResult
- *                  (2) AI4E.Integration.ValidationResultsBuilder
+ * Types:           (1) AI4E.ValidationResult
+ *                  (2) AI4E.ValidationResultsBuilder
  * Version:         1.0
  * Author:          Andreas Trütschel
  * Last modified:   29.04.2017 
@@ -33,7 +33,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace AI4E.Integration
+namespace AI4E
 {
     /// <summary>
     /// Represents a validation result.

@@ -1,7 +1,7 @@
 ﻿/* Summary
  * --------------------------------------------------------------------------------------------------------------------
  * Filename:        CommandHandlerInspector.cs 
- * Types:           AI4E.Integration.CommandHandlerInspector
+ * Types:           AI4E.CommandHandlerInspector
  * Version:         1.0
  * Author:          Andreas Trütschel
  * Last modified:   26.08.2017 
@@ -34,7 +34,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 
-namespace AI4E.Integration
+namespace AI4E
 {
     public sealed class CommandHandlerInspector
     {

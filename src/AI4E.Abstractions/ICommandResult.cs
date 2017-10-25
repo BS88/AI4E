@@ -1,8 +1,8 @@
 ﻿/* Summary
  * --------------------------------------------------------------------------------------------------------------------
  * Filename:        ICommandResult.cs 
- * Types:           (1) AI4E.Integration.ICommandResult
- *                  (2) AI4E.Integration.ICommandResult'1
+ * Types:           (1) AI4E.ICommandResult
+ *                  (2) AI4E.ICommandResult'1
  * Version:         1.0
  * Author:          Andreas Trütschel
  * Last modified:   15.07.2017 
@@ -32,7 +32,7 @@
 
 using System;
 
-namespace AI4E.Integration
+namespace AI4E
 {
     /// <summary>
     /// Defines the type of result a command handler returns.

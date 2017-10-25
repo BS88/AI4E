@@ -1,11 +1,11 @@
 ﻿/* Summary
  * --------------------------------------------------------------------------------------------------------------------
  * Filename:        CommandHandler.cs 
- * Types:           (1) AI4E.Integration.CommandHandler
- *                  (2) AI4E.Integration.CommandHandlerAttribute
- *                  (3) AI4E.Integration.NoCommandHandlerAttribute
- *                  (4) AI4E.Integration.CommandHandlerActionAttribute
- *                  (5) AI4E.Integration.NoCommandHandlerActionAttribute
+ * Types:           (1) AI4E.CommandHandler
+ *                  (2) AI4E.CommandHandlerAttribute
+ *                  (3) AI4E.NoCommandHandlerAttribute
+ *                  (4) AI4E.CommandHandlerActionAttribute
+ *                  (5) AI4E.NoCommandHandlerActionAttribute
  * Version:         1.0
  * Author:          Andreas Trütschel
  * Last modified:   26.08.2017 
@@ -34,9 +34,9 @@
 
 using System;
 using System.Collections.Generic;
-using AI4E.Integration.CommandResults;
+using AI4E.CommandResults;
 
-namespace AI4E.Integration
+namespace AI4E
 {
     [CommandHandler]
     public abstract class CommandHandler

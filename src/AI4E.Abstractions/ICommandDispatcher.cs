@@ -1,12 +1,12 @@
 ﻿/* Summary
  * --------------------------------------------------------------------------------------------------------------------
  * Filename:        ICommandDispatcher.cs 
- * Types:           (1) AI4E.Integration.ICommandDispatcher
- *                  (2) AI4E.Integration.ICommandDispatcher'1
- *                  (3) AI4E.Integration.ISecureCommandDispatcher
- *                  (4) AI4E.Integration.ISecureCommandDispatcher'1
- *                  (5) AI4E.Integration.INonGenericCommandDispatcher
- *                  (6) AI4E.Integration.ITypedNonGenericCommandDispatcher
+ * Types:           (1) AI4E.ICommandDispatcher
+ *                  (2) AI4E.ICommandDispatcher'1
+ *                  (3) AI4E.ISecureCommandDispatcher
+ *                  (4) AI4E.ISecureCommandDispatcher'1
+ *                  (5) AI4E.INonGenericCommandDispatcher
+ *                  (6) AI4E.ITypedNonGenericCommandDispatcher
  * Version:         1.0
  * Author:          Andreas Trütschel
  * Last modified:   01.07.2017 
@@ -36,7 +36,7 @@
 using System;
 using System.Threading.Tasks;
 
-namespace AI4E.Integration
+namespace AI4E
 {
     /// <summary>
     /// Represents a command dispatcher that dispatches commands to command handlers.

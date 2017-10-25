@@ -2,7 +2,7 @@
 using System.Net;
 using System.Net.Sockets;
 using System.Threading.Tasks;
-using AI4E.Integration;
+using AI4E;
 using AI4E.Modularity.Integration;
 using Microsoft.Extensions.DependencyInjection;
 

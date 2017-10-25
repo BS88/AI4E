@@ -1,7 +1,7 @@
 ﻿/* Summary
  * --------------------------------------------------------------------------------------------------------------------
  * Filename:        FailureCommandResult.cs 
- * Types:           AI4E.Integration.CommandResults.FailureCommandResult
+ * Types:           AI4E.CommandResults.FailureCommandResult
  * Version:         1.0
  * Author:          Andreas Trütschel
  * Last modified:   15.07.2017 
@@ -28,7 +28,7 @@
  * --------------------------------------------------------------------------------------------------------------------
  */
 
-namespace AI4E.Integration.CommandResults
+namespace AI4E.CommandResults
 {
     /// <summary>
     /// Represents a failed command execution.

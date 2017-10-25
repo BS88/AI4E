@@ -1,8 +1,8 @@
 ﻿/* Summary
  * --------------------------------------------------------------------------------------------------------------------
  * Filename:        EventHandlerFeature.cs 
- * Types:           (1) AI4E.Integration.EventHandlerFeature
- *                  (2) AI4E.Integration.EventHandlerFeatureProvider
+ * Types:           (1) AI4E.EventHandlerFeature
+ *                  (2) AI4E.EventHandlerFeatureProvider
  * Version:         1.0
  * Author:          Andreas Trütschel
  * Last modified:   27.08.2017 
@@ -34,7 +34,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.AspNetCore.Mvc.ApplicationParts;
 
-namespace AI4E.Integration
+namespace AI4E
 {
     public class EventHandlerFeature
     {

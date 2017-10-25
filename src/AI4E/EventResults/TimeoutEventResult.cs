@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace AI4E.Integration.EventResults
+namespace AI4E.EventResults
 {
     public class TimeoutEventResult : FailureEventResult
     {

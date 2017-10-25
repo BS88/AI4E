@@ -1,8 +1,8 @@
 ﻿/* Summary
  * --------------------------------------------------------------------------------------------------------------------
  * Filename:        CommandDispatcherExtension.cs 
- * Types:           AI4E.Integration.CommandDispatcherExtension
- *                  AI4E.Integration.CommandDispatcherExtension.AnonymousCommandHandler'1
+ * Types:           AI4E.CommandDispatcherExtension
+ *                  AI4E.CommandDispatcherExtension.AnonymousCommandHandler'1
  * Version:         1.0
  * Author:          Andreas Trütschel
  * Last modified:   01.07.2017 
@@ -34,7 +34,7 @@ using System;
 using System.Diagnostics;
 using System.Threading.Tasks;
 
-namespace AI4E.Integration
+namespace AI4E
 {
     /// <summary>
     /// Defines extensions for the <see cref="ICommandDispatcher"/> interface.

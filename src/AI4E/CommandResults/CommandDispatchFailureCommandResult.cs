@@ -1,7 +1,7 @@
 ﻿/* Summary
  * --------------------------------------------------------------------------------------------------------------------
  * Filename:        CommandDispatchFailureCommandResult.cs 
- * Types:           AI4E.Integration.CommandResults.CommandDispatchFailureCommandResult
+ * Types:           AI4E.CommandResults.CommandDispatchFailureCommandResult
  * Version:         1.0
  * Author:          Andreas Trütschel
  * Last modified:   15.07.2017 
@@ -30,7 +30,7 @@
 
 using System;
 
-namespace AI4E.Integration.CommandResults
+namespace AI4E.CommandResults
 {
     public class CommandDispatchFailureCommandResult : FailureCommandResult
     {

@@ -1,8 +1,8 @@
 ﻿/* Summary
  * --------------------------------------------------------------------------------------------------------------------
  * Filename:        SuccessCommandResult.cs 
- * Types:           (1) AI4E.Integration.CommandResults.SuccessCommandResult
- *                  (2) AI4E.Integration.CommandResults.SuccessCommandResult'1
+ * Types:           (1) AI4E.CommandResults.SuccessCommandResult
+ *                  (2) AI4E.CommandResults.SuccessCommandResult'1
  * Version:         1.0
  * Author:          Andreas Trütschel
  * Last modified:   15.07.2017 
@@ -32,7 +32,7 @@
 using System;
 using System.Diagnostics;
 
-namespace AI4E.Integration.CommandResults
+namespace AI4E.CommandResults
 {
     /// <summary>
     /// Represents a successful command execution.

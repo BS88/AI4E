@@ -1,4 +1,4 @@
-﻿using AI4E.Integration;
+﻿using AI4E;
 
 namespace AI4E.Modularity.Integration
 {

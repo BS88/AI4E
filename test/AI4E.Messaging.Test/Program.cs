@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
-using AI4E.Integration;
-using AI4E.Integration.EventResults;
+using AI4E;
+using AI4E.EventResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -107,7 +107,7 @@ namespace AI4E.Messaging.Test
         public string Value { get; set; }
     }
 
-    public class TestEventHandler : Integration.EventHandler
+    public class TestEventHandler : AI4E.EventHandler
     {
         public void Handle(TestEvent evt)
         {

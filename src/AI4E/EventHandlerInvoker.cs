@@ -1,7 +1,7 @@
 ﻿/* Summary
  * --------------------------------------------------------------------------------------------------------------------
  * Filename:        EventHandlerInvoker.cs 
- * Types:           AI4E.Integration.EventHandlerInvoker'1
+ * Types:           AI4E.EventHandlerInvoker'1
  * Version:         1.0
  * Author:          Andreas Trütschel
  * Last modified:   27.08.2017 
@@ -34,12 +34,12 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.Serialization;
 using System.Threading.Tasks;
-using AI4E.Integration.EventResults;
+using AI4E.EventResults;
 //using AI4E.Storage;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace AI4E.Integration
+namespace AI4E
 {
     public sealed class EventHandlerInvoker<TEvent> : IEventHandler<TEvent>
     {

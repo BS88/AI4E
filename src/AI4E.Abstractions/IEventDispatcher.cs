@@ -1,12 +1,12 @@
 ﻿/* Summary
  * --------------------------------------------------------------------------------------------------------------------
  * Filename:        IEventDispatcher.cs
- * Types:           (1) AI4E.Integration.IEventDispatcher
- *                  (2) AI4E.Integration.IEventDispatcher'1
- *                  (3) AI4E.Integration.Integration.ISecureEventDispatcher
- *                  (4) AI4E.Integration.Integration.ISecureEventDispatcher'1
- *                  (5) AI4E.Integration.INonGenericEventDispatcher
- *                  (6) AI4E.Integration.ITypedNonGenericEventDispatcher
+ * Types:           (1) AI4E.IEventDispatcher
+ *                  (2) AI4E.IEventDispatcher'1
+ *                  (3) AI4E.Integration.ISecureEventDispatcher
+ *                  (4) AI4E.Integration.ISecureEventDispatcher'1
+ *                  (5) AI4E.INonGenericEventDispatcher
+ *                  (6) AI4E.ITypedNonGenericEventDispatcher
  * Version:         1.0
  * Author:          Andreas Trütschel
  * Last modified:   17.07.2017 
@@ -36,7 +36,7 @@
 using System;
 using System.Threading.Tasks;
 
-namespace AI4E.Integration
+namespace AI4E
 {
     /// <summary>
     /// Represents an event dispatcher that dispatches events to event handlers.

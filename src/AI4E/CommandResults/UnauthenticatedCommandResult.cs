@@ -1,7 +1,7 @@
 ﻿/* Summary
  * --------------------------------------------------------------------------------------------------------------------
  * Filename:        UnauthenticatedCommandResult.cs 
- * Types:           AI4E.Integration.CommandResults.UnauthenticatedCommandResult
+ * Types:           AI4E.CommandResults.UnauthenticatedCommandResult
  * Version:         1.0
  * Author:          Andreas Trütschel
  * Last modified:   15.07.2017 
@@ -28,7 +28,7 @@
  * --------------------------------------------------------------------------------------------------------------------
  */
 
-namespace AI4E.Integration.CommandResults
+namespace AI4E.CommandResults
 {
     public class UnauthenticatedCommandResult : FailureCommandResult
     {

@@ -1,8 +1,8 @@
 ﻿/* Summary
  * --------------------------------------------------------------------------------------------------------------------
  * Filename:        CommandHandlerFeature.cs 
- * Types:           (1) AI4E.Integration.CommandHandlerFeature
- *                  (2) AI4E.Integration.CommandHandlerFeatureProvider
+ * Types:           (1) AI4E.CommandHandlerFeature
+ *                  (2) AI4E.CommandHandlerFeatureProvider
  * Version:         1.0
  * Author:          Andreas Trütschel
  * Last modified:   26.08.2017 
@@ -34,7 +34,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.AspNetCore.Mvc.ApplicationParts;
 
-namespace AI4E.Integration
+namespace AI4E
 {
     public class CommandHandlerFeature
     {

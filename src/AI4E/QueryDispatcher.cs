@@ -1,9 +1,9 @@
 ﻿/* Summary
  * --------------------------------------------------------------------------------------------------------------------
  * Filename:        QueryDispatcher.cs 
- * Types:           (1) AI4E.Integration.QueryDispatcher
- *                  (2) AI4E.Integration.QueryDispatcher'2
- *                  (3) AI4E.Integration.QueryAuthorizationVerifyer
+ * Types:           (1) AI4E.QueryDispatcher
+ *                  (2) AI4E.QueryDispatcher'2
+ *                  (3) AI4E.QueryAuthorizationVerifyer
  * Version:         1.0
  * Author:          Andreas Trütschel
  * Last modified:   01.07.2017 
@@ -36,10 +36,10 @@ using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Threading.Tasks;
 using AI4E.Async;
-using AI4E.Integration.QueryResults;
+using AI4E.QueryResults;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace AI4E.Integration
+namespace AI4E
 {
     /// <summary>
     /// Represents a query dispatcher that dispatches queries to query handlers.

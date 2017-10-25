@@ -1,7 +1,7 @@
 ﻿/* Summary
  * --------------------------------------------------------------------------------------------------------------------
  * Filename:        QueryHandlerActionDescriptor.cs 
- * Types:           AI4E.Integration.QueryHandlerActionDescriptor
+ * Types:           AI4E.QueryHandlerActionDescriptor
  * Version:         1.0
  * Author:          Andreas Trütschel
  * Last modified:   27.08.2017 
@@ -31,7 +31,7 @@
 using System;
 using System.Reflection;
 
-namespace AI4E.Integration
+namespace AI4E
 {
     public struct QueryHandlerActionDescriptor
     {

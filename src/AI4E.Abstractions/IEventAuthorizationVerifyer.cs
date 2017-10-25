@@ -1,7 +1,7 @@
 ﻿/* Summary
  * --------------------------------------------------------------------------------------------------------------------
  * Filename:        IEventAuthorizationVerifyer.cs 
- * Types:           AI4E.Integration.IEventAuthorizationVerifyer
+ * Types:           AI4E.IEventAuthorizationVerifyer
  * Version:         1.0
  * Author:          Andreas Trütschel
  * Last modified:   07.05.2017 
@@ -29,7 +29,7 @@
  * --------------------------------------------------------------------------------------------------------------------
  */
 
-namespace AI4E.Integration
+namespace AI4E
 {
     /// <summary>
     /// Represents a verifyer that checks for authorization of event handler 

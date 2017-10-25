@@ -1,7 +1,7 @@
 ﻿/* Summary
  * --------------------------------------------------------------------------------------------------------------------
  * Filename:        EventHandlerProvider.cs 
- * Types:           AI4E.Integration.EventHandlerProvider'1
+ * Types:           AI4E.EventHandlerProvider'1
  * Version:         1.0
  * Author:          Andreas Trütschel
  * Last modified:   27.08.2017 
@@ -33,7 +33,7 @@ using System.Diagnostics;
 using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace AI4E.Integration
+namespace AI4E
 {
     public sealed class EventHandlerProvider<TEvent> : IContextualProvider<IEventHandler<TEvent>>
     {

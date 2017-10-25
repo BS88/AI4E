@@ -1,7 +1,7 @@
 ﻿/* Summary
  * --------------------------------------------------------------------------------------------------------------------
  * Filename:        ValidationFailureCommandResult.cs 
- * Types:           AI4E.Integration.CommandResults.ValidationFailureCommandResult
+ * Types:           AI4E.CommandResults.ValidationFailureCommandResult
  * Version:         1.0
  * Author:          Andreas Trütschel
  * Last modified:   15.07.2017 
@@ -31,7 +31,7 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
 
-namespace AI4E.Integration.CommandResults
+namespace AI4E.CommandResults
 {
     public class ValidationFailureCommandResult : FailureCommandResult
     {

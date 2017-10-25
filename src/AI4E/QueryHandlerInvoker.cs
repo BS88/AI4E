@@ -1,7 +1,7 @@
 ﻿/* Summary
  * --------------------------------------------------------------------------------------------------------------------
  * Filename:        QueryHandlerInvoker.cs 
- * Types:           AI4E.Integration.QueryHandlerInvoker'1
+ * Types:           AI4E.QueryHandlerInvoker'1
  * Version:         1.0
  * Author:          Andreas Trütschel
  * Last modified:   27.08.2017 
@@ -32,11 +32,11 @@ using System;
 using System.Diagnostics;
 using System.Runtime.Serialization;
 using System.Threading.Tasks;
-using AI4E.Integration.QueryResults;
+using AI4E.QueryResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace AI4E.Integration
+namespace AI4E
 {
     public sealed class QueryHandlerInvoker<TQuery> : IQueryHandler<TQuery>
     {

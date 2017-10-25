@@ -1,9 +1,9 @@
 ﻿/* Summary
  * --------------------------------------------------------------------------------------------------------------------
  * Filename:        CommandDispatcher.cs 
- * Types:           (1) AI4E.Integration.CommandDispatcher
- *                  (2) AI4E.Integration.CommandDispatcher'1
- *                  (3) AI4E.Integration.CommandAuthorizationVerifyer
+ * Types:           (1) AI4E.CommandDispatcher
+ *                  (2) AI4E.CommandDispatcher'1
+ *                  (3) AI4E.CommandAuthorizationVerifyer
  * Version:         1.0
  * Author:          Andreas Trütschel
  * Last modified:   26.08.2017 
@@ -35,9 +35,9 @@ using System;
 using System.Collections.Concurrent;
 using System.Threading.Tasks;
 using System.Diagnostics;
-using AI4E.Integration.CommandResults;
+using AI4E.CommandResults;
 
-namespace AI4E.Integration
+namespace AI4E
 {
     /// <summary>
     /// Represents a command dispatcher that dispatches commands to command handlers.

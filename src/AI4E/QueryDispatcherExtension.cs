@@ -1,8 +1,8 @@
 ﻿///* Summary
 // * --------------------------------------------------------------------------------------------------------------------
 // * Filename:        QueryDispatcherExtension.cs 
-// * Types:           AI4E.Integration.QueryDispatcherExtension
-// *                  AI4E.Integration.QueryDispatcherExtension.AnonymousQueryHandler'2
+// * Types:           AI4E.QueryDispatcherExtension
+// *                  AI4E.QueryDispatcherExtension.AnonymousQueryHandler'2
 // * Version:         1.0
 // * Author:          Andreas Trütschel
 // * Last modified:   11.05.2017 
@@ -35,7 +35,7 @@
 //using System.Threading.Tasks;
 //using AI4E.Async;
 
-//namespace AI4E.Integration
+//namespace AI4E
 //{
 //    /// <summary>
 //    /// Defines extensions for the <see cref="IQueryDispatcher"/> interface.

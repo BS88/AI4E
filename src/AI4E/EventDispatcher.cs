@@ -1,9 +1,9 @@
 ﻿/* Summary
  * --------------------------------------------------------------------------------------------------------------------
  * Filename:        EventDispatcher.cs 
- * Types:           (1) AI4E.Integration.EventDispatcher
- *                  (2) AI4E.Integration.EventDispatcher'1
- *                  (3) AI4E.Integration.EventAuthorizationVerifyer
+ * Types:           (1) AI4E.EventDispatcher
+ *                  (2) AI4E.EventDispatcher'1
+ *                  (3) AI4E.EventAuthorizationVerifyer
  * Version:         1.0
  * Author:          Andreas Trütschel
  * Last modified:   15.07.2017 
@@ -38,9 +38,9 @@ using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
-using AI4E.Integration.EventResults;
+using AI4E.EventResults;
 
-namespace AI4E.Integration
+namespace AI4E
 {
     /// <summary>
     /// Represents an event dispatcher that events to event handlers.

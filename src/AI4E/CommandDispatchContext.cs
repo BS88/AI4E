@@ -1,8 +1,8 @@
 ﻿/* Summary
  * --------------------------------------------------------------------------------------------------------------------
  * Filename:        CommandDispatchContext.cs 
- * Types:           (1) AI4E.Integration.CommandDispatchContext
- *                  (2) AI4E.Integration.CommandDispatchContextAttribute
+ * Types:           (1) AI4E.CommandDispatchContext
+ *                  (2) AI4E.CommandDispatchContextAttribute
  * Version:         1.0
  * Author:          Andreas Trütschel
  * Last modified:   26.08.2017 
@@ -31,7 +31,7 @@
 
 using System;
 
-namespace AI4E.Integration
+namespace AI4E
 {
     public sealed class CommandDispatchContext
     {

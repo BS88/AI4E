@@ -1,8 +1,8 @@
 ﻿/* Summary
  * --------------------------------------------------------------------------------------------------------------------
  * Filename:        QueryHandlerFeature.cs 
- * Types:           (1) AI4E.Integration.QueryHandlerFeature
- *                  (2) AI4E.Integration.QueryHandlerFeatureProvider
+ * Types:           (1) AI4E.QueryHandlerFeature
+ *                  (2) AI4E.QueryHandlerFeatureProvider
  * Version:         1.0
  * Author:          Andreas Trütschel
  * Last modified:   27.08.2017 
@@ -34,7 +34,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.AspNetCore.Mvc.ApplicationParts;
 
-namespace AI4E.Integration
+namespace AI4E
 {
     public class QueryHandlerFeature
     {

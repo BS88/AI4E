@@ -2,7 +2,7 @@
 using System.IO;
 using System.Threading.Tasks;
 using AI4E.Async;
-using AI4E.Integration;
+using AI4E;
 using AI4E.Modularity.Integration;
 using Microsoft.Extensions.DependencyInjection;
 

@@ -1,11 +1,11 @@
 ﻿/* Summary
  * --------------------------------------------------------------------------------------------------------------------
  * Filename:        EventHandler.cs 
- * Types:           (1) AI4E.Integration.EventHandler
- *                  (2) AI4E.Integration.EventHandlerAttribute
- *                  (3) AI4E.Integration.NoEventHandlerAttribute
- *                  (4) AI4E.Integration.EventHandlerActionAttribute
- *                  (5) AI4E.Integration.NoEventHandlerActionAttribute
+ * Types:           (1) AI4E.EventHandler
+ *                  (2) AI4E.EventHandlerAttribute
+ *                  (3) AI4E.NoEventHandlerAttribute
+ *                  (4) AI4E.EventHandlerActionAttribute
+ *                  (5) AI4E.NoEventHandlerActionAttribute
  * Version:         1.0
  * Author:          Andreas Trütschel
  * Last modified:   27.08.2017 
@@ -33,9 +33,9 @@
  */
 
 using System;
-using AI4E.Integration.EventResults;
+using AI4E.EventResults;
 
-namespace AI4E.Integration
+namespace AI4E
 {
     [EventHandler]
     public abstract class EventHandler

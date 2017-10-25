@@ -1,6 +1,6 @@
 ﻿using System.Collections.Immutable;
 
-namespace AI4E.Integration
+namespace AI4E
 {
     public interface IEventResult
     {

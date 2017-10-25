@@ -1,7 +1,7 @@
 ﻿/* Summary
  * --------------------------------------------------------------------------------------------------------------------
  * Filename:        EventHandlerInspector.cs 
- * Types:           AI4E.Integration.EventHandlerInspector
+ * Types:           AI4E.EventHandlerInspector
  * Version:         1.0
  * Author:          Andreas Trütschel
  * Last modified:   27.08.2017 
@@ -34,7 +34,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 
-namespace AI4E.Integration
+namespace AI4E
 {
     public sealed class EventHandlerInspector
     {

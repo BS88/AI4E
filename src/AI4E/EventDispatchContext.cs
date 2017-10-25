@@ -1,8 +1,8 @@
 ﻿/* Summary
  * --------------------------------------------------------------------------------------------------------------------
  * Filename:        EventDispatchContext.cs 
- * Types:           (1) AI4E.Integration.EventDispatchContext
- *                  (2) AI4E.Integration.EventDispatchContextAttribute
+ * Types:           (1) AI4E.EventDispatchContext
+ *                  (2) AI4E.EventDispatchContextAttribute
  * Version:         1.0
  * Author:          Andreas Trütschel
  * Last modified:   27.08.2017 
@@ -31,7 +31,7 @@
 
 using System;
 
-namespace AI4E.Integration
+namespace AI4E
 {
     public class EventDispatchContext
     {

@@ -1,7 +1,7 @@
 ﻿/* Summary
  * --------------------------------------------------------------------------------------------------------------------
  * Filename:        ICommandAuthorizationVerifyer.cs 
- * Types:           AI4E.Integration.ICommandAuthorizationVerifyer
+ * Types:           AI4E.ICommandAuthorizationVerifyer
  * Version:         1.0
  * Author:          Andreas Trütschel
  * Last modified:   09.05.2017 
@@ -29,7 +29,7 @@
  * --------------------------------------------------------------------------------------------------------------------
  */
 
-namespace AI4E.Integration
+namespace AI4E
 {
     /// <summary>
     /// Represents a verifyer that checks for authorization of command handler 

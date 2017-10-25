@@ -1,8 +1,8 @@
 ﻿/* Summary
  * --------------------------------------------------------------------------------------------------------------------
  * Filename:        EventDispatcherExtension.cs 
- * Types:           AI4E.Integration.EventDispatcherExtension
- *                  AI4E.Integration.EventDispatcherExtension.AnonymousEventHandler'1
+ * Types:           AI4E.EventDispatcherExtension
+ *                  AI4E.EventDispatcherExtension.AnonymousEventHandler'1
  * Version:         1.0
  * Author:          Andreas Trütschel
  * Last modified:   01.07.2017 
@@ -34,7 +34,7 @@ using System;
 using System.Diagnostics;
 using System.Threading.Tasks;
 
-namespace AI4E.Integration
+namespace AI4E
 {
     /// <summary>
     /// Defines extensions for the <see cref="IEventDispatcher"/> interface.

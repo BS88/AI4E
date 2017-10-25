@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using AI4E.Integration.EventResults;
+using AI4E.EventResults;
 
-namespace AI4E.Integration
+namespace AI4E
 {
     public static class EventResultExtension
     {

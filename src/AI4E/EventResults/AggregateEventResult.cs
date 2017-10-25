@@ -1,7 +1,7 @@
 ﻿/* Summary
  * --------------------------------------------------------------------------------------------------------------------
  * Filename:        EventAggregateResult.cs 
- * Types:           AI4E.Integration.EventResults.EventAggregateResult
+ * Types:           AI4E.EventResults.EventAggregateResult
  * Version:         1.0
  * Author:          Andreas Trütschel
  * Last modified:   15.07.2017 
@@ -32,7 +32,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 
-namespace AI4E.Integration.EventResults
+namespace AI4E.EventResults
 {
     public sealed class AggregateEventResult : IAggregateEventResult
     {

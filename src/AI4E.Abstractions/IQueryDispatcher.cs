@@ -1,12 +1,12 @@
 ﻿/* Summary
  * --------------------------------------------------------------------------------------------------------------------
  * Filename:        IQueryDispatcher.cs 
- * Types:           (1) AI4E.Integration.IQueryDispatcher
- *                  (2) AI4E.Integration.IQueryDispatcher'2
- *                  (3) AI4E.Integration.ISecureQueryDispatcher
- *                  (4) AI4E.Integration.ISecureQueryDispatcher'2
- *                  (5) AI4E.Integration.INonGenericQueryDispatcher
- *                  (6) AI4E.Integration.ITypedNonGenericQueryDispatcher
+ * Types:           (1) AI4E.IQueryDispatcher
+ *                  (2) AI4E.IQueryDispatcher'2
+ *                  (3) AI4E.ISecureQueryDispatcher
+ *                  (4) AI4E.ISecureQueryDispatcher'2
+ *                  (5) AI4E.INonGenericQueryDispatcher
+ *                  (6) AI4E.ITypedNonGenericQueryDispatcher
  * Version:         1.0
  * Author:          Andreas Trütschel
  * Last modified:   26.08.2017 
@@ -36,7 +36,7 @@
 using System;
 using System.Threading.Tasks;
 
-namespace AI4E.Integration
+namespace AI4E
 {
     /// <summary>
     /// Represents a query dispatcher that dispatches queries to query handlers.

@@ -1,7 +1,7 @@
 ﻿/* Summary
  * --------------------------------------------------------------------------------------------------------------------
  * Filename:        CommandHandlerInvoker.cs 
- * Types:           AI4E.Integration.CommandHandlerInvoker'1
+ * Types:           AI4E.CommandHandlerInvoker'1
  * Version:         1.0
  * Author:          Andreas Trütschel
  * Last modified:   26.08.2017 
@@ -32,11 +32,11 @@ using System;
 using System.Diagnostics;
 using System.Runtime.Serialization;
 using System.Threading.Tasks;
-using AI4E.Integration.CommandResults;
+using AI4E.CommandResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace AI4E.Integration
+namespace AI4E
 {
     public sealed class CommandHandlerInvoker<TCommand> : ICommandHandler<TCommand>
     {

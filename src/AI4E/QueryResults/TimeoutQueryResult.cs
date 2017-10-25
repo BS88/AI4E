@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace AI4E.Integration.QueryResults
+namespace AI4E.QueryResults
 {
     public class TimeoutQueryResult : FailureQueryResult
     {

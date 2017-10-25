@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace AI4E.Integration
+namespace AI4E
 {
     public interface IQueryResult : IDispatchResult
     {

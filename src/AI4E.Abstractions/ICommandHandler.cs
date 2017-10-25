@@ -1,7 +1,7 @@
 ﻿/* Summary
  * --------------------------------------------------------------------------------------------------------------------
  * Filename:        ICommandHandler.cs
- * Types:           AI4E.Integration.ICommandHandler'1
+ * Types:           AI4E.ICommandHandler'1
  * Version:         1.0
  * Author:          Andreas Trütschel
  * Last modified:   09.05.2017
@@ -30,7 +30,7 @@
 
 using System.Threading.Tasks;
 
-namespace AI4E.Integration
+namespace AI4E
 {
     /// <summary>
     /// Represents a command handler.

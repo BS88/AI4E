@@ -4,8 +4,8 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
-using AI4E.Integration;
-using AI4E.Integration.EventResults;
+using AI4E;
+using AI4E.EventResults;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace AI4E.Modularity.Integration

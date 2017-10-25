@@ -1,16 +1,16 @@
 ﻿/* Summary
  * --------------------------------------------------------------------------------------------------------------------
  * Filename:        Query.cs 
- * Types:           AI4E.Integration.Query'1
- *                  AI4E.Integration.ByIdQuery'2
- *                  AI4E.Integration.ByIdQuery'1
- *                  AI4E.Integration.ByParentQuery'3
- *                  AI4E.Integration.ByParentQuery'2
- *                  AI4E.Integration.IQueryHandler'1
- *                  AI4E.Integration.IByIdQueryHandler'2
- *                  AI4E.Integration.IByIdQueryHandler'1
- *                  AI4E.Integration.IByParentQueryHandler'3
- *                  AI4E.Integration.IByParentQueryHandler'2
+ * Types:           AI4E.Query'1
+ *                  AI4E.ByIdQuery'2
+ *                  AI4E.ByIdQuery'1
+ *                  AI4E.ByParentQuery'3
+ *                  AI4E.ByParentQuery'2
+ *                  AI4E.IQueryHandler'1
+ *                  AI4E.IByIdQueryHandler'2
+ *                  AI4E.IByIdQueryHandler'1
+ *                  AI4E.IByParentQueryHandler'3
+ *                  AI4E.IByParentQueryHandler'2
  * Version:         1.0
  * Author:          Andreas Trütschel
  * Last modified:   17.07.2017 
@@ -40,7 +40,7 @@
 
 using System;
 
-namespace AI4E.Integration
+namespace AI4E
 {
     /// <summary>
     /// Represents a query of the specified result without any conditions.

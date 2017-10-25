@@ -1,7 +1,7 @@
 ﻿/* Summary
  * --------------------------------------------------------------------------------------------------------------------
  * Filename:        IQueryHandler.cs
- * Types:           AI4E.Integration.IQueryHandler'1
+ * Types:           AI4E.IQueryHandler'1
  * Version:         1.0
  * Author:          Andreas Trütschel
  * Last modified:   15.07.2017 
@@ -30,7 +30,7 @@
 
 using System.Threading.Tasks;
 
-namespace AI4E.Integration
+namespace AI4E
 {
     /// <summary>
     /// Represents a query handler.
