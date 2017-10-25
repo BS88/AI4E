@@ -14,6 +14,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\AI4E.Async\AI4E.Async.csproj" />
+    <ProjectReference Include="..\AI4E.Common\AI4E.Common.csproj" />
   </ItemGroup>
 
 </Project>

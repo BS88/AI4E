@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
-using AI4E.Integration;
-using AI4E.Integration.EventResults;
+using AI4E;
+using AI4E.EventResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -107,7 +107,7 @@ namespace AI4E.Messaging.Test
         public string Value { get; set; }
     }
 
-    public class TestEventHandler : Integration.EventHandler
+    public class TestEventHandler : AI4E.EventHandler
     {
         public void Handle(TestEvent evt)
         {
@@ -145,47 +145,47 @@ namespace AI4E.Messaging.Test
         public Guid Id { get; }
     }
 
-    public class TestProcessManager : ProcessManager<TestProcessManagerState>
-    {
-        public TestProcessManager()
-        {
+    //public class TestProcessManager : ProcessManager<TestProcessManagerState>
+    //{
+    //    public TestProcessManager()
+    //    {
 
-        }
+    //    }
 
-        protected override void AttachProcessManager(IProcessManagerAttachments<TestProcessManagerState> attachments)
-        {
-            attachments
-                .Attach<TestEvent>((e, s) => e.Value == s.Id.ToString())
-                .Attach<AnotherTestEvent>((e, s) => e.Id == s.Id);
-        }
+    //    protected override void AttachProcessManager(IProcessManagerAttachments<TestProcessManagerState> attachments)
+    //    {
+    //        attachments
+    //            .Attach<TestEvent>((e, s) => e.Value == s.Id.ToString())
+    //            .Attach<AnotherTestEvent>((e, s) => e.Id == s.Id);
+    //    }
 
-        public void Handle(TestEvent evt)
-        {
-            State.Count++;
-        }
+    //    public void Handle(TestEvent evt)
+    //    {
+    //        State.Count++;
+    //    }
 
-        public void Handle(AnotherTestEvent evt)
-        {
-            if (State.Count > 3)
-            {
-                Console.WriteLine("Shutting down...");
-                TerminateProcess();
-            }
-        }
-    }
+    //    public void Handle(AnotherTestEvent evt)
+    //    {
+    //        if (State.Count > 3)
+    //        {
+    //            Console.WriteLine("Shutting down...");
+    //            TerminateProcess();
+    //        }
+    //    }
+    //}
 
-    public class TestProcessManagerState
-    {
-        public TestProcessManagerState(Guid id)
-        {
-            Id = id;
-            Count = 0;
-        }
+    //public class TestProcessManagerState
+    //{
+    //    public TestProcessManagerState(Guid id)
+    //    {
+    //        Id = id;
+    //        Count = 0;
+    //    }
 
-        public Guid Id { get; }
+    //    public Guid Id { get; }
 
-        public int Count { get; set; }
-    }
+    //    public int Count { get; set; }
+    //}
 
 
 

@@ -3,7 +3,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading.Tasks;
-using AI4E.Integration;
+using AI4E;
 using Nito.AsyncEx;
 
 namespace AI4E.Modularity.Integration
