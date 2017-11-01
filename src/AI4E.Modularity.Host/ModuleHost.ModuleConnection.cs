@@ -34,6 +34,7 @@ using System.Threading.Tasks;
 using AI4E.Integration;
 using AI4E.Modularity.Integration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Nito.AsyncEx;
 
 namespace AI4E.Modularity
@@ -109,7 +110,32 @@ namespace AI4E.Modularity
 
                 sandboxedServices.AddSingleton<IMessageSerializer, MessageSerializer>();
 
-                sandboxedServices.AddSingleton<IMessageEndPoint>(provider => new MessageEndPoint(_client.GetStream(), provider.GetRequiredService<IMessageSerializer>(), provider));
+                sandboxedServices.AddSingleton<IMessageEndPoint>(provider =>
+                {
+                    var messageEndPoint = new MessageEndPoint(
+                        _client.GetStream(),
+                        provider.GetRequiredService<IMessageSerializer>(),
+                        _serviceProvider.GetService<ILogger<MessageEndPoint>>(),
+                        provider);
+
+                    var commandBrokerProvider = new ContextualProvider<CommandMessageBroker>(p => p.GetRequiredService<CommandMessageBroker>());
+                    var queryBrokerProvider = new ContextualProvider<QueryMessageBroker>(p => p.GetRequiredService<QueryMessageBroker>());
+                    var eventBrokerProvider = new ContextualProvider<EventMessageBroker>(p => p.GetRequiredService<EventMessageBroker>());
+
+                    messageEndPoint.RegisterAsync(commandBrokerProvider);
+                    messageEndPoint.RegisterAsync<RegisterCommandForwarding>(commandBrokerProvider);
+                    messageEndPoint.RegisterAsync<UnregisterCommandForwarding>(commandBrokerProvider);
+
+                    messageEndPoint.RegisterAsync(queryBrokerProvider);
+                    messageEndPoint.RegisterAsync<RegisterQueryForwarding>(queryBrokerProvider);
+                    messageEndPoint.RegisterAsync<UnregisterQueryForwarding>(queryBrokerProvider);
+
+                    messageEndPoint.RegisterAsync<RegisterEventForwarding>(eventBrokerProvider);
+                    messageEndPoint.RegisterAsync<UnregisterEventForwarding>(eventBrokerProvider);
+                    messageEndPoint.RegisterAsync<DispatchEvent>(eventBrokerProvider);
+
+                    return messageEndPoint;
+                });
 
                 sandboxedServices.AddScoped<CommandMessageBroker>();
                 sandboxedServices.AddScoped<QueryMessageBroker>();

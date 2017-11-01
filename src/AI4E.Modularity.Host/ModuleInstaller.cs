@@ -281,6 +281,22 @@ namespace AI4E.Modularity
             }
         }
 
+        public IModuleSource GetModuleSource(string name)
+        {
+            if (!_initialization.IsCompleted)
+                return null;
+
+            using (_lock.Lock())
+            {
+                if (_sources.TryGetValue(name, out var result))
+                {
+                    return result;
+                }
+
+                return null;
+            }
+        }
+
         public IModuleLoader GetModuleLoader(IModuleSource moduleSource)
         {
             if (moduleSource == null)

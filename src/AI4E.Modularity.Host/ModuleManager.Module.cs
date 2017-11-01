@@ -44,7 +44,7 @@ namespace AI4E.Modularity
 
             public DateTime? ReleaseDate => LatestRelease?.ReleaseDate;
 
-            public string DescriptiveName => LatestRelease?.DescriptiveName;
+            public string DescriptiveName => LatestRelease?.DescriptiveName ?? Identifier.Name;
 
             public string Description => LatestRelease?.Description;
 
@@ -65,7 +65,7 @@ namespace AI4E.Modularity
 
             public bool IsInstalled => Releases.Any(p => p.IsInstalled);
 
-            public bool IsLatestReleaseInstalled => LatestRelease.IsInstalled;
+            public bool IsLatestReleaseInstalled => LatestRelease?.IsInstalled ?? false;
 
             public Task InstallAsync()
             {

@@ -72,6 +72,8 @@ namespace AI4E.Modularity
 
         Task UpdateModuleSourceAsync(string name, string source);
 
+        IModuleSource GetModuleSource(string name);
+
         IModuleLoader GetModuleLoader(IModuleSource moduleSource);
     }
 

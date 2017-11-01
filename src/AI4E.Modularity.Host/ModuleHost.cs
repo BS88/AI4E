@@ -32,6 +32,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
@@ -81,21 +82,28 @@ namespace AI4E.Modularity
 
             var opt = options.Value;
 
+            var endPoint = default(IPEndPoint);
+
             if (opt.EnableDebugging)
             {
-                LocalEndPoint = new IPEndPoint(IPAddress.Any, opt.DebugPort);
+                endPoint = new IPEndPoint(IPAddress.Any, opt.DebugPort);
                 _allowDebugSessions = true;
             }
             else
             {
-                LocalEndPoint = new IPEndPoint(IPAddress.Loopback, 0);
+                endPoint = new IPEndPoint(IPAddress.Loopback, 0);
             }
 
             _serviceProvider = serviceProvider;
 
             _receiveProcess = new AsyncProcess(ConnectionProcedure);
-            _tcpHost = new TcpListener(LocalEndPoint);
+            _tcpHost = new TcpListener(endPoint);
             _tcpHost.Start();
+
+            LocalEndPoint = _tcpHost.LocalEndpoint as IPEndPoint;
+
+            Debug.Assert(LocalEndPoint != null);
+
             _receiveProcess.StartExecution();
         }
 

@@ -22,8 +22,8 @@ namespace AI4E.Modularity
             public async Task ReplyToAsync(TMessage message, uint seqNum)
             {
                 var response = await _messageHandler.HandleAsync(message);
-                var payload = _endPoint._serializer.Serialize(response, MessageEncoding.Bson);
-                await _endPoint.SendPayloadAsync(payload, _endPoint.GetNextSeqNum(), seqNum, MessageType.MessageHandled, MessageEncoding.Bson, default);
+                var payload = _endPoint._serializer.Serialize(response, usedEncoding);
+                await _endPoint.SendPayloadAsync(payload, _endPoint.GetNextSeqNum(), seqNum, MessageType.MessageHandled, usedEncoding, default);
             }
         }
 

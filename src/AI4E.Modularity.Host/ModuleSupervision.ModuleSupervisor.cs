@@ -37,21 +37,21 @@ namespace AI4E.Modularity
                 // TODO: The following should be configurable or auto detected from the assembly like command, query, event, ... handlers are.
                 var messageEndPoint = ModuleConnection.UnderlyingEndPoint;
 
-                var commandBrokerProvider = new ContextualProvider<CommandMessageBroker>(p => p.GetRequiredService<CommandMessageBroker>());
-                var queryBrokerProvider = new ContextualProvider<QueryMessageBroker>(p => p.GetRequiredService<QueryMessageBroker>());
-                var eventBrokerProvider = new ContextualProvider<EventMessageBroker>(p => p.GetRequiredService<EventMessageBroker>());
+                //var commandBrokerProvider = new ContextualProvider<CommandMessageBroker>(p => p.GetRequiredService<CommandMessageBroker>());
+                //var queryBrokerProvider = new ContextualProvider<QueryMessageBroker>(p => p.GetRequiredService<QueryMessageBroker>());
+                //var eventBrokerProvider = new ContextualProvider<EventMessageBroker>(p => p.GetRequiredService<EventMessageBroker>());
 
-                await messageEndPoint.RegisterAsync(commandBrokerProvider);
-                await messageEndPoint.RegisterAsync<RegisterCommandForwarding>(commandBrokerProvider);
-                await messageEndPoint.RegisterAsync<UnregisterCommandForwarding>(commandBrokerProvider);
+                //await messageEndPoint.RegisterAsync(commandBrokerProvider);
+                //await messageEndPoint.RegisterAsync<RegisterCommandForwarding>(commandBrokerProvider);
+                //await messageEndPoint.RegisterAsync<UnregisterCommandForwarding>(commandBrokerProvider);
 
-                await messageEndPoint.RegisterAsync(queryBrokerProvider);
-                await messageEndPoint.RegisterAsync<RegisterQueryForwarding>(queryBrokerProvider);
-                await messageEndPoint.RegisterAsync<UnregisterQueryForwarding>(queryBrokerProvider);
+                //await messageEndPoint.RegisterAsync(queryBrokerProvider);
+                //await messageEndPoint.RegisterAsync<RegisterQueryForwarding>(queryBrokerProvider);
+                //await messageEndPoint.RegisterAsync<UnregisterQueryForwarding>(queryBrokerProvider);
 
-                await messageEndPoint.RegisterAsync<RegisterEventForwarding>(eventBrokerProvider);
-                await messageEndPoint.RegisterAsync<UnregisterEventForwarding>(eventBrokerProvider);
-                await messageEndPoint.RegisterAsync<DispatchEvent>(eventBrokerProvider);
+                //await messageEndPoint.RegisterAsync<RegisterEventForwarding>(eventBrokerProvider);
+                //await messageEndPoint.RegisterAsync<UnregisterEventForwarding>(eventBrokerProvider);
+                //await messageEndPoint.RegisterAsync<DispatchEvent>(eventBrokerProvider);
             }
 
             public async Task StopModuleAsync()

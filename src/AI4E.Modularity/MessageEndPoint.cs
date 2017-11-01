@@ -215,6 +215,8 @@ namespace AI4E.Modularity
             return default;
         }
 
+        private static readonly MessageEncoding usedEncoding = MessageEncoding.Json; // TODO: This should be determined when the connection is established.
+
         private async Task<object> SendInternalAsync<TMessage>(TMessage message, CancellationToken cancellation)
         {
             ThrowIfDisposed();
@@ -230,7 +232,7 @@ namespace AI4E.Modularity
                 try
                 {
                     // Serialize the message and send it.
-                    await SendPayloadAsync(_serializer.Serialize(message, MessageEncoding.Bson), responseTableSlot.SeqNum, 0, MessageType.Message, MessageEncoding.Bson, cancellation);
+                    await SendPayloadAsync(_serializer.Serialize(message, usedEncoding), responseTableSlot.SeqNum, 0, MessageType.Message, usedEncoding, cancellation);
                 }
                 catch (Exception exc) when (!(exc is ObjectDisposedException))
                 {
@@ -244,7 +246,16 @@ namespace AI4E.Modularity
                 try
                 {
                     // Wait for a reponse from the remote end-point or cancellation alternatively.
-                    await Task.WhenAny(responseTableSlot.Response, cancellation.AsTask());
+                    var completed = await Task.WhenAny(responseTableSlot.Response, cancellation.AsTask());
+
+                    if (completed != responseTableSlot.Response)
+                    {
+                        throw new TaskCanceledException();
+                    }
+
+                    var result = await responseTableSlot.Response;
+                    _logger?.LogInformation($"Received response for the message with seq-num '{responseTableSlot.SeqNum}'. (Result)");
+                    return result;
                 }
                 catch (MessageHandlerNotFoundException)
                 {
@@ -254,14 +265,10 @@ namespace AI4E.Modularity
                 }
                 catch (Exception exc) when (!(exc is OperationCanceledException))
                 {
-                    _logger?.LogInformation($"Received response for the message with seq-num '{responseTableSlot.SeqNum}'.");
+                    _logger?.LogInformation($"Received response for the message with seq-num '{responseTableSlot.SeqNum}'. (Exception)");
 
                     throw;
                 }
-
-                _logger?.LogInformation($"Received response for the message with seq-num '{responseTableSlot.SeqNum}'.");
-
-                return await responseTableSlot.Response;
             }
         }
 
@@ -610,7 +617,7 @@ namespace AI4E.Modularity
                         return;
 
                     case MessageType.MessageHandled:
-                        if (encoding != MessageEncoding.Bson && encoding != MessageEncoding.Unkown)
+                        if (encoding < MessageEncoding.BinarySerialized || encoding > MessageEncoding.Bson)
                         {
                             goto SEND_BAD_MESSAGE;
                         }
@@ -619,7 +626,7 @@ namespace AI4E.Modularity
                         return;
 
                     case MessageType.MessageError:
-                        if (encoding != MessageEncoding.Bson)
+                        if (encoding < MessageEncoding.BinarySerialized || encoding > MessageEncoding.Bson)
                         {
                             goto SEND_BAD_MESSAGE;
                         }
@@ -695,9 +702,9 @@ namespace AI4E.Modularity
             }
             catch (Exception exc)
             {
-                var responsePayload = _serializer.Serialize(exc, MessageEncoding.Bson);
+                var responsePayload = _serializer.Serialize(exc, usedEncoding);
 
-                await SendPayloadAsync(responsePayload, GetNextSeqNum(), seqNum, MessageType.MessageError, MessageEncoding.Bson, cancellation);
+                await SendPayloadAsync(responsePayload, GetNextSeqNum(), seqNum, MessageType.MessageError, usedEncoding, cancellation);
             }
         }
 

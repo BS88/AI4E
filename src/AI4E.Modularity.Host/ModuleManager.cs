@@ -184,7 +184,29 @@ namespace AI4E.Modularity
 
         public Task<IModuleRelease> GetModuleReleaseAsync(ModuleReleaseIdentifier moduleReleaseIdentifier)
         {
-            throw new NotImplementedException();
+            return GetModuleReleaseAsync(moduleReleaseIdentifier.Module, moduleReleaseIdentifier.Version);
+        }
+
+        public async Task<IModuleRelease> GetModuleReleaseAsync(ModuleIdentifier moduleIdentifier, ModuleVersion moduleVersion)
+        {
+            var module = await GetModuleAsync(moduleIdentifier);
+
+            if (module == null)
+            {
+                return null;
+            }
+
+            if (moduleVersion == ModuleVersion.Unknown)
+            {
+                return module.LatestRelease;
+            }
+
+            return module.Releases.FirstOrDefault(p => p.Version == moduleVersion);
+        }
+
+        public Task<IModuleSource> GetModuleSourceAsync(string name)
+        {
+            return Task.FromResult(_moduleInstaller.GetModuleSource(name));
         }
 
         public Task<IEnumerable<IModuleSource>> GetModuleSourcesAsync()

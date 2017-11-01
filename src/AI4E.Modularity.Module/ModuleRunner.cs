@@ -66,7 +66,7 @@ namespace AI4E.Modularity
             _services.AddSingleton<IEventMessageTranslator, EventMessageTranslator>();
 
             var client = new TcpClient();
-            client.Connect(IPAddress.Loopback, _port);
+            client.Connect(/*IPAddress.Loopback*/await Dns.GetHostAddressesAsync("ux1124"), _port);
 
             _services.AddSingleton<IMessageEndPoint>(provider =>
             {
