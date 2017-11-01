@@ -12,7 +12,7 @@ namespace AI4E.Modularity
 {
     public sealed partial class ModuleManager : IModuleManager
     {
-        private readonly IModuleSourceManager _moduleSourceStore;
+        //private readonly IModuleSourceManager _moduleSourcManager;
         private readonly IModuleHost _moduleHost;
         private readonly IModuleInstaller _moduleInstaller;
 
@@ -22,10 +22,10 @@ namespace AI4E.Modularity
         /// Creates a new instanc of the <see cref="ModuleManager"/> type.
         /// </summary>
         /// <param name="dataStore">The data store that is used to store the manager settings.</param>
-        public ModuleManager(IModuleSourceManager moduleSourceStore, IModuleHost moduleHost, IModuleInstaller moduleInstaller)
+        public ModuleManager(/*IModuleSourceManager moduleSourceManager,*/ IModuleHost moduleHost, IModuleInstaller moduleInstaller)
         {
-            if (moduleSourceStore == null)
-                throw new ArgumentNullException(nameof(moduleSourceStore));
+            //if (moduleSourceManager == null)
+            //    throw new ArgumentNullException(nameof(moduleSourceManager));
 
             if (moduleHost == null)
                 throw new ArgumentNullException(nameof(moduleHost));
@@ -33,14 +33,14 @@ namespace AI4E.Modularity
             if (moduleInstaller == null)
                 throw new ArgumentNullException(nameof(moduleInstaller));
 
-            _moduleSourceStore = moduleSourceStore;
+            //_moduleSourcManager = moduleSourceManager;
             _moduleHost = moduleHost;
             _moduleInstaller = moduleInstaller;
         }
 
         #endregion
 
-        public async Task<IEnumerable<IModule>> GetAvailableModulesAsync(bool includePreReleases = false)
+        public async Task<IEnumerable<IModule>> GetModulesAsync(bool includePreReleases = false)
         {
             var modules = new Dictionary<ModuleIdentifier, List<ModuleRelease>>();
 
@@ -66,7 +66,7 @@ namespace AI4E.Modularity
                 AddRelease((ModuleRelease)installedRelease);
             }
 
-            foreach (var source in await _moduleSourceStore.GetModuleSourcesAsync())
+            foreach (var source in await GetModuleSourcesAsync())
             {
                 var releases = await GetModuleReleasesAsync(source, includePreReleases);
 
@@ -88,7 +88,7 @@ namespace AI4E.Modularity
                 releaseList.Add((ModuleRelease)installedRelease);
             }
 
-            foreach (var source in await _moduleSourceStore.GetModuleSourcesAsync())
+            foreach (var source in await GetModuleSourcesAsync())
             {
                 var releases = await GetModuleReleasesAsync(source, includePreReleases: true);
 
@@ -115,7 +115,7 @@ namespace AI4E.Modularity
                 modules.Add(installedRelease.Identifier.Module, (ModuleRelease)installedRelease);
             }
 
-            foreach (var source in await _moduleSourceStore.GetModuleSourcesAsync())
+            foreach (var source in await GetModuleSourcesAsync())
             {
                 var releases = await GetModuleReleasesAsync(source, includePreReleases);
 
@@ -146,20 +146,16 @@ namespace AI4E.Modularity
             return result;
         }
 
-        public async Task<IEnumerable<IModuleRelease>> GetInstalledAsync()
+        public Task<IEnumerable<IModuleRelease>> GetInstalledAsync()
         {
             var result = new List<ModuleRelease>();
 
             foreach (var installation in _moduleInstaller.InstalledModules)
             {
-                var moduleLoader = _moduleSourceStore.GetModuleLoader(installation.Source);
-                Debug.Assert(moduleLoader != null);
-                var manifest = await moduleLoader.LoadModuleMetadataAsync(new ModuleReleaseIdentifier(installation.Module, installation.Version));
-
-                result.Add(new ModuleRelease(manifest, _moduleInstaller, installation.Source));
+                result.Add(new ModuleRelease(installation.ModuleMetadata, _moduleInstaller, installation.Source));
             }
 
-            return result;
+            return Task.FromResult<IEnumerable<IModuleRelease>>(result);
         }
 
         public Task<IEnumerable<IModule>> GetDebugModulesAsync()
@@ -170,7 +166,7 @@ namespace AI4E.Modularity
         private async Task<IEnumerable<ModuleRelease>> GetModuleReleasesAsync(IModuleSource source, bool includePreReleases)
         {
             var result = new List<ModuleRelease>();
-            var moduleLoader = _moduleSourceStore.GetModuleLoader(source);
+            var moduleLoader = _moduleInstaller.GetModuleLoader(source);
 
             Debug.Assert(moduleLoader != null);
 
@@ -184,6 +180,31 @@ namespace AI4E.Modularity
             }
 
             return result;
+        }
+
+        public Task<IModuleRelease> GetModuleReleaseAsync(ModuleReleaseIdentifier moduleReleaseIdentifier)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<IEnumerable<IModuleSource>> GetModuleSourcesAsync()
+        {
+            return Task.FromResult<IEnumerable<IModuleSource>>(_moduleInstaller.ModuleSources);
+        }
+
+        public Task AddModuleSourceAsync(string name, string source)
+        {
+            return _moduleInstaller.AddModuleSourceAsync(name, source);
+        }
+
+        public Task RemoveModuleSourceAsync(string name)
+        {
+            return _moduleInstaller.RemoveModuleSourceAsync(name);
+        }
+
+        public Task UpdateModuleSourceAsync(string name, string source)
+        {
+            return _moduleInstaller.UpdateModuleSourceAsync(name, source);
         }
     }
 }

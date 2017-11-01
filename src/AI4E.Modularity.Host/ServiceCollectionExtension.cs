@@ -11,15 +11,19 @@ namespace AI4E.Modularity
             if (services == null)
                 throw new ArgumentNullException(nameof(services));
 
+            services.AddOptions();
+
             // This is added for the implementation to know that the required services were registered properly.
             services.AddSingleton<ModularityMarkerService>();
 
+            // These services are running only once and therefore are registered as singleton instances.
+            // The services are not intended to be used directly but are required for internal use.
             services.TryAddSingleton<IModuleHost, ModuleHost>();
             services.TryAddSingleton<IModuleInstaller, ModuleInstaller>();
             services.TryAddSingleton<IModuleSupervision, ModuleSupervision>();
 
+            // These services are the public api for the modular host.
             services.TryAddScoped<IModuleManager, ModuleManager>();
-            services.TryAddScoped<IModuleSourceManager, ModuleSourceManager>();
 
             return new ModularityBuilder(services);
         }
@@ -37,6 +41,16 @@ namespace AI4E.Modularity
             result.Configure(configuration);
 
             return result;
+        }
+
+        private sealed class ModularityBuilder : IModularityBuilder
+        {
+            public ModularityBuilder(IServiceCollection services)
+            {
+                Services = services;
+            }
+
+            public IServiceCollection Services { get; }
         }
     }
 

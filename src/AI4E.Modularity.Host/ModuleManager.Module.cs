@@ -61,6 +61,8 @@ namespace AI4E.Modularity
             // TODO: The latest release is the one with the greatest version number.
             public IModuleRelease LatestRelease => Releases.Aggregate(default(IModuleRelease), (latest, current) => latest == default(IModuleRelease) || latest.ReleaseDate < current.ReleaseDate ? current : latest);
 
+            public IModuleRelease InstalledRelease => Releases.SingleOrDefault(p => p.IsInstalled);
+
             public bool IsInstalled => Releases.Any(p => p.IsInstalled);
 
             public bool IsLatestReleaseInstalled => LatestRelease.IsInstalled;

@@ -5,7 +5,7 @@
  *                  (2) AI4E.Modularity.IModuleInstallation
  * Version:         1.0
  * Author:          Andreas Trütschel
- * Last modified:   01.10.2017 
+ * Last modified:   22.10.2017 
  * --------------------------------------------------------------------------------------------------------------------
  */
 
@@ -44,6 +44,8 @@ namespace AI4E.Modularity
         /// </summary>
         IReadOnlyCollection<IModuleInstallation> InstalledModules { get; }
 
+        IReadOnlyCollection<IModuleSource> ModuleSources { get; }
+
         /// <summary>
         /// Asynchronously installs the module specified by its identifier.
         /// </summary>
@@ -63,6 +65,14 @@ namespace AI4E.Modularity
         /// <exception cref="System.ArgumentException">Thrown if <paramref name="module"/> equals <see cref="ModuleIdentifier.UnknownModule"/>.</exception>
         /// <exception cref="ModuleUninstallationException">Thrown if the module is currently installed but cannot be uninstalled.</exception>
         Task UninstallAsync(ModuleIdentifier module);
+
+        Task AddModuleSourceAsync(string name, string source);
+
+        Task RemoveModuleSourceAsync(string name);
+
+        Task UpdateModuleSourceAsync(string name, string source);
+
+        IModuleLoader GetModuleLoader(IModuleSource moduleSource);
     }
 
     /// <summary>

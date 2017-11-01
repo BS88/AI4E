@@ -5,10 +5,17 @@ namespace AI4E.Modularity
 {
     public interface IModuleManager
     {
-        Task<IEnumerable<IModule>> GetAvailableModulesAsync(bool includePreReleases = false);
+        Task<IEnumerable<IModule>> GetModulesAsync(bool includePreReleases = false);
         Task<IModule> GetModuleAsync(ModuleIdentifier moduleIdentifier);
+        Task<IModuleRelease> GetModuleReleaseAsync(ModuleReleaseIdentifier moduleReleaseIdentifier);
         Task<IEnumerable<IModuleRelease>> GetUpdatesAsync(bool includePreReleases = false);
         Task<IEnumerable<IModuleRelease>> GetInstalledAsync();
         Task<IEnumerable<IModule>> GetDebugModulesAsync();
+
+        // Module sources
+        Task<IEnumerable<IModuleSource>> GetModuleSourcesAsync();
+        Task AddModuleSourceAsync(string name, string source);
+        Task RemoveModuleSourceAsync(string name);
+        Task UpdateModuleSourceAsync(string name, string source);
     }
 }
