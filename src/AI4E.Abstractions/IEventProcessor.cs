@@ -16,8 +16,15 @@ namespace AI4E
         [EventProcessorContext]
         protected internal IEventProcessorContext Context { get; internal set; }
 
-        public abstract Task<TEvent> PreProcessAsync<TEvent>(TEvent evt);
-        public abstract Task<TEventResult> PostProcessAsync<TEventResult>(TEventResult eventResult) where TEventResult : IEventResult;
+        public virtual Task<TEvent> PreProcessAsync<TEvent>(TEvent evt)
+        {
+            return Task.FromResult(evt);
+        }
+
+        public virtual Task<TEventResult> PostProcessAsync<TEventResult>(TEventResult eventResult) where TEventResult : IEventResult
+        {
+            return Task.FromResult(eventResult);
+        }
     }
 
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = true)]

@@ -4,7 +4,7 @@
  * Types:           AI4E.ServiceCollectionExtension
  * Version:         1.0
  * Author:          Andreas Trütschel
- * Last modified:   04.09.2017 
+ * Last modified:   02.11.2017 
  * --------------------------------------------------------------------------------------------------------------------
  */
 
@@ -47,22 +47,21 @@
  */
 
 using System;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using AI4E;
-//using AI4E.Storage;
 using Microsoft.AspNetCore.Mvc.ApplicationParts;
 using Microsoft.AspNetCore.Mvc.Internal;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Options;
 
 namespace AI4E
 {
     public static class ServiceCollectionExtension
     {
-        #region Messaging
-
         public static IMessagingBuilder AddMessaging(this IServiceCollection services)
         {
             if (services == null)
@@ -163,6 +162,9 @@ namespace AI4E
                 eventDispatcher = new EventDispatcher(serviceProvider);
             }
 
+            var options = serviceProvider.GetService<IOptions<MessagingOptions>>()?.Value;
+            var eventProcessors = (options?.EventProcessors ?? Enumerable.Empty<IContextualProvider<IEventProcessor>>()).ToImmutableArray();
+
             var partManager = serviceProvider.GetRequiredService<ApplicationPartManager>();
             var eventHandlerFeature = new EventHandlerFeature();
 
@@ -176,9 +178,12 @@ namespace AI4E
                 foreach (var eventHandlerDescriptor in eventHandlerDescriptors)
                 {
                     var eventType = eventHandlerDescriptor.EventType;
-                    var eventHandlerProvider = Activator.CreateInstance(typeof(EventHandlerProvider<>).MakeGenericType(eventType), type, eventHandlerDescriptor);
+                    var eventHandlerProvider = (dynamic)Activator.CreateInstance(typeof(EventHandlerProvider<>).MakeGenericType(eventType), 
+                                                                                 type, 
+                                                                                 eventHandlerDescriptor, 
+                                                                                 eventProcessors);
 
-                    Task taskRegistration = eventDispatcher.RegisterAsync((dynamic)eventHandlerProvider); // TODO: The task is neither awaited nor stored.
+                    Task taskRegistration = eventDispatcher.RegisterAsync(eventHandlerProvider); // TODO: The task is neither awaited nor stored.
                 }
             }
 
@@ -202,49 +207,6 @@ namespace AI4E
                 partManager.FeatureProviders.Add(new EventHandlerFeatureProvider());
             }
         }
-
-        #endregion
-
-        //#region EventSourcing
-
-        //public static IEventSourcingBuilder AddEventSourcing(this IServiceCollection services)
-        //{
-        //    if (services == null)
-        //        throw new ArgumentNullException(nameof(services));
-
-        //    // Configure necessary application parts
-        //    var partManager = services.GetApplicationPartManager();
-        //    partManager.ConfigureEventSourcingFeatureProvider();
-        //    services.TryAddSingleton(partManager);
-
-        //    // Configure services
-        //    // TODO
-
-        //    return new EventSourcingBuilder(services);
-        //}
-
-        //public static IEventSourcingBuilder AddEventSourcing(this IServiceCollection services, Action<EventSourcingOptions> configuration)
-        //{
-        //    if (services == null)
-        //        throw new ArgumentNullException(nameof(services));
-
-        //    if (configuration == null)
-        //        throw new ArgumentNullException(nameof(configuration));
-
-        //    var builder = AddEventSourcing(services);
-        //    builder.Configure(configuration);
-        //    return builder;
-        //}
-
-        //private static void ConfigureEventSourcingFeatureProvider(this ApplicationPartManager partManager)
-        //{
-        //    if (!partManager.FeatureProviders.OfType<EventReplayerFeatureProvider>().Any())
-        //    {
-        //        partManager.FeatureProviders.Add(new EventReplayerFeatureProvider());
-        //    }
-        //}
-
-        //#endregion
 
         private static ApplicationPartManager GetApplicationPartManager(this IServiceCollection services)
         {

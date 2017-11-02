@@ -100,18 +100,22 @@ namespace AI4E.Integration
 
         private object EventHandler => Context.EventHandler;
 
+#pragma warning disable IDE0025
         private bool IsProcessManager
         {
             get
             {
+
                 return (EventHandlerType.IsClass || EventHandlerType.IsValueType && !EventHandlerType.IsEnum) &&
                        !EventHandlerType.IsAbstract &&
                        EventHandlerType.IsPublic &&
                        !EventHandlerType.ContainsGenericParameters &&
                        !EventHandlerType.IsDefined<NoProcessManagerAttribute>() &&
                        (EventHandlerType.Name.EndsWith("ProcessManager", StringComparison.OrdinalIgnoreCase) || EventHandlerType.IsDefined<ProcessManagerAttribute>());
+
             }
         }
+#pragma warning restore IDE0025
 
         private Type EventHandlerType => Context.EventHandler.GetType();
 
@@ -132,15 +136,15 @@ namespace AI4E.Integration
 
             if (_created && !terminated)
             {
-                ((dynamic)_dataStore).Add(_state);
+                _dataStore.Add((dynamic)_state);
             }
             else if (!_created && terminated)
             {
-                ((dynamic)_dataStore).Remove(_state);
+                _dataStore.Remove((dynamic)_state);
             }
             else if (!_created && !terminated)
             {
-                ((dynamic)_dataStore).Update(_state);
+                _dataStore.Update((dynamic)_state);
             }
             // else if (_created && terminated)
             // {

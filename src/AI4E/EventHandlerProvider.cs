@@ -29,10 +29,10 @@
  */
 
 using System;
+using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Options;
 
 namespace AI4E
 {
@@ -40,14 +40,19 @@ namespace AI4E
     {
         private readonly Type _type;
         private readonly EventHandlerActionDescriptor _actionDescriptor;
+        private readonly ImmutableArray<IContextualProvider<IEventProcessor>> _eventProcessors;
 
-        public EventHandlerProvider(Type type, EventHandlerActionDescriptor actionDescriptor)
+        public EventHandlerProvider(Type type, EventHandlerActionDescriptor actionDescriptor, ImmutableArray<IContextualProvider<IEventProcessor>> eventProcessors)
         {
             if (type == null)
                 throw new ArgumentNullException(nameof(type));
 
+            if (eventProcessors == null)
+                throw new ArgumentNullException(nameof(eventProcessors));
+
             _type = type;
             _actionDescriptor = actionDescriptor;
+            _eventProcessors = eventProcessors;
         }
 
         public IEventHandler<TEvent> ProvideInstance(IServiceProvider serviceProvider)
@@ -71,7 +76,7 @@ namespace AI4E
                 contextProperty.SetValue(handler, context);
             }
 
-            return new EventHandlerInvoker<TEvent>(handler, _actionDescriptor, serviceProvider, serviceProvider.GetRequiredService<IOptions<MessagingOptions>>());
+            return new EventHandlerInvoker<TEvent>(handler, _actionDescriptor, _eventProcessors, serviceProvider);
         }
     }
 }

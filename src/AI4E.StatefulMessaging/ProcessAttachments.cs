@@ -56,7 +56,7 @@ namespace AI4E.Integration
     {
         private readonly IQueryableDataStore _dataStore;
         private Func<object, Task<TState>> _mapping;
-        private bool _canStartProcess;
+        private bool _canStartProcess = false;
         private Func<TEvent, TState> _stateFactory;
 
         public ProcessAttachment(IQueryableDataStore dataStore)
@@ -66,6 +66,8 @@ namespace AI4E.Integration
 
             _dataStore = dataStore;
         }
+
+        public bool CanStartProcess1 => _canStartProcess;
 
         public IProcessAttachment<TState, TEvent> Attach(Expression<Func<TEvent, TState, bool>> predicate)
         {

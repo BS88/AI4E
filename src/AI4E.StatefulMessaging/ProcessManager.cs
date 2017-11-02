@@ -4,15 +4,16 @@ using System.Diagnostics;
 namespace AI4E.Integration
 {
     [ProcessManager]
-    public abstract class ProcessManager<TState> : EventHandler where TState : class
+    public abstract class ProcessManager<TState> : EventHandler where TState : class, new()
     {
         [ProcessManagerState]
-        public virtual TState State { get; internal set; }
+        public TState State { get; internal set; }
 
+        [ProcessManagerTerminated]
         public bool IsTerminated { get; private set; }
 
         [NoEventHandlerAction]
-        protected virtual void TerminateProcess()
+        protected void TerminateProcess()
         {
             IsTerminated = true;
         }
@@ -49,4 +50,7 @@ namespace AI4E.Integration
     {
         public Type StateType { get; set; }
     }
+
+    [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
+    public sealed class ProcessManagerTerminatedAttribute : Attribute { }
 }

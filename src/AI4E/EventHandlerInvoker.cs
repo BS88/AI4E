@@ -29,8 +29,8 @@
  */
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
@@ -39,7 +39,6 @@ using System.Threading.Tasks;
 using AI4E.EventResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Options;
 
 namespace AI4E
 {
@@ -49,39 +48,24 @@ namespace AI4E
         private readonly EventHandlerActionDescriptor _actionDescriptor;
         private readonly IServiceProvider _serviceProvider;
 
-        private readonly IEnumerable<IContextualProvider<IEventProcessor>> _eventProcessors;
+        private readonly ImmutableArray<IContextualProvider<IEventProcessor>> _eventProcessors;
 
-        public EventHandlerInvoker(object handler, EventHandlerActionDescriptor actionDescriptor, IServiceProvider serviceProvider, IOptions<MessagingOptions> optionsProvider)
+        public EventHandlerInvoker(object handler, EventHandlerActionDescriptor actionDescriptor, ImmutableArray<IContextualProvider<IEventProcessor>> eventProcessors, IServiceProvider serviceProvider)
         {
             if (handler == null)
                 throw new ArgumentNullException(nameof(handler));
 
+            if (eventProcessors == null)
+                throw new ArgumentNullException(nameof(eventProcessors));
+
             if (serviceProvider == null)
                 throw new ArgumentNullException(nameof(serviceProvider));
 
-            if (optionsProvider == null)
-                throw new ArgumentNullException(nameof(optionsProvider));
-
             _handler = handler;
             _actionDescriptor = actionDescriptor;
+            _eventProcessors = eventProcessors;
             _serviceProvider = serviceProvider;
-
-            var options = optionsProvider.Value;
-
-            _eventProcessors = new List<IContextualProvider<IEventProcessor>>(options.EventProcessors);
         }
-
-        //private bool IsProcessManager()
-        //{
-        //    var type = _handler.GetType();
-
-        //    return (type.IsClass || type.IsValueType && !type.IsEnum) &&
-        //           !type.IsAbstract &&
-        //           type.IsPublic &&
-        //           !type.ContainsGenericParameters &&
-        //           !type.IsDefined<NoProcessManagerAttribute>() &&
-        //           (type.Name.EndsWith("ProcessManager", StringComparison.OrdinalIgnoreCase) || type.IsDefined<ProcessManagerAttribute>());
-        //}
 
         private async Task<IEventResult> InternalHandleAsync(TEvent evt)
         {
@@ -171,60 +155,6 @@ namespace AI4E
 
         public async Task<IEventResult> HandleAsync(TEvent evt)
         {
-            //var isProcessManager = IsProcessManager();
-
-            //if (!isProcessManager)
-            //{
-            //    return await InternalHandleAsync(evt);
-            //}
-
-            //var type = _handler.GetType();
-            //var dataStore = _serviceProvider.GetRequiredService<IDataStore>();
-            //object state = null;
-            //var created = false;
-
-            //var processManagerStateProperty = type.GetProperties().SingleOrDefault(p => p.CanWrite && p.IsDefined<ProcessManagerStateAttribute>());
-
-            //if (processManagerStateProperty != null)
-            //{
-            //    var stateType = processManagerStateProperty.PropertyType;
-            //    {
-            //        var customType = processManagerStateProperty.GetCustomAttribute<ProcessManagerStateAttribute>().StateType;
-
-            //        if (customType != null)
-            //        {
-            //            if (!stateType.IsAssignableFrom(customType))
-            //            {
-            //                throw new InvalidOperationException(); // TODO
-            //            }
-            //            stateType = customType;
-            //        }
-            //    }
-
-            //    var attachments = Activator.CreateInstance(typeof(ProcessManagerAttachment<>).MakeGenericType(stateType), dataStore);
-
-            //    Debug.Assert(attachments != null);
-
-            //    ((dynamic)_handler).AttachProcessManager(attachments);
-
-            //    state = (object)(await ((dynamic)attachments).GetStateAsync(evt));
-
-            //    // TODO: Not all events are allowed to start a process.
-            //    if (state == null)
-            //    {
-            //        if (!(bool)(((dynamic)_handler).CanInitiateProzess(evt)))
-            //        {
-            //            return new FailureEventResult(""); // TODO: Maybe the events are out of order? What to do about that?
-            //        }
-
-            //        // Create state
-            //        state = (object)(((dynamic)_handler).CreateInitialState(evt, stateType));
-            //        created = true;
-            //    }
-
-            //    processManagerStateProperty.SetValue(_handler, state);
-            //}
-
             var eventProcessorStack = new Stack<IEventProcessor>();
 
             foreach (var eventProcessorProvider in _eventProcessors)
@@ -236,7 +166,7 @@ namespace AI4E
                 var props = eventProcessor.GetType().GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
                 var prop = props.FirstOrDefault(p => p.IsDefined<EventProcessorContextAttribute>() &&
                                                      p.PropertyType == typeof(object) || p.PropertyType == typeof(IEventProcessorContext) &&
-                                                     p.GetIndexParameters().Length == 0 && 
+                                                     p.GetIndexParameters().Length == 0 &&
                                                      p.CanWrite);
 
                 if (prop != null)
@@ -246,7 +176,12 @@ namespace AI4E
                     prop.SetValue(eventProcessor, eventProcessorContext);
                 }
 
-                await eventProcessor.PreProcessAsync(evt);
+                var preProcessedEvent = await eventProcessor.PreProcessAsync(evt);
+
+                if (preProcessedEvent != null)
+                {
+                    evt = preProcessedEvent;
+                }
 
                 eventProcessorStack.Push(eventProcessor);
             }
@@ -255,25 +190,9 @@ namespace AI4E
 
             foreach (var eventProcessor in eventProcessorStack)
             {
-                await eventProcessor.PostProcessAsync(result);
+                result = await eventProcessor.PostProcessAsync(result) ?? result;
             }
 
-            //var terminated = (bool)((dynamic)_handler).IsTerminated;
-
-            //if (created && !terminated)
-            //{
-            //    dataStore.Add((dynamic)state);
-            //}
-            //else if (!created && terminated)
-            //{
-            //    dataStore.Remove((dynamic)state);
-            //}
-            //else if (!created && !terminated)
-            //{
-            //    dataStore.Update((dynamic)state);
-            //}
-
-            //await dataStore.SaveChangesAsync();
             return result;
         }
 
